@@ -21,7 +21,7 @@ void setup() {
   desc.setWidth(700);
   desc.addText("one");
   desc.addText("second");
-  desc.addText(" et un et");
+  desc.addText(" et un et deux");
 }
 
 //----------------DRAW---------------------------------
