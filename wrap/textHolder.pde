@@ -18,7 +18,6 @@ class textHolder {
   private float fontLineHeight;
   private float fontLineSpacing; // will be height of one char * 1.25
   private float fontWordSpacing;
-  private float fontCharSpacing;
 
   // main holder
   private RGroup group;
@@ -43,9 +42,6 @@ class textHolder {
     // cannot get just a space apparently..
     fontWordSpacing = font.toGroup("a w").getWidth() - font.toGroup("aw").getWidth();
     println("Font word spacing: ", fontWordSpacing);
-    // FIXME: no ideal solution, should adapt to chars
-    fontCharSpacing = font.toGroup("ll").getWidth() - 2*font.toGroup("l").getWidth();
-    println("Font char spacing: ", fontCharSpacing);
 
     texts = new ArrayList();
     types = new ArrayList();
@@ -92,11 +88,20 @@ class textHolder {
       // fetch corresponding string
       println("Dealing with group ", n, ":[", text, "]");
 
+
+      // check if the group before ended with white space, retrieve last char if exists
       boolean newWord = false;
-      // check if the group before ended with white space
-      if (n > 0 && texts.get(n-1).endsWith(SEPARATOR)) {
+      String lastChar = "";
+      if (n > 0 && texts.get(n-1).length() > 0) {
+        String lastString = texts.get(n-1);
+        lastChar = texts.get(n-1).substring(texts.get(n-1).length() - 1);
+        if (lastChar.equals(SEPARATOR)) {
+          newWord = true;
+        }
+      }
+
+      if (newWord) {
         println("Begin with new word");
-        newWord = true;
       } else {
         println("Append to last");
       }
@@ -139,6 +144,10 @@ class textHolder {
           if (newWord) {
             curWidth += fontWordSpacing;
           } else {
+            // we obviously have something before, get the right spacing
+            String firstChar = words[i].substring(0, 1);
+            float fontCharSpacing = font.toGroup(lastChar + firstChar).getWidth() - font.toGroup(firstChar).getWidth() -  font.toGroup(lastChar).getWidth();
+            println("Font char spacing between [", lastChar , "] / [", firstChar, "]:", fontCharSpacing);
             curWidth += fontCharSpacing;
           }
         }
