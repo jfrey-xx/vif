@@ -8,7 +8,7 @@ textHolder desc;
 
 //----------------SETUP---------------------------------
 void setup() {
-  size(800, 600);
+  size(800, 900);
   RG.init(this); 
 
 
@@ -22,6 +22,7 @@ void setup() {
   desc.addText("one");
   desc.addText("second");
   desc.addText(" et un et deux");
+  desc.addText("nst nstnstnst nst nst nrst nrstnstnstnstnrst s s s ");
 }
 
 //----------------DRAW---------------------------------
@@ -32,7 +33,7 @@ void draw() {
   fill(255, 0, 0);
   noStroke();
   text(frameRate, 10, 10);
-  translate(0, height/2);
+  translate(0, 0);
   desc.draw();
   desc.drawDebug();
 }

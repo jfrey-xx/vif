@@ -12,9 +12,11 @@ import java.util.Arrays;
 class textHolder {
 
   final String SEPARATOR = " ";
+
   private RFont font;
   private int fontSize;
-  private float fontLineSpacing;
+  private float fontLineHeight;
+  private float fontLineSpacing; // will be height of one char * 1.25
   private float fontWordSpacing;
   private float fontCharSpacing;
 
@@ -36,12 +38,16 @@ class textHolder {
   textHolder(String fontFile, int fontSize) {
     this.fontSize = fontSize;
     font = new RFont(fontFile, fontSize, LEFT); // left align by default
-    fontLineSpacing = font.getLineSpacing();
+
+    // Height: takes on the tallest char (?)
+    fontLineHeight = font.toGroup("(").getHeight();
+    println("Font line height: ", fontLineHeight);
+    // space between lines: height * 1.25
+    fontLineSpacing =fontLineHeight * 1.25;
     println("Font line spacing: ", fontLineSpacing);
     // cannot get just a space apparently..
     fontWordSpacing = font.toGroup("a w").getWidth() - font.toGroup("aw").getWidth();
     println("Font word spacing: ", fontWordSpacing);
-
     fontCharSpacing = font.toGroup("aw").getWidth() - font.toGroup("a").getWidth() - font.toGroup("w").getWidth();
     println("Font char spacing: ", fontCharSpacing);
 
@@ -86,7 +92,7 @@ class textHolder {
 
       boolean newWord = false;
       // check if the group before ended with white space
-      if (n > 0 && texts.get(n).endsWith(SEPARATOR)) {
+      if (n > 0 && texts.get(n-1).endsWith(SEPARATOR)) {
         println("Begin with new word");
         newWord = true;
       } else {
@@ -108,9 +114,15 @@ class textHolder {
           println("Skip separator");
           continue;
         }
+        // since we split with separator, from second and up it's a new word
+        if (i > 0) {
+          newWord = true;
+        }
 
         if (curWidth == 0 && curHeight == 0) {
           println("First word of line");
+          // shift even firt line to have 0,0 at top left
+          curHeight = fontLineHeight;
         } else if (
           // won't create a line unless there is a new word and at least something on current line
           newWord &&  curWidth>0  &&
@@ -122,7 +134,11 @@ class textHolder {
           curHeight += fontLineSpacing;
         } else {
           println("Append to curWidth: ", curWidth);
-          curWidth += fontWordSpacing;
+          if (newWord) {
+            curWidth += fontWordSpacing;
+          } else {
+            curWidth += fontCharSpacing;
+          }
         }
 
         wGroup.translate(curWidth, curHeight);
