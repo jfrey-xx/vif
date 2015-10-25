@@ -20,9 +20,9 @@ void setup() {
   desc = new textHolder("FreeSans.ttf", 100);
   desc.setWidth(700);
   desc.addText("one");
-  desc.addText("second");
-  desc.addText(" et un et deux");
-  desc.addText("nst nstnstnst nst nst nrst nrstnstnstnstnrst s s s ");
+  desc.addText("second", textType.BEAT);
+  desc.addText(" et un et deux", textType.EMPHASIS);
+  desc.addText("nst nstnstnst aw ll nrst nrstnstnstnstnrst s s s ");
 }
 
 //----------------DRAW---------------------------------

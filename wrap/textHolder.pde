@@ -25,12 +25,7 @@ class textHolder {
   // logical groups
   private ArrayList<RGroup> groups;
   private ArrayList<String> texts;
-
-  // saving computations
-  private RGroup groupPoly;
-  private ArrayList<RPoint> points;
-
-
+  private ArrayList<textType> types;
 
   // width limit, will wrap if go beyond
   private float maxWidth = -1;
@@ -48,28 +43,34 @@ class textHolder {
     // cannot get just a space apparently..
     fontWordSpacing = font.toGroup("a w").getWidth() - font.toGroup("aw").getWidth();
     println("Font word spacing: ", fontWordSpacing);
-    fontCharSpacing = font.toGroup("aw").getWidth() - font.toGroup("a").getWidth() - font.toGroup("w").getWidth();
+    // FIXME: no ideal solution, should adapt to chars
+    fontCharSpacing = font.toGroup("ll").getWidth() - 2*font.toGroup("l").getWidth();
     println("Font char spacing: ", fontCharSpacing);
 
     texts = new ArrayList();
+    types = new ArrayList();
   }
 
   public void setWidth(float maxWidth) {
     this.maxWidth = maxWidth;
   }
 
+  public void addText(String newText) {
+    addText(newText, textType.REGULAR);
+  }
   // append text to right
   // each call to this function create new group
-  public void addText(String newText) {
+  public void addText(String newText, textType type) {
     if (newText.length() < 1) {
       println("Empty new text, abort");
       return;
     } else {
-      println("Adding [", newText, "] to the stack.");
+      println("Adding [", newText, "] of type", type.toString(), "to the stack.");
     }
 
     // append to previous
     texts.add(newText);
+    types.add(type);
     // update inner state
     rebuildGroup();
   }
@@ -152,12 +153,6 @@ class textHolder {
 
       n++;
     }
-
-    groupPoly = group.toPolygonGroup();
-
-    //ACCESS POINTS ON MY FONT/SHAPE OUTLINE
-    points = new ArrayList();
-    points.addAll(Arrays.asList(groupPoly.getPoints()));
   }
 
   // bounding box
@@ -180,9 +175,8 @@ class textHolder {
   }
 
   public void draw() {
-    //DRAW ELLIPSES AT EACH OF THESE POINTS
-    for (int i=0; i<points.size(); i++) {
-      ellipse(points.get(i).x, points.get(i).y, 5, 5);
+    for (int i = 0; i < groups.size(); i++) {
+      textDraw(groups.get(i), types.get(i));
     }
   }
 }
