@@ -5,4 +5,4 @@ Set semantical types for pieces of text.
 
 */
 
-enum textType { REGULAR, EMPHASIS, BEAT};
+enum textType { REGULAR, EMPHASIS, SHAKE, BEAT};

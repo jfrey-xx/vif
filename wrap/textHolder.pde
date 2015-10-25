@@ -154,7 +154,6 @@ class textHolder {
 
         wGroup.translate(curWidth, curHeight);
         curWidth+=wGroup.getWidth();
-
         textGroup.addGroup(wGroup);
       }
 

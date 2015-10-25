@@ -28,7 +28,8 @@ void setup() {
   desc.addText("one");
   desc.addText("second", textType.BEAT);
   desc.addText(" et un et deux", textType.EMPHASIS);
-  desc.addText("nst nstnstnst aw ll nrst nrstnstnstnstnrst s s s ");
+  desc.addText("nst nstnstnst aw ", textType.SHAKE);
+  desc.addText(" ll nrst nrstnstnstnstnrst s s s ");
 }
 
 //----------------DRAW---------------------------------
@@ -54,12 +55,10 @@ void draw() {
   }
   clear();
   background(255);
-  fill(255, 0, 0);
-  noStroke();
-  text(frameRate, 10, 10);
-  translate(0, 0);
   desc.draw();
   desc.drawDebug();
+  fill(0, 0, 255);
+  text(frameRate, 10, 10);
 }
 
 //////////////////////////////////////////////

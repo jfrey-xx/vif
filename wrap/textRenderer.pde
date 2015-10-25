@@ -3,10 +3,15 @@ import geomerative.*;
 
 public void textDraw(RGroup group, textType type) {
   pushStyle();
+  fill(0);
+  noStroke();
   pushMatrix();
   switch (type) {
   case EMPHASIS:
     textDrawEmphasis(group);
+    break;
+  case SHAKE:
+    textDrawShake(group);
     break;
   case BEAT:
     textDrawBeat(group);
@@ -20,6 +25,10 @@ public void textDraw(RGroup group, textType type) {
 }
 
 private void textDrawRegular(RGroup group) {
+  group.toShape().draw();
+}
+
+private void textDrawEmphasis(RGroup group) {
   RGroup groupPoly = group.toPolygonGroup();
   RPoint[] points = groupPoly.getPoints();
   fill(0);
@@ -29,7 +38,7 @@ private void textDrawRegular(RGroup group) {
   }
 }
 
-private void textDrawEmphasis(RGroup group) {
+private void textDrawShake(RGroup group) {
   RGroup groupPoly = group.toPolygonGroup();
   RPoint[] points = groupPoly.getPoints();
   fill(255, 0, 0);
