@@ -18,8 +18,10 @@ void setup() {
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
   desc = new textHolder("FreeSans.ttf", 100);
+  desc.setWidth(700);
   desc.addText("one");
   desc.addText("second");
+  desc.addText(" et un et");
 }
 
 //----------------DRAW---------------------------------
@@ -30,7 +32,7 @@ void draw() {
   fill(255, 0, 0);
   noStroke();
   text(frameRate, 10, 10);
-  translate(width/2, height/2);
+  translate(0, height/2);
   desc.draw();
   desc.drawDebug();
 }
