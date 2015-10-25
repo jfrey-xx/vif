@@ -5,10 +5,16 @@ RFont font;
 String myText = "Points on Outline";
 textHolder desc;
 
+float lastWidth;
+float lastHeight;
+
 
 //----------------SETUP---------------------------------
 void setup() {
   size(800, 900);
+  lastWidth = width;
+  lastHeight = height;
+  surface.setResizable(true);
   RG.init(this); 
 
 
@@ -18,7 +24,7 @@ void setup() {
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
   desc = new textHolder("FreeSans.ttf", 100);
-  desc.setWidth(700);
+  desc.setWidth(lastWidth*0.66);
   desc.addText("one");
   desc.addText("second", textType.BEAT);
   desc.addText(" et un et deux", textType.EMPHASIS);
@@ -27,7 +33,25 @@ void setup() {
 
 //----------------DRAW---------------------------------
 
+
+// check if window was resized and update internal state
+boolean sizeChanged() {
+  boolean change = false;
+  if (lastWidth != width) {
+    lastWidth = width;
+    change = true;
+  }
+  if (lastHeight != height) {
+    lastHeight = height;
+    change = true;
+  }
+  return change;
+}
+
 void draw() {
+  if (sizeChanged()) {
+    desc.setWidth(lastWidth*0.66);
+  }
   clear();
   background(255);
   fill(255, 0, 0);

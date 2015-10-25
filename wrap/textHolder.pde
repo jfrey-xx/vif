@@ -53,6 +53,7 @@ class textHolder {
 
   public void setWidth(float maxWidth) {
     this.maxWidth = maxWidth;
+    rebuildGroup();
   }
 
   public void addText(String newText) {
