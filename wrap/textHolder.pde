@@ -5,32 +5,36 @@
 
 import geomerative.*;
 
+import java.util.Arrays;
+
 class textHolder {
 
-  private String text;
+  private String text = "";
   private RFont font;
   private RGroup group;
-  private RPoint[] points;
+  private RGroup groupPoly;
+  ArrayList<RPoint> points;
 
-  textHolder(String text, RFont font) {
-
-    this.text = text;
+  textHolder(RFont font) {
     this.font = font;
-
-    //GROUP TOGETHER FONT & TEXT.
     group = new RGroup();
-    group.addGroup(font.toGroup(myText)); 
-    group = group.toPolygonGroup();
+    points = new ArrayList();
+  }
 
+  private void addText(String newText) {
+    this.text += newText;
+    group.addGroup(font.toGroup(newText)); 
+    groupPoly = group.toPolygonGroup();
     //ACCESS POINTS ON MY FONT/SHAPE OUTLINE
-    points = group.getPoints();
+    points.addAll(Arrays.asList(groupPoly.getPoints()));
+
   }
 
 
   public void draw() {
     //DRAW ELLIPSES AT EACH OF THESE POINTS
-    for (int i=0; i<points.length; i++) {
-      ellipse(points[i].x, points[i].y, 5, 5);
+    for (int i=0; i<points.size(); i++) {
+      ellipse(points.get(i).x, points.get(i).y, 5, 5);
     }
   }
 }

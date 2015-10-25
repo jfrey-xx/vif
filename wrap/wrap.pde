@@ -18,7 +18,8 @@ void setup() {
   RCommand.setSegmentLength(10);//ASSIGN A VALUE OF 10, SO EVERY 10 PIXELS
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
-  desc = new textHolder(myText, font);
+  desc = new textHolder(font);
+  desc.addText(myText);
 }
 
 //----------------DRAW---------------------------------
