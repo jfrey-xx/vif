@@ -54,8 +54,8 @@ void setup() {
   proscene = new Scene(this, scene);
   proscene.addDrawHandler(this, "mainDrawing");
 
-  desc = new textHolder(proscene.pg(), "FreeSans.ttf", 100);
-  desc.setWidth(600);
+  desc = new textHolder(proscene.pg(), "FreeSans.ttf", 100, 0.01);
+  desc.setWidth(6);
   desc.addText("one");
   desc.addText("second", textType.BEAT);
   desc.addText(" et un et deux", textType.EMPHASIS);
@@ -122,11 +122,10 @@ public void mainDrawing(Scene s) {
 
   pg.pushMatrix();
   pg.translate(0, 0, -5);
-  scene.scale(0.01);
-  //scene.rotateY(PI);
   desc.draw();
   desc.drawDebug();
   pg.fill(0, 0, 255);
+   scene.scale(0.01);
   pg.text(frameRate, 10, 10);
   pg.popMatrix();
 }
@@ -196,4 +195,3 @@ void set_shader(String eye)
 }
 
 //////////////////////////////////////////////
-

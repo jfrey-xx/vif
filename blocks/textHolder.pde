@@ -193,6 +193,7 @@ class textHolder {
     pg.scale(worldRatio);
     if (group.countElements() > 0) {
       pg.pushStyle();
+      pg.strokeWeight(fontSize * worldRatio*2);
       pg.stroke(0);
       pg.noFill();
       pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
@@ -202,6 +203,7 @@ class textHolder {
     // width limit
     if (maxWidth > 0) {
       pg.pushStyle();
+      pg.strokeWeight(fontSize * worldRatio*2);
       pg.fill(255, 0, 0);
       pg.rect(0, 0, maxWidth, 2);
       pg.popStyle();

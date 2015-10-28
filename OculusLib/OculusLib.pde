@@ -1,12 +1,12 @@
 
 /**
-Testing SimpleOculusRift Library
-
-Origin at level with the eye, 100 pixels == 1 meter
-
-Head orientation to commands camera
-
-*/
+ Testing SimpleOculusRift Library
+ 
+ Origin at level with the eye, 100 pixels == 1 meter
+ 
+ Head orientation to commands camera
+ 
+ */
 
 import geomerative.*;
 import remixlab.proscene.*;
@@ -36,8 +36,9 @@ void setup() {
   RCommand.setSegmentLength(10);//ASSIGN A VALUE OF 10, SO EVERY 10 PIXELS
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
-  desc = new textHolder(this.g, "FreeSans.ttf", 100);
-  desc.setWidth(600);
+  // 100 pixels for font will be one meter, in here, 
+  desc = new textHolder(this.g, "FreeSans.ttf", 100, 0.01);
+  desc.setWidth(6);
   desc.addText("one");
   desc.addText("second", textType.BEAT);
   desc.addText(" et un et deux", textType.EMPHASIS);
@@ -66,12 +67,13 @@ void onDrawScene(int eye)
   drawGrid(new PVector(0, -floorDist, 0), 10, 10);
 
   translate(0, 0, -5);
-  // 100 pixels will be one meter, in here, fix also orientation
-  scale(-0.01);
+  // fix orientation
   rotateY(PI);
+  scale(-1);
   desc.draw();
   desc.drawDebug();
   fill(0, 0, 255);
+  scale(0.01);
   text(frameRate, 10, 10);
 }
 
@@ -102,3 +104,4 @@ void drawGrid(PVector center, float length, int repeat)
 }
 
 //////////////////////////////////////////////
+
