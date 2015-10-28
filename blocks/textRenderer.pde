@@ -1,71 +1,84 @@
 
 import geomerative.*;
+public class textRenderer {
 
-public void textDraw(PGraphics pg, RGroup group, textType type) {
-  pg.pushStyle();
-  pg.fill(0);
-  pg.noStroke();
-  pg.pushMatrix();
-  switch (type) {
-  case EMPHASIS:
-    textDrawEmphasis(pg, group);
-    break;
-  case SHAKE:
-    textDrawShake(pg, group);
-    break;
-  case BEAT:
-    textDrawBeat(pg, group);
-    break;
-  default:
-    textDrawRegular(pg, group);
-    break;
+  // where we will draw into
+  private PGraphics pg;
+
+  // will draw according to a ratio
+  float fontSize;
+
+  textRenderer(PGraphics pg, float fontSie) {
+    this.fontSize = 100;
+    this.pg = pg;
   }
-  pg.popMatrix();
-  pg.popStyle();
-}
 
-private void textDrawRegular(PGraphics pg, RGroup group) {
-  group.toShape().draw(pg);
-}
-
-private void textDrawEmphasis(PGraphics pg, RGroup group) {
-  RGroup groupPoly = group.toPolygonGroup();
-  RPoint[] points = groupPoly.getPoints();
-  pg.fill(0);
-  //DRAW ELLIPSES AT EACH OF THESE POINTS
-  for (int i=0; i<points.length; i++) {
-    pg.ellipse(points[i].x, points[i].y, 5, 5);
+  public void textDraw(RGroup group, textType type) {
+    pg.pushStyle();
+    pg.fill(0);
+    pg.noStroke();
+    pg.pushMatrix();
+    switch (type) {
+    case EMPHASIS:
+      textDrawEmphasis(group);
+      break;
+    case SHAKE:
+      textDrawShake(group);
+      break;
+    case BEAT:
+      textDrawBeat(group);
+      break;
+    default:
+      textDrawRegular(group);
+      break;
+    }
+    pg.popMatrix();
+    pg.popStyle();
   }
-}
 
-private void textDrawShake(PGraphics pg, RGroup group) {
-  RGroup groupPoly = group.toPolygonGroup();
-  RPoint[] points = groupPoly.getPoints();
-  pg.fill(255, 0, 0);
-  //DRAW ELLIPSES AT EACH OF THESE POINTS
-  for (int i=0; i<points.length; i++) {
-    float noise = random(4);
-    pg.ellipse(points[i].x, points[i].y, 5+noise, 5+noise);
+  private void textDrawRegular(RGroup group) {
+    group.toShape().draw(pg);
   }
-}
 
-private void textDrawBeat(PGraphics pg, RGroup group) {
-  pg.translate(0, 0, 50);
+  private void textDrawEmphasis(RGroup group) {
+    RGroup groupPoly = group.toPolygonGroup();
+    RPoint[] points = groupPoly.getPoints();
+    pg.fill(0);
+    //DRAW ELLIPSES AT EACH OF THESE POINTS
+    for (int i=0; i<points.length; i++) {
+      pg.ellipse(points[i].x, points[i].y, fontSize/20, fontSize/20);
+    }
+  }
 
-  // beat and fade
-  float noise = random(0.1);
+  private void textDrawShake(RGroup group) {
+    RGroup groupPoly = group.toPolygonGroup();
+    RPoint[] points = groupPoly.getPoints();
+    pg.fill(255, 0, 0);
+    //DRAW ELLIPSES AT EACH OF THESE POINTS
+    for (int i=0; i<points.length; i++) {
+      float noise = random(fontSize/20);
+      pg.ellipse(points[i].x, points[i].y, fontSize/20+noise, fontSize/20+noise);
+    }
+  }
 
-  // scale from center
-  pg.translate(group.getCenter().x, group.getCenter().y);
-  pg.scale(1+noise);
-  pg.translate(-group.getCenter().x, -group.getCenter().y);
+  private void textDrawBeat(RGroup group) {
+    pg.translate(0, 0, fontSize/2);
 
-  pg.fill(0+20*noise);
+    // beat and fade
+    float noise = random(0.1);
 
-  RGroup groupPoly = group.toPolygonGroup();
-  RPoint[] points = groupPoly.getPoints();
-  //DRAW ELLIPSES AT EACH OF THESE POINTS
-  for (int i=0; i<points.length; i++) {
-    pg.ellipse(points[i].x, points[i].y, 5, 5);
+    // scale from center
+    pg.translate(group.getCenter().x, group.getCenter().y);
+    pg.scale(1+noise);
+    pg.translate(-group.getCenter().x, -group.getCenter().y);
+
+    pg.fill(0+20*noise);
+
+    RGroup groupPoly = group.toPolygonGroup();
+    RPoint[] points = groupPoly.getPoints();
+    //DRAW ELLIPSES AT EACH OF THESE POINTS
+    for (int i=0; i<points.length; i++) {
+      pg.ellipse(points[i].x, points[i].y, fontSize/20, fontSize/20);
+    }
   }
 }

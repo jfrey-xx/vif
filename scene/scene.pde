@@ -48,6 +48,6 @@ void draw() {
 
 void keyPressed() {
   // center camera ??
-  scene.camera().fitScreenRegion(descArea);
+  //scene.camera().fitScreenRegion(descArea);
 }
 //////////////////////////////////////////////

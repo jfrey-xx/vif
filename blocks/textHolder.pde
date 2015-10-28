@@ -11,12 +11,17 @@ import java.util.Arrays;
 
 class textHolder {
 
+  // where we will draw into
   private PGraphics pg;
-  
+
+  // actual font size in pixel and correspondce ratio for real-world unit
+  private int fontSize;
+  private float worldRatio;
+  textRenderer txtrdr;
+
   final String SEPARATOR = " ";
 
   private RFont font;
-  private int fontSize;
   private float fontLineHeight;
   private float fontLineSpacing; // will be height of one char * 1.25
   private float fontWordSpacing;
@@ -29,30 +34,44 @@ class textHolder {
   private ArrayList<textType> types;
 
   // width limit, will wrap if go beyond
+  // NB: inner variable in pixels
   private float maxWidth = -1;
 
+  // hacky flag for spamming stdout
+  public boolean debug = false;
+
   textHolder(PGraphics pg, String fontFile, int fontSize) {
+    this(pg, fontFile, fontSize, 1);
+  }
+
+  // fontSize: in pixels the higher
+  // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 1 meter font size
+  textHolder(PGraphics pg, String fontFile, int fontSize, float worldRatio) {
     this.pg = pg;
-    
     this.fontSize = fontSize;
+    this.worldRatio = worldRatio;
+
+    txtrdr = new textRenderer(pg, fontSize);
+
     font = new RFont(fontFile, fontSize, LEFT); // left align by default
 
     // Height: takes on the tallest char (?)
     fontLineHeight = font.toGroup("(").getHeight();
-    println("Font line height: ", fontLineHeight);
+    debugln("Font line height: " + fontLineHeight);
     // space between lines: height * 1.25
     fontLineSpacing =fontLineHeight * 1.25;
-    println("Font line spacing: ", fontLineSpacing);
+    debugln("Font line spacing: " + fontLineSpacing);
     // cannot get just a space apparently..
     fontWordSpacing = font.toGroup("a w").getWidth() - font.toGroup("aw").getWidth();
-    println("Font word spacing: ", fontWordSpacing);
+    debugln("Font word spacing: " + fontWordSpacing);
 
     texts = new ArrayList();
     types = new ArrayList();
   }
 
+  // set width boundaries (in world unit)
   public void setWidth(float maxWidth) {
-    this.maxWidth = maxWidth;
+    this.maxWidth = maxWidth/worldRatio;
     rebuildGroup();
   }
 
@@ -63,10 +82,10 @@ class textHolder {
   // each call to this function create new group
   public void addText(String newText, textType type) {
     if (newText.length() < 1) {
-      println("Empty new text, abort");
+      debugln("Empty new text, abort");
       return;
     } else {
-      println("Adding [", newText, "] of type", type.toString(), "to the stack.");
+      debugln("Adding [", newText, "] of type", type.toString(), "to the stack.");
     }
 
     // append to previous
@@ -78,7 +97,7 @@ class textHolder {
 
   // recomptue position, wrap to max width, split by words
   private void rebuildGroup() {
-    println("Rebuilding groups...");
+    debugln("Rebuilding groups...");
     groups = new ArrayList();
     group = new RGroup();
     // for positionning, need a temporary group by lines
@@ -90,7 +109,7 @@ class textHolder {
       // holder for each chunk of text
       RGroup textGroup = new RGroup();
       // fetch corresponding string
-      println("Dealing with group ", n, ":[", text, "]");
+      debugln("Dealing with group " + n + ":[", text, "]");
 
 
       // check if the group before ended with white space, retrieve last char if exists
@@ -105,24 +124,24 @@ class textHolder {
       }
 
       if (newWord) {
-        println("Begin with new word");
+        debugln("Begin with new word");
       } else {
-        println("Append to last");
+        debugln("Append to last");
       }
 
       String[] words = text.split(SEPARATOR);
-      println("Nb words: ", words.length);
+      debugln("Nb words: " + words.length);
 
       for (int i=0; i < words.length; i++) {
         // one subgroup per word
         RGroup wGroup = font.toGroup(words[i]);
 
-        println("Adding: [", words[i], "] -- size: ", words[i].length(), " -- width: ", wGroup.getWidth());
+        debugln("Adding: [", words[i], "] -- size: " + words[i].length() + " -- width: " + wGroup.getWidth());
 
         // 0 char -- or group of size lesser than 0 to prevent bug -- means a separator, will just make sure that we have new word, nothing to append otherwise
         if (SEPARATOR.equals(words[i]) || wGroup.getWidth() < 0) {
           newWord = true;
-          println("Skip separator");
+          debugln("Skip separator");
           continue;
         }
         // since we split with separator, from second and up it's a new word
@@ -131,7 +150,7 @@ class textHolder {
         }
 
         if (curWidth == 0 && curHeight == 0) {
-          println("First word of line");
+          debugln("First word of line");
           // shift even firt line to have 0,0 at top left
           curHeight = fontLineHeight;
         } else if (
@@ -140,18 +159,18 @@ class textHolder {
           //  check if overflow
           curWidth + fontWordSpacing + wGroup.getWidth() > maxWidth
           ) {
-          println("New line");
+          debugln("New line");
           curWidth = 0;
           curHeight += fontLineSpacing;
         } else {
-          println("Append to curWidth: ", curWidth);
+          debugln("Append to curWidth: " + curWidth);
           if (newWord) {
             curWidth += fontWordSpacing;
           } else {
             // we obviously have something before, get the right spacing
             String firstChar = words[i].substring(0, 1);
             float fontCharSpacing = font.toGroup(lastChar + firstChar).getWidth() - font.toGroup(firstChar).getWidth() -  font.toGroup(lastChar).getWidth();
-            println("Font char spacing between [", lastChar , "] / [", firstChar, "]:", fontCharSpacing);
+            debugln("Font char spacing between [", lastChar, "] / [", firstChar, "]:" + fontCharSpacing);
             curWidth += fontCharSpacing;
           }
         }
@@ -170,6 +189,8 @@ class textHolder {
 
   // bounding box
   public void drawDebug() {
+    pg.pushMatrix();
+    pg.scale(worldRatio);
     if (group.countElements() > 0) {
       pg.pushStyle();
       pg.stroke(0);
@@ -185,11 +206,22 @@ class textHolder {
       pg.rect(0, 0, maxWidth, 2);
       pg.popStyle();
     }
+    pg.popMatrix();
   }
 
   public void draw() {
+    pg.pushMatrix();
+    pg.scale(worldRatio);
     for (int i = 0; i < groups.size(); i++) {
-      textDraw(pg, groups.get(i), types.get(i));
+      txtrdr.textDraw(groups.get(i), types.get(i));
+    }
+    pg.popMatrix();
+  }
+
+  // we don't want to *always* spam stdout
+  private void debugln(String... mes) {
+    if (debug) {
+      println(mes);
     }
   }
 }
