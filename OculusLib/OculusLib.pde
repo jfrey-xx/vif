@@ -1,4 +1,13 @@
 
+/**
+Testing SimpleOculusRift Library
+
+Origin at level with the eye, 100 pixels == 1 meter
+
+Head orientation to commands camera
+
+*/
+
 import geomerative.*;
 import remixlab.proscene.*;
 import remixlab.dandelion.geom.*;
@@ -57,9 +66,9 @@ void onDrawScene(int eye)
   drawGrid(new PVector(0, -floorDist, 0), 10, 10);
 
   translate(0, 0, -5);
+  // 100 pixels will be one meter, in here, fix also orientation
+  scale(-0.01);
   rotateY(PI);
-  rotateZ(PI);
-  scale(0.01);
   desc.draw();
   desc.drawDebug();
   fill(0, 0, 255);
