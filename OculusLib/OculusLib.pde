@@ -36,7 +36,7 @@ void setup() {
   RCommand.setSegmentLength(10);//ASSIGN A VALUE OF 10, SO EVERY 10 PIXELS
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
-  desc = new textHolder("FreeSans.ttf", 100);
+  desc = new textHolder(this.g, "FreeSans.ttf", 100);
   desc.setWidth(600);
   desc.addText("one");
   desc.addText("second", textType.BEAT);
@@ -102,4 +102,3 @@ void drawGrid(PVector center, float length, int repeat)
 }
 
 //////////////////////////////////////////////
-
