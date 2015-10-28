@@ -2,6 +2,10 @@
 import geomerative.*;
 import remixlab.proscene.*;
 import remixlab.dandelion.geom.*;
+import SimpleOculusRift.*;
+
+SimpleOculusRift   oculusRiftDev;
+float floorDist = 1.; // for grid, let's say we're seated
 
 Scene scene;
 
@@ -12,8 +16,9 @@ Rect descArea;
 
 //----------------SETUP---------------------------------
 void setup() {
-  size(800, 900, P3D);
-  surface.setResizable(true);
+  size(1280, 800, P3D);
+  frameRate(30);
+  //surface.setResizable(true);
   RG.init(this); 
 
 
@@ -32,14 +37,29 @@ void setup() {
   scene = new Scene(this);
   descArea = new Rect(0, 0, (int)desc.group.getWidth(), (int)desc.group.getHeight()); 
   println("Rectarea center:", descArea.centerX(), ",", descArea.centerY());
+
+  oculusRiftDev = new SimpleOculusRift(this, SimpleOculusRift.RenderQuality_Middle);
 }
 
 //----------------DRAW---------------------------------
 
 
 void draw() {
+  oculusRiftDev.draw();
+
+  // onDrawScene(0);
+}
+
+void onDrawScene(int eye)
+{ 
   clear();
   background(255);
+  drawGrid(new PVector(0, -floorDist, 0), 10, 10);
+
+  translate(0, 0, -5);
+  rotateY(PI);
+  rotateZ(PI);
+  scale(0.01);
   desc.draw();
   desc.drawDebug();
   fill(0, 0, 255);
@@ -48,6 +68,29 @@ void draw() {
 
 void keyPressed() {
   // center camera ??
-  scene.camera().fitScreenRegion(descArea);
+  //scene.camera().fitScreenRegion(descArea);
+  println("reset head orientation");
+  oculusRiftDev.resetOrientation();
 }
+
+void drawGrid(PVector center, float length, int repeat)
+{
+  pushMatrix();
+  translate(center.x, center.y, center.z);
+  float pos;
+
+  for (int x=0; x < repeat+1; x++)
+  {
+    pos = -length *.5 + x * length / repeat;
+
+    line(-length*.5, 0, pos, 
+    length*.5, 0, pos);
+
+    line(pos, 0, -length*.5, 
+    pos, 0, length*.5);
+  }
+  popMatrix();
+}
+
 //////////////////////////////////////////////
+
