@@ -3,12 +3,18 @@
  
  Testing oculus rift with shader, from https://github.com/ixd-hof/Processing
  
+ Origin at level with the eye, world unit: 1 meter
+ 
  FIXME: shaders are off compared to lib version
  
  */
 
 import geomerative.*;
 import SimpleOculusRift.*;
+import remixlab.proscene.*;
+import remixlab.dandelion.geom.*;
+
+Scene proscene;
 
 float floorDist = 1.; // for grid, let's say we're seated
 
@@ -45,12 +51,21 @@ void setup() {
   RCommand.setSegmentLength(10);//ASSIGN A VALUE OF 10, SO EVERY 10 PIXELS
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
-  desc = new textHolder(scene, "FreeSans.ttf", 100);
+  proscene = new Scene(this, scene);
+  proscene.addDrawHandler(this, "mainDrawing");
+
+  desc = new textHolder(proscene.pg(), "FreeSans.ttf", 100);
   desc.setWidth(600);
   desc.addText("one");
   desc.addText("second", textType.BEAT);
   desc.addText(" et un et deux", textType.EMPHASIS);
   desc.addText("nst nstnstnst aw ", textType.SHAKE);
+
+  println("physicalDistanceToScreen:", proscene.camera().physicalDistanceToScreen());
+  println("distanceToSceneCenter:", proscene.camera().distanceToSceneCenter());
+  
+  // our eye is the center of the world
+  proscene.eye().setPosition(new Vec(0, 0, 0));
 }
 
 //----------------DRAW---------------------------------
@@ -60,27 +75,11 @@ void draw() {
   background(0);
 
   scene.beginDraw();
-  scene.background(255);
+  proscene.beginDraw();
 
-  scene.translate(eye_width/2, eye_height/2, 0);
 
-  scene.pushMatrix();
-  //scene.translate(0, 100);
-  scene.rotateZ(2*PI);
-  scene.scale(1,1,1);
-  drawGrid(scene, new PVector(0, floorDist*100, 0), 1000, 10);
-  scene.popMatrix();
 
-  scene.pushMatrix();
-  //scene.scale(0.1);
-  scene.translate(0, 0, -500);
-  //scene.rotateY(PI);
-  desc.draw();
-  desc.drawDebug();
-  scene.fill(0, 0, 255);
-  scene.text(frameRate, 10, 10);
-  scene.popMatrix();
-
+  proscene.endDraw();
   scene.endDraw();
 
   blendMode(ADD);
@@ -106,7 +105,34 @@ void draw() {
   image(fb, 0, 0);
 }
 
+public void mainDrawing(Scene s) {
+  PGraphics pg = s.pg();
+
+  pg.background(255);
+
+  //  pg.translate(eye_width/2, eye_height/2, 0);
+
+  pg.scale(1);
+
+  pg.pushMatrix();
+  //scene.translate(0, 100);
+  pg.scale(1, 1, 1);
+  drawGrid(pg, new PVector(0, floorDist, 0), 10, 10);
+  pg.popMatrix();
+
+  pg.pushMatrix();
+  pg.translate(0, 0, -5);
+  scene.scale(0.01);
+  //scene.rotateY(PI);
+  desc.draw();
+  desc.drawDebug();
+  pg.fill(0, 0, 255);
+  pg.text(frameRate, 10, 10);
+  pg.popMatrix();
+}
+
 void keyPressed() {
+  println("distanceToSceneCenter:", proscene.camera().distanceToSceneCenter());
 }
 
 void drawGrid(PGraphics pg, PVector center, float length, int repeat)
