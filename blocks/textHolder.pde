@@ -98,21 +98,23 @@ class textHolder {
     float curWidth = 0;
     float curHeight = 0;
 
-    int n = 0;
+    // for transition between chunk
+    textChunk prevChunk = null;
+
     for (textChunk chunk : chunks) {
       String text = chunk.getText();
       // holder for each chunk of text
       RGroup textGroup = new RGroup();
       // fetch corresponding string
-      debugln("Dealing with group " + n + ":[", text, "]");
+      debugln("Dealing with group:[", text, "]");
 
 
       // check if the group before ended with white space, retrieve last char if exists
       boolean newWord = false;
       String lastChar = "";
-      if (n > 0 && chunks.get(n-1).getText().length() > 0) {
-        String lastString = chunks.get(n-1).getText();
-        lastChar = chunks.get(n-1).getText().substring(chunks.get(n-1).getText().length() - 1);
+      if ( prevChunk != null &&  prevChunk.getText().length() > 0) {
+        String lastString = prevChunk.getText();
+        lastChar = prevChunk.getText().substring(prevChunk.getText().length() - 1);
         if (lastChar.equals(SEPARATOR)) {
           newWord = true;
         }
@@ -172,13 +174,11 @@ class textHolder {
 
         wGroup.translate(curWidth, curHeight);
         curWidth+=wGroup.getWidth();
-        textGroup.addGroup(wGroup);
+        chunk.addWord(wGroup, words[i]);
       }
+      group.addGroup(chunk.getGroup());
 
-      chunks.get(n).setGroup(textGroup);
-      group.addGroup(textGroup);
-
-      n++;
+      prevChunk = chunk;
     }
   }
 
