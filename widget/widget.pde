@@ -17,6 +17,7 @@ textArea area;
 //----------------SETUP---------------------------------
 void setup() {
   size(1280, 800, P3D);
+  frameRate(30);
   surface.setResizable(true);
 
   // init geomerative
@@ -25,7 +26,9 @@ void setup() {
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
   proscene = new Scene(this);
+  proscene.setPickingVisualHint(true);
   
+  // place frame
   PVector position = new PVector (0, 0, 50);
   textPicking pick = new textPicking(proscene, position);
   

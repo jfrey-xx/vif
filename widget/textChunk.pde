@@ -28,16 +28,18 @@ class textChunk {
     words = new ArrayList();
   }
 
-  // textHolder compute group depending on wrapping
+  // return overall group
   public RGroup getGroup() {
     return group;
   }
 
-  // textHolder compute group depending on wrapping
+  // wold group given by textHolder, that computes group depending on wrapping
+  // update interactive frame reference
   public void addWord(RGroup wGroup, String wText) {
     textWord word = new textWord(wGroup, wText);
     words.add(word);
     group.addGroup(wGroup);
+    picker.setPosition(new PVector(group.getCenter().x, group.getCenter().y));
   }
 
   public String getText() {
@@ -47,11 +49,10 @@ class textChunk {
   public void draw() {
 
     println(picker.getPosition());
-    picker.update();
-
+    
     pushStyle();
     pushMatrix();
-    translate(0, 0, 1);
+    translate(group.getCenter().x, group.getCenter().y, 1);
     if (picker.isPicked()) {
       fill(255, 0, 0);
       println("Gotya!");

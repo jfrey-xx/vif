@@ -50,7 +50,7 @@ class textArea {
 
   public void draw() {
     pg.pushMatrix();
-    translate(position.x, position.y, position.z);
+    pg.translate(position.x, position.y, position.z);
     holder.draw();
     if (debug) {
       holder.drawDebug();
