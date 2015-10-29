@@ -7,16 +7,20 @@
 import geomerative.*;
 
 class textChunk {
+  // renderer and scene are created outside
+  private textRenderer txtrdr;
+  private Scene scene;
+  private textPicker picker;
   // main holder
   public RGroup group;
   // sub words to split interaction
   public ArrayList<textWord> words;
-  private textRenderer txtrdr;
   private textType type;
   // warning, actual text in group may differ -- textHolder discard whitespaces
   private String text;
 
-  textChunk(textRenderer txtrdr, String text, textType type) {
+  textChunk(textPicking pick, textRenderer txtrdr, String text, textType type) {
+    this.picker = pick.getNewPicker();
     this.txtrdr = txtrdr;
     this.text = text;
     this.type = type;
@@ -41,6 +45,21 @@ class textChunk {
   }
 
   public void draw() {
+
+    println(picker.getPosition());
+    picker.update();
+
+    pushStyle();
+    pushMatrix();
+    translate(0, 0, 1);
+    if (picker.isPicked()) {
+      fill(255, 0, 0);
+      println("Gotya!");
+    } else
+      fill(0, 0, 255);
+    rect(0, 0, 100, 100);
+    popMatrix();
+    popStyle();
     if (group != null) {
       txtrdr.textDraw(group, type);
     }

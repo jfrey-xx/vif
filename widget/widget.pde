@@ -24,11 +24,14 @@ void setup() {
   RCommand.setSegmentLength(10);
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
-  // world/font ratio = 10
-  area = new textArea(this.g, new PVector (40, 30), new PVector (0, 0, 50), 0.1);
-  area.loadText("");
-
   proscene = new Scene(this);
+  
+  PVector position = new PVector (0, 0, 50);
+  textPicking pick = new textPicking(proscene, position);
+  
+  // world/font ratio = 10
+  area = new textArea(this.g, pick, new PVector (40, 30), position, 0.1);
+  area.loadText("");
 }
 
 //----------------DRAW---------------------------------

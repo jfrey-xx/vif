@@ -15,16 +15,16 @@ class textArea {
   private float scale;
 
   private boolean debug = true;
-
+  
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
   // scale: font (100 pixel size) to world ratio
-  textArea(PGraphics pg, PVector size, PVector position, float scale) {
+  textArea(PGraphics pg,  textPicking pick, PVector size, PVector position, float scale) {
     this.pg = pg;
     this.scale = scale;
 
     // fixed 100 pixels font size
-    holder = new textHolder(pg, "FreeSans.ttf", fontSize, scale);
+    holder = new textHolder(pg, pick, "FreeSans.ttf", fontSize, scale);
 
     setSize(size);
     setPosition(position);

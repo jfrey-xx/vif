@@ -13,6 +13,7 @@ class textHolder {
 
   // where we will draw into
   private PGraphics pg;
+  private textPicking pick; // passed to chunks for interaction
 
   // actual font size in pixel and correspondce ratio for real-world unit
   private int fontSize;
@@ -38,14 +39,15 @@ class textHolder {
   // hacky flag for spamming stdout
   public boolean debug = false;
 
-  textHolder(PGraphics pg, String fontFile, int fontSize) {
-    this(pg, fontFile, fontSize, 1);
+  textHolder(PGraphics pg, textPicking pick, String fontFile, int fontSize) {
+    this(pg, pick, fontFile, fontSize, 1);
   }
 
   // fontSize: in pixels the higher
   // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 1 meter font size
-  textHolder(PGraphics pg, String fontFile, int fontSize, float worldRatio) {
+  textHolder(PGraphics pg, textPicking pick, String fontFile, int fontSize, float worldRatio) {
     this.pg = pg;
+    this.pick = pick;
     this.fontSize = fontSize;
     this.worldRatio = worldRatio;
 
@@ -85,7 +87,7 @@ class textHolder {
       debugln("Adding [", newText, "] of type", type.toString(), "to the stack.");
     }
 
-    chunks.add(new textChunk(txtrdr, newText, type));
+    chunks.add(new textChunk(pick, txtrdr, newText, type));
     // update inner state
     rebuildGroup();
   }
