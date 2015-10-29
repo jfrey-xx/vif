@@ -29,6 +29,8 @@ int eye_height = 800;
 PGraphics fb;
 PGraphics scene;
 
+textPicking pick;
+
 
 //----------------SETUP---------------------------------
 void setup() {
@@ -39,6 +41,7 @@ void setup() {
   fb = createGraphics(width, height, P3D);
   // Create PGraphics for actual scene
   scene = createGraphics(eye_width, eye_height, P3D);
+  scene.noSmooth();
 
   // Load fragment shader for oculus rift barrel distortion
   barrel = loadShader("barrel_frag.glsl");
@@ -54,7 +57,13 @@ void setup() {
   proscene = new Scene(this, scene);
   proscene.addDrawHandler(this, "mainDrawing");
 
-  desc = new textHolder(proscene.pg(), "FreeSans.ttf", 100, 0.01);
+  // place frame
+  PVector position = new PVector (0, 0, -5);
+  float scale = 0.01;
+
+  pick = new textPicking(proscene, position, scale);
+
+  desc = new textHolder(proscene.pg(), pick, "FreeSans.ttf", 100, scale);
   desc.setWidth(6);
   desc.addText("one");
   desc.addText("second", textType.BEAT);
@@ -63,7 +72,7 @@ void setup() {
 
   println("physicalDistanceToScreen:", proscene.camera().physicalDistanceToScreen());
   println("distanceToSceneCenter:", proscene.camera().distanceToSceneCenter());
-  
+
   // our eye is the center of the world
   proscene.eye().setPosition(new Vec(0, 0, 0));
 }
@@ -77,10 +86,14 @@ void draw() {
   scene.beginDraw();
   proscene.beginDraw();
 
-
-
   proscene.endDraw();
+  
+  pick.setCursor(proscene.pointUnderPixel(new Point(mouseX, mouseY)));
+  println(pick.cursor);
+  
   scene.endDraw();
+
+
 
   blendMode(ADD);
 
@@ -125,7 +138,7 @@ public void mainDrawing(Scene s) {
   desc.draw();
   desc.drawDebug();
   pg.fill(0, 0, 255);
-   scene.scale(0.01);
+  scene.scale(0.01);
   pg.text(frameRate, 10, 10);
   pg.popMatrix();
 }
@@ -195,3 +208,4 @@ void set_shader(String eye)
 }
 
 //////////////////////////////////////////////
+
