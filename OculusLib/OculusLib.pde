@@ -25,6 +25,7 @@ Rect descArea;
 
 //----------------SETUP---------------------------------
 void setup() {
+  noSmooth();
   size(1280, 800, P3D);
   frameRate(30);
   //surface.setResizable(true);
@@ -104,4 +105,3 @@ void drawGrid(PVector center, float length, int repeat)
 }
 
 //////////////////////////////////////////////
-

@@ -12,13 +12,15 @@ class textPicking {
   Scene scene;
   Vec position;
   Frame frame;
-  // screen cordinates of the cursor
-  float cursorX = -1;
-  float cursorY = -1;
+  // font2world scale in order to get the bounding box right
+  float scale;
+  // frame coordinate of the cursor -- set by sketch
+  Vec cursor;
 
-  textPicking(Scene scene, PVector position) {
+  textPicking(Scene scene, PVector position, float scale) {
     this.scene = scene;
     this.position = scene.toVec(position);
+    this.scale = scale;
     frame = new InteractiveFrame(scene);
     frame.setPosition(this.position);
   }
@@ -29,40 +31,51 @@ class textPicking {
   }
 
   // should be updated by sketch
-  public void setCursor (float x, float y) {
-    cursorX = x;
-    cursorY = y;
+  public void setCursor (Vec sceneCursor) {
+    // convert from scene to frame
+    if (sceneCursor != null) {
+      cursor = frame.coordinatesOf(sceneCursor);
+    } else {
+      cursor = null;
+    }
   }
 }
 
 // this one is actually used for picking
 class textPicker {
+  // we dont want to mess with different plane, puth the picking has a slight inacurracy, take a zone (in pixels) around frame
+  private final float threshold = 1;
+  
+  boolean boundsSet = false;
+  float topLeftX, topLeftY, bottomRightX, bottomRightY;
   textPicking pick;
 
-  Vec position;
 
   textPicker(textPicking pick) {
     this.pick = pick;
-    this.position = pick.position.get();
   }
 
   // set position (handles internally reference position
-  void setPosition(PVector newPosition) {
-    position = pick.position.get();
-    position.add(pick.scene.toVec(newPosition));
+  void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+    this.topLeftX = topLeftX*pick.scale;// + pick.position.x();
+    this.topLeftY = topLeftY*pick.scale;// + pick.position.y();
+    this.bottomRightX = bottomRightX*pick.scale;// +  pick.position.x();
+    this.bottomRightY = bottomRightY*pick.scale;// +  pick.position.y();
+    boundsSet = true;
+    println(this.topLeftX, this.topLeftY, this.bottomRightX, this.bottomRightY);
   }
 
-  // For the outside word use Processing classes at most
-  PVector getPosition() {
-    return pick.scene.toPVector(position);
-  }
-
+  // debug
   void draw() {
+    if (isPicked()) {
+      rect(topLeftX/pick.scale, topLeftY/pick.scale, (bottomRightX - topLeftX)/pick.scale, (bottomRightY - topLeftY)/pick.scale);
+    }
   }
 
   boolean isPicked() {
-    pick.scene.pointUnderPixel(new Point(pick.cursorX, pick.cursorY));
-    return false;
-    // return scene.grabsAnyAgentInput(frame);
+    return boundsSet && pick.cursor != null &&
+      pick.cursor.x() > topLeftX && pick.cursor.y() > topLeftY &&
+      pick.cursor.x() < bottomRightX && pick.cursor.y() < bottomRightY &&
+      pick.cursor.z() > -threshold &&  pick.cursor.z() < threshold;
   }
 }

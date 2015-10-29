@@ -39,7 +39,7 @@ class textChunk {
     textWord word = new textWord(wGroup, wText);
     words.add(word);
     group.addGroup(wGroup);
-    picker.setPosition(new PVector(group.getCenter().x, group.getCenter().y));
+    picker.setBoundaries( group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
   }
 
   public String getText() {
@@ -47,22 +47,9 @@ class textChunk {
   }
 
   public void draw() {
-
-    println(picker.getPosition());
-    
-    pushStyle();
-    pushMatrix();
-    translate(group.getCenter().x, group.getCenter().y, 1);
-    if (picker.isPicked()) {
-      fill(255, 0, 0);
-      println("Gotya!");
-    } else
-      fill(0, 0, 255);
-    rect(0, 0, 100, 100);
-    popMatrix();
-    popStyle();
     if (group != null) {
       txtrdr.textDraw(group, type);
+      picker.draw();
     }
   }
 }
