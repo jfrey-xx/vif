@@ -29,9 +29,7 @@ class textHolder {
   // main holder
   private RGroup group;
   // logical groups
-  private ArrayList<RGroup> groups;
-  private ArrayList<String> texts;
-  private ArrayList<textType> types;
+  private ArrayList<textChunk> chunks;
 
   // width limit, will wrap if go beyond
   // NB: inner variable in pixels
@@ -65,8 +63,7 @@ class textHolder {
     fontWordSpacing = font.toGroup("a w").getWidth() - font.toGroup("aw").getWidth();
     debugln("Font word spacing: " + fontWordSpacing);
 
-    texts = new ArrayList();
-    types = new ArrayList();
+    chunks = new ArrayList();
   }
 
   // set width boundaries (in world unit)
@@ -88,9 +85,7 @@ class textHolder {
       debugln("Adding [", newText, "] of type", type.toString(), "to the stack.");
     }
 
-    // append to previous
-    texts.add(newText);
-    types.add(type);
+    chunks.add(new textChunk(txtrdr, newText, type));
     // update inner state
     rebuildGroup();
   }
@@ -98,14 +93,14 @@ class textHolder {
   // recomptue position, wrap to max width, split by words
   private void rebuildGroup() {
     debugln("Rebuilding groups...");
-    groups = new ArrayList();
     group = new RGroup();
     // for positionning, need a temporary group by lines
     float curWidth = 0;
     float curHeight = 0;
 
     int n = 0;
-    for (String text : texts) {
+    for (textChunk chunk : chunks) {
+      String text = chunk.getText();
       // holder for each chunk of text
       RGroup textGroup = new RGroup();
       // fetch corresponding string
@@ -115,9 +110,9 @@ class textHolder {
       // check if the group before ended with white space, retrieve last char if exists
       boolean newWord = false;
       String lastChar = "";
-      if (n > 0 && texts.get(n-1).length() > 0) {
-        String lastString = texts.get(n-1);
-        lastChar = texts.get(n-1).substring(texts.get(n-1).length() - 1);
+      if (n > 0 && chunks.get(n-1).getText().length() > 0) {
+        String lastString = chunks.get(n-1).getText();
+        lastChar = chunks.get(n-1).getText().substring(chunks.get(n-1).getText().length() - 1);
         if (lastChar.equals(SEPARATOR)) {
           newWord = true;
         }
@@ -180,7 +175,7 @@ class textHolder {
         textGroup.addGroup(wGroup);
       }
 
-      groups.add(textGroup);
+      chunks.get(n).setGroup(textGroup);
       group.addGroup(textGroup);
 
       n++;
@@ -214,8 +209,8 @@ class textHolder {
   public void draw() {
     pg.pushMatrix();
     pg.scale(worldRatio);
-    for (int i = 0; i < groups.size(); i++) {
-      txtrdr.textDraw(groups.get(i), types.get(i));
+    for (int i = 0; i < chunks.size(); i++) {
+      chunks.get(i).draw();
     }
     pg.popMatrix();
   }
