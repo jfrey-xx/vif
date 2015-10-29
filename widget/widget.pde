@@ -18,7 +18,8 @@ textArea area;
 void setup() {
   size(1280, 800, P3D);
   frameRate(30);
-  surface.setResizable(true);
+  noSmooth();
+  //surface.setResizable(true);
 
   // init geomerative
   RG.init(this); 
