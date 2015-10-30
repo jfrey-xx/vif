@@ -49,12 +49,10 @@ void setup() {
   position = new PVector (0, 0, -5);
   scale = 0.01;
 
-  pick = new textPicking(proscene, position, scale);
-  pick.debug = true;
-
   // world/font ratio = 10
-  area = new textArea(fb, pick, new PVector (4, 3), position, scale);
+  area = new textArea(fb, proscene, new PVector (4, 3), position, scale);
   area.loadText("");
+  pick = area.getPick();
 
   oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }

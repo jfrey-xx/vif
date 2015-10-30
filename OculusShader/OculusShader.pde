@@ -63,11 +63,11 @@ void setup() {
   PVector position = new PVector (0, 0, -5);
   float scale = 0.01;
 
-  pick = new textPicking(proscene, position, scale);
-
   // world/font ratio = 10
-  area = new textArea(proscene.pg(), pick, new PVector (4, 3), position, scale);
+  area = new textArea(proscene.pg(), proscene, new PVector (4, 3), position, scale);
   area.loadText("");
+  
+  pick = area.getPick();
 }
 
 //----------------DRAW---------------------------------

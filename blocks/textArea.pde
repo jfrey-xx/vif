@@ -69,7 +69,7 @@ class textArea {
     pg.pushStyle();
     pg.fill(0, 255, 0, 200);
     pg.strokeWeight(fontSize * scale *2);
-    pg.rect(0, 0, size.x, size.y);
+    pg.rect(0, 0, size.x/scale, size.y/scale);
     pg.popStyle();
 
     pg.popMatrix();
