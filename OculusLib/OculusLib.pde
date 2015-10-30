@@ -21,18 +21,26 @@ Scene proscene;
 textPicking pick;
 textArea area;
 
+PGraphics fb;
 
 //----------------SETUP---------------------------------
 void setup() {
   size(1280, 800, P3D);
   frameRate(30);
 
+  // Create framebuffer
+  fb = createGraphics(1280, 800, P3D);
+
   // init geomerative
   RG.init(this); 
   RCommand.setSegmentLength(10);
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
-  proscene = new Scene(this);
+  proscene = new Scene(this, fb);
+  proscene.addDrawHandler(this, "mainDrawing");
+
+  // our eye is the center of the world
+  proscene.eye().setPosition(new Vec(0, 0, 0));
 
   // place frame
   PVector position = new PVector (0, 0, -5);
@@ -41,41 +49,52 @@ void setup() {
   pick = new textPicking(proscene, position, scale);
 
   // world/font ratio = 10
-  area = new textArea(this.g, pick, new PVector (4, 3), position, scale);
+  area = new textArea(fb, pick, new PVector (4, 3), position, scale);
   area.loadText("");
 
-  oculusRiftDev = new SimpleOculusRift(this, SimpleOculusRift.RenderQuality_Middle);
+  oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle);
 }
 
 //----------------DRAW---------------------------------
 
 
 void draw() {
-  oculusRiftDev.draw();
+  fb.beginDraw();
+  fb.endDraw();
 
+  oculusRiftDev.draw();
+  // clear();
   // onDrawScene(0);
+
+  pick.setCursor(new Vec(mouseX, mouseY, 0));
 }
 
 void onDrawScene(int eye)
-{ 
-  clear();
-  background(255);
-  drawGrid(new PVector(0, -floorDist, 0), 10, 10);
+{
+  proscene.beginDraw();
+  proscene.endDraw();
+}
+
+public void mainDrawing(Scene s) {
+  //PGraphics pg = s.pg();
+  println("tto");
+
+  // pg.clear();
+  fb.background(255);
+  drawGrid(fb, new PVector(0, floorDist, 0), 10, 10);
 
   // fix orientation
-  rotateY(PI);
-  scale(-1);
+ // fb.rotateY(PI);
+  //fb.scale(-1);
   // text
   area.draw();
 
-  fill(0, 0, 255);
-  scale(0.01);
-  text(frameRate, 10, 10);
+  fb.fill(0, 0, 255);
+  fb.scale(0.01);
+  fb.text(frameRate, 10, 10);
 
   // show a cursor that is affected by shader, compensate for offset and cursor size
-  rect(mouseX-5, mouseY-5, 10, 10);
-
-  pick.setCursor(new Vec(mouseX, mouseY, 0));
+  fb.rect(mouseX-5, mouseY-5, 10, 10);
 }
 
 void keyPressed() {
@@ -85,23 +104,23 @@ void keyPressed() {
   oculusRiftDev.resetOrientation();
 }
 
-void drawGrid(PVector center, float length, int repeat)
+void drawGrid(PGraphics pg, PVector center, float length, int repeat)
 {
-  pushMatrix();
-  translate(center.x, center.y, center.z);
+  pg.pushMatrix();
+  pg.translate(center.x, center.y, center.z);
   float pos;
 
   for (int x=0; x < repeat+1; x++)
   {
     pos = -length *.5 + x * length / repeat;
 
-    line(-length*.5, 0, pos, 
+    pg.line(-length*.5, 0, pos, 
     length*.5, 0, pos);
 
     line(pos, 0, -length*.5, 
     pos, 0, length*.5);
   }
-  popMatrix();
+  pg.popMatrix();
 }
 
 //////////////////////////////////////////////

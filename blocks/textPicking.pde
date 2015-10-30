@@ -76,6 +76,10 @@ class textPicker {
       Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(topLeftWorld);
       Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(bottomRightWorld);
 
+      println("cursor:", pick.cursor);
+      println("topLeftWorld:", topLeftWorld, ", bottomRightWorld:", bottomRightWorld);
+      println(" topLeftScreen :", topLeftScreen, ", bottomRightScreen:", bottomRightScreen);
+
       // one hell of a if to handle each axis both ways
       picked = abs(topLeftScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold && abs(bottomRightScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold &&
         abs(topLeftScreen.y() - pick.cursor.y()) <  abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&& abs(bottomRightScreen.y() - pick.cursor.y()) <  abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&&
@@ -85,3 +89,4 @@ class textPicker {
     return picked;
   }
 }
+
