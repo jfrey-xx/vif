@@ -13,18 +13,25 @@ class textArea {
   private PVector size;
   private PVector position;
   private float scale;
+  private Frame frame;
 
   private boolean debug = true;
-  
+
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
   // scale: font (100 pixel size) to world ratio
-  textArea(PGraphics pg,  textPicking pick, PVector size, PVector position, float scale) {
+  textArea(PGraphics pg, Scene scene, PVector size, PVector position, float scale) {
     this.pg = pg;
     this.scale = scale;
+    frame = new Frame(scene);
+    frame.setScaling(scale);
+
+    pick = new textPicking(scene, position, scale);
+    pick.setFrame(frame);
+    pick.debug = true;
 
     // fixed 100 pixels font size
-    holder = new textHolder(pg, pick, "FreeSans.ttf", fontSize, scale);
+    holder = new textHolder(pg, pick, "FreeSans.ttf", fontSize);
 
     setSize(size);
     setPosition(position);
@@ -32,12 +39,13 @@ class textArea {
 
   private void setSize(PVector size) {
     this.size = size;
-    // update holder size as well
-    holder.setWidth(size.x);
+    // update holder -- convert on the fly ratio because it knows nothing about boundaries
+    holder.setWidth(size.x/scale);
   }
 
   private void setPosition(PVector position) {
     this.position = position;
+    frame.setPosition(new Vec(position.x, position.y, position.z));
   }
 
   // stub for populating textHolder
@@ -49,8 +57,9 @@ class textArea {
   }
 
   public void draw() {
+    frame.applyTransformation();
+
     pg.pushMatrix();
-    pg.translate(position.x, position.y, position.z);
     holder.draw();
     if (debug) {
       holder.drawDebug();
@@ -65,4 +74,9 @@ class textArea {
 
     pg.popMatrix();
   }
+
+  public textPicking getPick() {
+    return pick;
+  }
 }
+

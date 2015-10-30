@@ -153,10 +153,10 @@ class textHolder {
           // shift even firt line to have 0,0 at top left
           curHeight = fontLineHeight;
         } else if (
-          // won't create a line unless there is a new word and at least something on current line
-          newWord &&  curWidth>0  &&
+        // won't create a line unless there is a new word and at least something on current line
+        newWord &&  curWidth>0  &&
           //  check if overflow
-          curWidth + fontWordSpacing + wGroup.getWidth() > maxWidth
+        curWidth + fontWordSpacing + wGroup.getWidth() > maxWidth
           ) {
           debugln("New line");
           curWidth = 0;
@@ -211,7 +211,7 @@ class textHolder {
   public void draw() {
     pg.pushMatrix();
     pg.scale(worldRatio);
-    for (int i = 0; i < chunks.size(); i++) {
+    for (int i = 0; i < chunks.size (); i++) {
       chunks.get(i).draw();
     }
     pg.popMatrix();
@@ -224,3 +224,4 @@ class textHolder {
     }
   }
 }
+

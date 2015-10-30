@@ -12,6 +12,7 @@ class textPicking {
   Scene scene;
   Vec position;
   Frame frame;
+
   // font2world scale in order to get the bounding box right
   float scale;
   // frame coordinate of the cursor -- set by sketch
@@ -23,8 +24,10 @@ class textPicking {
     this.scene = scene;
     this.position = scene.toVec(position);
     this.scale = scale;
-    frame = new InteractiveFrame(scene);
-    frame.setPosition(this.position);
+  }
+
+  void setFrame(Frame frame) {
+    this.frame = frame;
   }
 
   // create a new interaction point to the relative position
@@ -55,13 +58,38 @@ class textPicker {
 
   // set position (handles internally reference position
   void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
-    topLeft = new Vec(topLeftX*pick.scale, topLeftY*pick.scale, 0);
-    bottomRight = new Vec(bottomRightX*pick.scale, bottomRightY*pick.scale);
+    topLeft = new Vec(topLeftX, topLeftY, 0);
+    bottomRight = new Vec(bottomRightX, bottomRightY);
+
+    //       topLeft = new Vec(topLeftX*pick.scale, topLeftY*pick.scale, 0);
+    //   bottomRight = new Vec(bottomRightX*pick.scale, bottomRightY*pick.scale);
+
     boundsSet = true;
   }
 
   // debug
   void draw() {
+    // placeholders for pickup zone in screen space
+    if (pick.debug) {
+      Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(pick.frame.inverseCoordinatesOf(topLeft));
+      Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(pick.frame.inverseCoordinatesOf(bottomRight));
+
+      float topX = modelX(topLeftScreen.x(), topLeftScreen.y(), topLeftScreen.z());
+      float topY = modelY(topLeftScreen.x(), topLeftScreen.y(), topLeftScreen.z());
+      float topZ = modelZ(topLeftScreen.x(), topLeftScreen.y(), topLeftScreen.z());
+
+      println("topX:", topX, "topY:", topY);
+
+      float botX = modelX(bottomRightScreen.x(), bottomRightScreen.y(), bottomRightScreen.z());
+      float botY = modelY(bottomRightScreen.x(), bottomRightScreen.y(), bottomRightScreen.z());
+      float botZ = modelZ(bottomRightScreen.x(), bottomRightScreen.y(), bottomRightScreen.z());
+
+      PGraphics pg = pick.scene.pg();
+      pg.pushStyle();
+      pg.fill(123, 231, 98, 128);
+      pg.rect(topX, topY, botX - topX, botY - topY);
+      pg.popStyle();
+    }
   }
 
   boolean isPicked() {
@@ -75,9 +103,13 @@ class textPicker {
       Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(topLeftWorld);
       Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(bottomRightWorld);
 
+      Vec topLeftWorldbis = pick.scene.eye().projectedCoordinatesOf(topLeft, pick.frame);
+      Vec bottomRightWorldbis = pick.scene.eye().projectedCoordinatesOf(bottomRight, pick.frame);
+
       if (pick.debug) {
         println("cursor:", pick.cursor);
         println("topLeftWorld:", topLeftWorld, ", bottomRightWorld:", bottomRightWorld);
+        println("topLeftWorldbis:", topLeftWorldbis, ", bottomRightWorldbis:", bottomRightWorldbis);
         println("topLeftScreen :", topLeftScreen, ", bottomRightScreen:", bottomRightScreen);
       }
 
