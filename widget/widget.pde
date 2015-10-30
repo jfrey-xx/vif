@@ -18,7 +18,7 @@ textPicking pick;
 void setup() {
   size(1280, 800, P3D);
   frameRate(30);
-  //surface.setResizable(true);
+  noSmooth(); // for processing 2 compatibility
 
   // init geomerative
   RG.init(this); 

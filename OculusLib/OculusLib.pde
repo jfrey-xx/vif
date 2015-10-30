@@ -16,38 +16,34 @@ import SimpleOculusRift.*;
 SimpleOculusRift   oculusRiftDev;
 float floorDist = 1.; // for grid, let's say we're seated
 
-Scene scene;
+Scene proscene;
 
-RFont font;
-textHolder desc;
-Rect descArea;
+textPicking pick;
+textArea area;
 
 
 //----------------SETUP---------------------------------
 void setup() {
-  noSmooth();
   size(1280, 800, P3D);
   frameRate(30);
-  //surface.setResizable(true);
+  // noSmooth();
+
+  // init geomerative
   RG.init(this); 
-
-
-  //CONFIGURE SEGMENT LENGTH AND MODE
-  //SETS THE SEGMENT LENGTH BETWEEN TWO POINTS ON A SHAPE/FONT OUTLINE
-  RCommand.setSegmentLength(10);//ASSIGN A VALUE OF 10, SO EVERY 10 PIXELS
+  RCommand.setSegmentLength(10);
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
-  // 100 pixels for font will be one meter, in here, 
-  desc = new textHolder(this.g, "FreeSans.ttf", 100, 0.01);
-  desc.setWidth(6);
-  desc.addText("one");
-  desc.addText("second", textType.BEAT);
-  desc.addText(" et un et deux", textType.EMPHASIS);
-  desc.addText("nst nstnstnst aw ", textType.SHAKE);
+  proscene = new Scene(this);
 
-  scene = new Scene(this);
-  descArea = new Rect(0, 0, (int)desc.group.getWidth(), (int)desc.group.getHeight()); 
-  println("Rectarea center:", descArea.centerX(), ",", descArea.centerY());
+  // place frame
+  PVector position = new PVector (0, 0, -5);
+  float scale = 0.01;
+
+  pick = new textPicking(proscene, position, scale);
+
+  // world/font ratio = 10
+  area = new textArea(this.g, pick, new PVector (4, 3), position, scale);
+  area.loadText("");
 
   oculusRiftDev = new SimpleOculusRift(this, SimpleOculusRift.RenderQuality_Middle);
 }
@@ -67,12 +63,12 @@ void onDrawScene(int eye)
   background(255);
   drawGrid(new PVector(0, -floorDist, 0), 10, 10);
 
-  translate(0, 0, -5);
   // fix orientation
   rotateY(PI);
   scale(-1);
-  desc.draw();
-  desc.drawDebug();
+  // text
+  area.draw();
+
   fill(0, 0, 255);
   scale(0.01);
   text(frameRate, 10, 10);
@@ -105,3 +101,4 @@ void drawGrid(PVector center, float length, int repeat)
 }
 
 //////////////////////////////////////////////
+
