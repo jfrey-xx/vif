@@ -31,7 +31,7 @@ void setup() {
   // place frame
   PVector position = new PVector (0, 0, 50);
   float scale = 0.1;
-  
+
   pick = new textPicking(proscene, position, scale);
 
   // world/font ratio = 10
@@ -55,9 +55,39 @@ void draw() {
 
   // text
   area.draw();
-  
+
   // pick *after* rendering
-  pick.setCursor(proscene.pointUnderPixel(new Point(mouseX, mouseY)));
+
+  Vec under = proscene.pointUnderPixel(new Point(mouseX, mouseY));
+
+  Vec cursor = new Vec(mouseX, mouseY, 0);
+  pick.setCursor(cursor);
+  if (under != null) {
+    //println("mouseX:", mouseX, ", mouseY:", mouseY, "pick:", pick.cursor, "inverseX: ", screenX(pick.cursor.x(), pick.cursor.y(), pick.cursor.z()), 
+    //  "inverseY: ", screenY(pick.cursor.x(), pick.cursor.y(), pick.cursor.z()), 
+    //  "inverseZ: ", screenZ(pick.cursor.x(), pick.cursor.y(), pick.cursor.z())
+    //  );
+
+    println("mouseX:", mouseX, ", mouseY:", mouseY, "pick:", pick.cursor, "inverseX: ", screenX(under.x(), under.y(), under.z()), 
+      "inverseY: ", screenY(under.x(), under.y(), under.z()), 
+      "inverseZ: ", screenZ(under.x(), under.y(), under.z())
+      );
+
+    //PGraphics pg = proscene.pg();
+
+    //pick.frame.inverseTransformOf(pick.cursor);
+
+    //println("inverseX pro: ", pg.screenX(pick.cursor.x(), pick.cursor.y(), pick.cursor.z()), 
+    //  "inverseY pro: ", pg.screenY(pick.cursor.x(), pick.cursor.y(), pick.cursor.z()), 
+    //  "inverseZ pro: ", pg.screenZ(pick.cursor.x(), pick.cursor.y(), pick.cursor.z())
+    //  );
+
+    //println("modelX", modelX(pick.cursor.x(), pick.cursor.y(), pick.cursor.z()));
+
+    Vec curVec =  proscene.eye().projectedCoordinatesOf(under);
+
+    println("projX:", curVec.x(), ", projY:", curVec.y());
+  }
 }
 
 void keyPressed() {

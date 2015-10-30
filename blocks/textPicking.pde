@@ -31,13 +31,15 @@ class textPicking {
   }
 
   // should be updated by sketch
-  public void setCursor (Vec sceneCursor) {
-    // convert from scene to frame
-    if (sceneCursor != null) {
-      cursor = frame.coordinatesOf(sceneCursor);
-    } else {
-      cursor = null;
-    }
+  public void setCursor (Vec screenCursor) {
+    cursor =  screenCursor;
+
+    //// convert from scene to frame
+    //if (sceneCursor != null) {
+    //  cursor = frame.coordinatesOf(sceneCursor);
+    //} else {
+    //  cursor = null;
+    //}
   }
 }
 
@@ -45,9 +47,9 @@ class textPicking {
 class textPicker {
   // we dont want to mess with different plane, puth the picking has a slight inacurracy, take a zone (in pixels) around frame
   private final float threshold = 1;
-  
+
   boolean boundsSet = false;
-  float topLeftX, topLeftY, bottomRightX, bottomRightY;
+  Vec topLeft, bottomRight;
   textPicking pick;
 
 
@@ -57,25 +59,38 @@ class textPicker {
 
   // set position (handles internally reference position
   void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
-    this.topLeftX = topLeftX*pick.scale;// + pick.position.x();
-    this.topLeftY = topLeftY*pick.scale;// + pick.position.y();
-    this.bottomRightX = bottomRightX*pick.scale;// +  pick.position.x();
-    this.bottomRightY = bottomRightY*pick.scale;// +  pick.position.y();
+    topLeft = new Vec(topLeftX*pick.scale, topLeftY*pick.scale, 0);
+    bottomRight = new Vec(bottomRightX*pick.scale, bottomRightY*pick.scale);
     boundsSet = true;
-    println(this.topLeftX, this.topLeftY, this.bottomRightX, this.bottomRightY);
   }
 
   // debug
   void draw() {
     if (isPicked()) {
-      rect(topLeftX/pick.scale, topLeftY/pick.scale, (bottomRightX - topLeftX)/pick.scale, (bottomRightY - topLeftY)/pick.scale);
+      rect(topLeft.x()/pick.scale, topLeft.y()/pick.scale, (bottomRight.x() - topLeft.x())/pick.scale, (bottomRight.y() - topLeft.y())/pick.scale);
     }
   }
 
   boolean isPicked() {
-    return boundsSet && pick.cursor != null &&
-      pick.cursor.x() > topLeftX && pick.cursor.y() > topLeftY &&
-      pick.cursor.x() < bottomRightX && pick.cursor.y() < bottomRightY &&
-      pick.cursor.z() > -threshold &&  pick.cursor.z() < threshold;
+    boolean picked = false;
+    if (boundsSet && pick.cursor != null) {
+      // look how boundaries translates to word space
+      Vec topLeftWorld = pick.frame.inverseCoordinatesOf(topLeft);
+      Vec bottomRightWorld = pick.frame.inverseCoordinatesOf(bottomRight);
+      // then so screen space
+      Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(topLeftWorld);
+      Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(bottomRightWorld);
+
+      picked =  pick.cursor.x() > topLeftScreen.x()-threshold && pick.cursor.y() >  topLeftScreen.y()-threshold && pick.cursor.z() >  topLeftScreen.z()-threshold &&
+        pick.cursor.x() < bottomRightScreen.x()+threshold && pick.cursor.y() >  bottomRightScreen.y()+threshold && pick.cursor.z() >  bottomRightScreen.z()+threshold;
+    }
+    return picked;
+
+    //Vec frameCursorTopLeft = coordinatesOf
+
+    //return boundsSet && pick.cursor != null &&
+    //  pick.cursor.x() > topLeftX && pick.cursor.y() > topLeftY &&
+    //  pick.cursor.x() < bottomRightX && pick.cursor.y() < bottomRightY &&
+    //  pick.cursor.z() > -threshold &&  pick.cursor.z() < threshold;
   }
 }
