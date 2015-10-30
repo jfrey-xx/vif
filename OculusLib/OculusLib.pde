@@ -52,7 +52,7 @@ void setup() {
   area = new textArea(fb, pick, new PVector (4, 3), position, scale);
   area.loadText("");
 
-  oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle);
+  oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }
 
 //----------------DRAW---------------------------------
@@ -69,32 +69,32 @@ void draw() {
   pick.setCursor(new Vec(mouseX, mouseY, 0));
 }
 
-void onDrawScene(int eye)
+void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
 {
   proscene.beginDraw();
+  proscene.setProjection(proscene.toMat(proj));
+  proscene.setModelView(proscene.toMat(modelview));
   proscene.endDraw();
 }
 
 public void mainDrawing(Scene s) {
-  //PGraphics pg = s.pg();
-  println("tto");
+  PGraphics pg = s.pg();
 
-  // pg.clear();
-  fb.background(255);
-  drawGrid(fb, new PVector(0, floorDist, 0), 10, 10);
+  pg.background(255);
+  drawGrid(pg, new PVector(0, floorDist, 0), 10, 10);
 
   // fix orientation
- // fb.rotateY(PI);
+  // fb.rotateY(PI);
   //fb.scale(-1);
   // text
   area.draw();
 
-  fb.fill(0, 0, 255);
-  fb.scale(0.01);
-  fb.text(frameRate, 10, 10);
+  pg.fill(0, 0, 255);
+  pg.scale(0.01);
+  pg.text(frameRate, 10, 10);
 
   // show a cursor that is affected by shader, compensate for offset and cursor size
-  fb.rect(mouseX-5, mouseY-5, 10, 10);
+  pg.rect(mouseX-5, mouseY-5, 10, 10);
 }
 
 void keyPressed() {
