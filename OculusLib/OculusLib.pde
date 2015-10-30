@@ -2,7 +2,7 @@
 /**
  Testing SimpleOculusRift Library
  
- Origin at level with the eye, 100 pixels == 1 meter
+ Origin at level with the eye, 100 pixels == 1 decimeter
  
  Head orientation to commands camera
  
@@ -22,6 +22,9 @@ textPicking pick;
 textArea area;
 
 PGraphics fb;
+
+PVector position;
+float scale;
 
 //----------------SETUP---------------------------------
 void setup() {
@@ -43,8 +46,8 @@ void setup() {
   proscene.eye().setPosition(new Vec(0, 0, 0));
 
   // place frame
-  PVector position = new PVector (0, 0, -5);
-  float scale = 0.01;
+  position = new PVector (0, 0, -5);
+  scale = 0.01;
 
   pick = new textPicking(proscene, position, scale);
 
@@ -63,8 +66,6 @@ void draw() {
   fb.endDraw();
 
   oculusRiftDev.draw();
-  // clear();
-  // onDrawScene(0);
 
   pick.setCursor(new Vec(mouseX, mouseY, 0));
 }
@@ -81,17 +82,21 @@ public void mainDrawing(Scene s) {
   PGraphics pg = s.pg();
 
   pg.background(255);
-  drawGrid(pg, new PVector(0, floorDist, 0), 10, 10);
+  drawGrid(pg, new PVector(0, -floorDist, 0), 10, 10);
 
   // fix orientation
-  // fb.rotateY(PI);
-  //fb.scale(-1);
+  pg.rotateY(PI);
+  pg.scale(-1);
   // text
   area.draw();
 
+  // deal with FPS (have to place it manually)
+  pg.pushMatrix();
+  pg.translate(position.x, position.y, position. z);
   pg.fill(0, 0, 255);
-  pg.scale(0.01);
+  pg.scale(scale);
   pg.text(frameRate, 10, 10);
+  pg.popMatrix();
 
   // show a cursor that is affected by shader, compensate for offset and cursor size
   pg.rect(mouseX-5, mouseY-5, 10, 10);
@@ -117,7 +122,7 @@ void drawGrid(PGraphics pg, PVector center, float length, int repeat)
     pg.line(-length*.5, 0, pos, 
     length*.5, 0, pos);
 
-    line(pos, 0, -length*.5, 
+    pg.line(pos, 0, -length*.5, 
     pos, 0, length*.5);
   }
   pg.popMatrix();
