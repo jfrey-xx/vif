@@ -41,7 +41,6 @@ void setup() {
   fb = createGraphics(width, height, P3D);
   // Create PGraphics for actual scene
   scene = createGraphics(eye_width, eye_height, P3D);
-  scene.noSmooth();
 
   // Load fragment shader for oculus rift barrel distortion
   barrel = loadShader("barrel_frag.glsl");
@@ -81,13 +80,7 @@ void draw() {
   proscene.beginDraw();
 
   proscene.endDraw();
-
-  pick.setCursor(proscene.pointUnderPixel(new Point(mouseX, mouseY)));
-  println(pick.cursor);
-
   scene.endDraw();
-
-
 
   blendMode(ADD);
 
@@ -97,6 +90,8 @@ void draw() {
   fb.beginDraw();
   fb.background(0);
   fb.image(scene, 50, 0, eye_width, eye_height);
+  // show a cursor that is affected by shader, compensate for offset and cursor size
+  fb.rect(mouseX+50-5, mouseY-5, 10, 10);
   fb.endDraw();
   image(fb, 0, 0);
 
@@ -108,8 +103,11 @@ void draw() {
   fb.beginDraw();
   fb.background(0);
   fb.image(scene, eye_width-50, 0, eye_width, eye_height);
+  fb.rect(mouseX-50+eye_width-5, mouseY-5, 10, 10);
   fb.endDraw();
   image(fb, 0, 0);
+
+  pick.setCursor(new Vec(mouseX, mouseY, 0));
 }
 
 public void mainDrawing(Scene s) {

@@ -26,7 +26,6 @@ textArea area;
 void setup() {
   size(1280, 800, P3D);
   frameRate(30);
-  // noSmooth();
 
   // init geomerative
   RG.init(this); 
@@ -72,6 +71,11 @@ void onDrawScene(int eye)
   fill(0, 0, 255);
   scale(0.01);
   text(frameRate, 10, 10);
+
+  // show a cursor that is affected by shader, compensate for offset and cursor size
+  rect(mouseX-5, mouseY-5, 10, 10);
+
+  pick.setCursor(new Vec(mouseX, mouseY, 0));
 }
 
 void keyPressed() {

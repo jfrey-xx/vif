@@ -33,17 +33,11 @@ class textPicking {
   // should be updated by sketch
   public void setCursor (Vec screenCursor) {
     cursor =  screenCursor;
-
-    //// convert from scene to frame
-    //if (sceneCursor != null) {
-    //  cursor = frame.coordinatesOf(sceneCursor);
-    //} else {
-    //  cursor = null;
-    //}
   }
 }
 
 // this one is actually used for picking
+// FIXME: does not handle transformation on drawing (eg translate a chunk in z)
 class textPicker {
   // we dont want to mess with different plane, puth the picking has a slight inacurracy, take a zone (in pixels) around frame
   private final float threshold = 1;
@@ -77,20 +71,17 @@ class textPicker {
       // look how boundaries translates to word space
       Vec topLeftWorld = pick.frame.inverseCoordinatesOf(topLeft);
       Vec bottomRightWorld = pick.frame.inverseCoordinatesOf(bottomRight);
-      // then so screen space
+
+      // then to screen space
       Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(topLeftWorld);
       Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(bottomRightWorld);
 
-      picked =  pick.cursor.x() > topLeftScreen.x()-threshold && pick.cursor.y() >  topLeftScreen.y()-threshold && pick.cursor.z() >  topLeftScreen.z()-threshold &&
-        pick.cursor.x() < bottomRightScreen.x()+threshold && pick.cursor.y() >  bottomRightScreen.y()+threshold && pick.cursor.z() >  bottomRightScreen.z()+threshold;
+      // one hell of a if to handle each axis both ways
+      picked = abs(topLeftScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold && abs(bottomRightScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold &&
+        abs(topLeftScreen.y() - pick.cursor.y()) <  abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&& abs(bottomRightScreen.y() - pick.cursor.y()) <  abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&&
+        abs(topLeftScreen.z() - pick.cursor.z()) <  abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold && abs(bottomRightScreen.z() - pick.cursor.z()) <  abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold;
     }
+
     return picked;
-
-    //Vec frameCursorTopLeft = coordinatesOf
-
-    //return boundsSet && pick.cursor != null &&
-    //  pick.cursor.x() > topLeftX && pick.cursor.y() > topLeftY &&
-    //  pick.cursor.x() < bottomRightX && pick.cursor.y() < bottomRightY &&
-    //  pick.cursor.z() > -threshold &&  pick.cursor.z() < threshold;
   }
 }
