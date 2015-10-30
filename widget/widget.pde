@@ -18,7 +18,7 @@ textPicking pick;
 void setup() {
   size(1280, 800, P3D);
   frameRate(30);
-
+  noSmooth(); // just to be able to move window around
   // init geomerative
   RG.init(this); 
   RCommand.setSegmentLength(10);

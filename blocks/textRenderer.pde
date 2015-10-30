@@ -13,11 +13,20 @@ public class textRenderer {
     this.pg = pg;
   }
 
-  public void textDraw(RGroup group, textType type) {
+  public void textDraw(RGroup group, textType type, boolean picked) {
+    // for debug, draw a background if picked
+    if (picked) {
+      pg.pushStyle();
+      pg.fill(128);
+      pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+      pg.pushStyle();
+    }
+
     pg.pushStyle();
     pg.fill(0);
     pg.noStroke();
     pg.pushMatrix();
+
     switch (type) {
     case EMPHASIS:
       textDrawEmphasis(group);
@@ -82,3 +91,4 @@ public class textRenderer {
     }
   }
 }
+

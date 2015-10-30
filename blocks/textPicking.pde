@@ -17,6 +17,8 @@ class textPicking {
   // frame coordinate of the cursor -- set by sketch
   Vec cursor;
 
+  public boolean debug = false;
+
   textPicking(Scene scene, PVector position, float scale) {
     this.scene = scene;
     this.position = scene.toVec(position);
@@ -60,9 +62,6 @@ class textPicker {
 
   // debug
   void draw() {
-    if (isPicked()) {
-      rect(topLeft.x()/pick.scale, topLeft.y()/pick.scale, (bottomRight.x() - topLeft.x())/pick.scale, (bottomRight.y() - topLeft.y())/pick.scale);
-    }
   }
 
   boolean isPicked() {
@@ -76,9 +75,11 @@ class textPicker {
       Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(topLeftWorld);
       Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(bottomRightWorld);
 
-      println("cursor:", pick.cursor);
-      println("topLeftWorld:", topLeftWorld, ", bottomRightWorld:", bottomRightWorld);
-      println(" topLeftScreen :", topLeftScreen, ", bottomRightScreen:", bottomRightScreen);
+      if (pick.debug) {
+        println("cursor:", pick.cursor);
+        println("topLeftWorld:", topLeftWorld, ", bottomRightWorld:", bottomRightWorld);
+        println("topLeftScreen :", topLeftScreen, ", bottomRightScreen:", bottomRightScreen);
+      }
 
       // one hell of a if to handle each axis both ways
       picked = abs(topLeftScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold && abs(bottomRightScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold &&

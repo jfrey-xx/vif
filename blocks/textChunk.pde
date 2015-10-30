@@ -48,9 +48,12 @@ class textChunk {
 
   public void draw() {
     if (group != null) {
-      txtrdr.textDraw(group, type);
-      println("group:", text);
+      txtrdr.textDraw(group, type, picker.isPicked());
+      if (pick.debug) {
+        println("group:", text);
+      }
       picker.draw();
     }
   }
 }
+
