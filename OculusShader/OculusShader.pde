@@ -30,7 +30,7 @@ PGraphics fb;
 PGraphics scene;
 
 textPicking pick;
-
+textArea area;
 
 //----------------SETUP---------------------------------
 void setup() {
@@ -57,24 +57,18 @@ void setup() {
   proscene = new Scene(this, scene);
   proscene.addDrawHandler(this, "mainDrawing");
 
+  // our eye is the center of the world
+  proscene.eye().setPosition(new Vec(0, 0, 0));
+
   // place frame
   PVector position = new PVector (0, 0, -5);
   float scale = 0.01;
 
   pick = new textPicking(proscene, position, scale);
 
-  desc = new textHolder(proscene.pg(), pick, "FreeSans.ttf", 100, scale);
-  desc.setWidth(6);
-  desc.addText("one");
-  desc.addText("second", textType.BEAT);
-  desc.addText(" et un et deux", textType.EMPHASIS);
-  desc.addText("nst nstnstnst aw ", textType.SHAKE);
-
-  println("physicalDistanceToScreen:", proscene.camera().physicalDistanceToScreen());
-  println("distanceToSceneCenter:", proscene.camera().distanceToSceneCenter());
-
-  // our eye is the center of the world
-  proscene.eye().setPosition(new Vec(0, 0, 0));
+  // world/font ratio = 10
+  area = new textArea(proscene.pg(), pick, new PVector (4, 3), position, scale);
+  area.loadText("");
 }
 
 //----------------DRAW---------------------------------
@@ -87,10 +81,10 @@ void draw() {
   proscene.beginDraw();
 
   proscene.endDraw();
-  
+
   pick.setCursor(proscene.pointUnderPixel(new Point(mouseX, mouseY)));
   println(pick.cursor);
-  
+
   scene.endDraw();
 
 
@@ -123,20 +117,11 @@ public void mainDrawing(Scene s) {
 
   pg.background(255);
 
-  //  pg.translate(eye_width/2, eye_height/2, 0);
-
-  pg.scale(1);
-
   pg.pushMatrix();
-  //scene.translate(0, 100);
-  pg.scale(1, 1, 1);
   drawGrid(pg, new PVector(0, floorDist, 0), 10, 10);
-  pg.popMatrix();
+  // text
+  area.draw();
 
-  pg.pushMatrix();
-  pg.translate(0, 0, -5);
-  desc.draw();
-  desc.drawDebug();
   pg.fill(0, 0, 255);
   scene.scale(0.01);
   pg.text(frameRate, 10, 10);
