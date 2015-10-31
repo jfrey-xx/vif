@@ -23,7 +23,8 @@ class textArea {
   textArea(PGraphics pg, Scene scene, PVector size, PVector position, float scale) {
     this.pg = pg;
     this.scale = scale;
-    frame = new Frame(scene);
+    frame = new Frame(proscene);
+    frame.setReferenceFrame(mainFrame);
     frame.setScaling(scale);
 
     pick = new textPicking(scene, position, scale);
@@ -50,9 +51,9 @@ class textArea {
 
   // stub for populating textHolder
   public void loadText(String text) {
-    holder.addText("one");
-    holder.addText("second", textType.BEAT);
-    holder.addText(" et un et deux", textType.EMPHASIS);
+  //  holder.addText("one");
+  //  holder.addText("second", textType.BEAT);
+  //  holder.addText(" et un et deux", textType.EMPHASIS);
     holder.addText("nst nstnstnst aw ", textType.SHAKE);
   }
 

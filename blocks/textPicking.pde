@@ -71,8 +71,18 @@ class textPicker {
   void draw() {
     // placeholders for pickup zone in screen space
     if (pick.debug) {
+
+      println("*****");
+
       Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(pick.frame.inverseCoordinatesOf(topLeft));
       Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(pick.frame.inverseCoordinatesOf(bottomRight));
+
+
+      //  Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(pick.frame.inverseTransformOf(topLeft));
+      // Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(pick.frame.inverseTransformOf(bottomRight));
+
+
+      println("topLeft", topLeftScreen, ", bottomRight:", bottomRightScreen );
 
       float topX = modelX(topLeftScreen.x(), topLeftScreen.y(), topLeftScreen.z());
       float topY = modelY(topLeftScreen.x(), topLeftScreen.y(), topLeftScreen.z());
@@ -89,6 +99,8 @@ class textPicker {
       pg.fill(123, 231, 98, 128);
       pg.rect(topX, topY, botX - topX, botY - topY);
       pg.popStyle();
+
+      println("*****");
     }
   }
 

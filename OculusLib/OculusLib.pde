@@ -26,6 +26,10 @@ PGraphics fb;
 PVector position;
 float scale;
 
+Frame mainFrame;
+
+PMatrix3D modelview;
+
 //----------------SETUP---------------------------------
 void setup() {
   size(1280, 800, P3D);
@@ -40,10 +44,12 @@ void setup() {
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
   proscene = new Scene(this, fb);
+  println(proscene.info());
   proscene.addDrawHandler(this, "mainDrawing");
-
   // our eye is the center of the world
   proscene.eye().setPosition(new Vec(0, 0, 0));
+
+  mainFrame = new Frame(proscene);
 
   // place frame
   position = new PVector (0, 0, -5);
@@ -72,9 +78,13 @@ void draw() {
 void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
 {
   proscene.beginDraw();
+  this.modelview =  modelview;
+  //proscene.applyModelView(proscene.toMat(modelview));
   proscene.setProjection(proscene.toMat(proj));
-  proscene.setModelView(proscene.toMat(modelview));
   proscene.endDraw();
+
+  println("modelview:");
+  modelview.print();
 }
 
 public void mainDrawing(Scene s) {
@@ -86,8 +96,18 @@ public void mainDrawing(Scene s) {
   // fix orientation
   pg.rotateY(PI);
   pg.scale(-1);
+
   // text
+  proscene.pushModelView();
+
+
+  // un fix orientation just the time to apply corect transformation
+  pg.rotateY(-PI);
+  proscene.applyModelView(proscene.toMat(modelview));
+  pg.rotateY(PI);
   area.draw();
+
+  proscene.popModelView();
 
   // deal with FPS (have to place it manually)
   pg.pushMatrix();
@@ -98,7 +118,11 @@ public void mainDrawing(Scene s) {
   pg.popMatrix();
 
   // show a cursor that is affected by shader, compensate for offset and cursor size
-  pg.rect(mouseX-5, mouseY-5, 10, 10);
+  pg.pushMatrix();
+  pg.translate(0, 0, -1);
+  pg.scale(scale);
+  pg.rect(mouseX-0.5, mouseY-0.5, 1, 1);
+  pg.popMatrix();
 }
 
 void keyPressed() {
@@ -106,6 +130,7 @@ void keyPressed() {
   //scene.camera().fitScreenRegion(descArea);
   println("reset head orientation");
   oculusRiftDev.resetOrientation();
+  proscene.eye().setPosition(new Vec(0, 0, 0));
 }
 
 void drawGrid(PGraphics pg, PVector center, float length, int repeat)
