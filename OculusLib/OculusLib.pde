@@ -14,21 +14,25 @@ import remixlab.dandelion.geom.*;
 import SimpleOculusRift.*;
 
 SimpleOculusRift   oculusRiftDev;
-float floorDist = 1.; // for grid, let's say we're seated
+PGraphics fb;
+// modelview returned by oculus
+PMatrix3D modelview;
 
+// for grid, let's say we're seated
+float floorDist = 1.; 
+
+// main scene, look control by keyboard
 Scene proscene;
+Frame mainFrame;
+float rotateLookX = 0;
+float rotateLookY = 0;
 
 textPicking pick;
 textArea area;
 
-PGraphics fb;
-
+// position and scale of text
 PVector position;
 float scale;
-
-Frame mainFrame;
-
-PMatrix3D modelview;
 
 //----------------SETUP---------------------------------
 void setup() {
@@ -45,7 +49,11 @@ void setup() {
 
   proscene = new Scene(this, fb);
   println(proscene.info());
+  // add callback for draws
   proscene.addDrawHandler(this, "mainDrawing");
+  // disable keyboard action: we will handle it ourselves
+  proscene.disableKeyboardAgent();
+
   // our eye is the center of the world
   proscene.eye().setPosition(new Vec(0, 0, 0));
 
@@ -59,6 +67,7 @@ void setup() {
   area = new textArea(fb, proscene, new PVector (4, 3), position, scale);
   area.loadText("");
   pick = area.getPick();
+  pick.debug = false;
 
   oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }
@@ -69,8 +78,9 @@ void setup() {
 void draw() {
   fb.beginDraw();
   fb.endDraw();
-
+  rect(10, 10, 10, 10);
   oculusRiftDev.draw();
+  rect(10, 10, 10, 10);
 
   pick.setCursor(new Vec(mouseX, mouseY, 0));
 }
@@ -83,8 +93,9 @@ void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
   proscene.setProjection(proscene.toMat(proj));
   proscene.endDraw();
 
-  println("modelview:");
-  modelview.print();
+  // println("modelview:");
+  // modelview.print();
+  // rect(10, 10, 10, 10);
 }
 
 public void mainDrawing(Scene s) {
@@ -104,6 +115,21 @@ public void mainDrawing(Scene s) {
   // un fix orientation just the time to apply corect transformation
   pg.rotateY(-PI);
   proscene.applyModelView(proscene.toMat(modelview));
+
+  // apply angle if any
+  //  if (rotateLookX != 0) {
+  Mat sceneModelView = new Mat();
+  proscene.getModelView(sceneModelView);
+  sceneModelView.rotateX(rotateLookX);
+  proscene.setModelView(sceneModelView);
+
+  sceneModelView.rotateY(rotateLookY);
+  proscene.setModelView(sceneModelView);
+  // }
+
+
+  // 
+
   pg.rotateY(PI);
   area.draw();
 
@@ -119,18 +145,38 @@ public void mainDrawing(Scene s) {
 
   // show a cursor that is affected by shader, compensate for offset and cursor size
   pg.pushMatrix();
-  pg.translate(0, 0, -1);
-  pg.scale(scale);
-  pg.rect(mouseX-0.5, mouseY-0.5, 1, 1);
+  pg.translate(mouseX*scale, mouseY*scale, 0);
+  //  pg.pushMatrix();
+  //  pg.scale(0.1);
+  pg.box(1);
+  //  pg.popMatrix();
   pg.popMatrix();
 }
 
+
+// reset / set orientation
+
 void keyPressed() {
-  // center camera ??
-  //scene.camera().fitScreenRegion(descArea);
-  println("reset head orientation");
-  oculusRiftDev.resetOrientation();
-  proscene.eye().setPosition(new Vec(0, 0, 0));
+  println("Key pressed: [", key, "]");
+  if (key == ' ') {
+    println("reset head orientation and position");
+    oculusRiftDev.resetOrientation();
+    proscene.eye().setPosition(new Vec(0, 0, 0));
+    rotateLookX = 0;
+    rotateLookY = 0;
+  } else if (keyCode == UP) {
+    println("look up");
+    rotateLookX -= 0.1;
+  } else if (keyCode == DOWN) {
+    println("look down");
+    rotateLookX += 0.1;
+  } else if (keyCode == LEFT) {
+    println("look down");
+    rotateLookY += 0.1;
+  } else if (keyCode == RIGHT) {
+    println("look down");
+    rotateLookY -= 0.1;
+  }
 }
 
 void drawGrid(PGraphics pg, PVector center, float length, int repeat)
