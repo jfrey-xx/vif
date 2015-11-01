@@ -35,13 +35,17 @@ textArea area;
 PVector position;
 float scale;
 
+// for interaction, will adapt mouse position to VR
+float cursorX = 0;
+float cursorY = 0;
+
 //----------------SETUP---------------------------------
 void setup() {
   size(1280, 800, P3D);
   frameRate(30);
 
   // Create framebuffer
-  fb = createGraphics(1280, 800, P3D);
+  fb = createGraphics(640, 800, P3D);
 
   // init geomerative
   RG.init(this); 
@@ -70,7 +74,7 @@ void setup() {
   area = new textArea(fb, proscene, textFrame, new PVector (4, 3), position, scale);
   area.loadText("");
   pick = area.getPick();
-  pick.debug = true;
+  //pick.debug = true;
 
   oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }
@@ -78,19 +82,21 @@ void setup() {
 //----------------DRAW---------------------------------
 
 
-void draw() {
+void draw() {   
   updateReferenceFrame();
 
   fb.beginDraw();
   fb.endDraw();
   oculusRiftDev.draw();
 
-  pick.setCursor(new Vec(mouseX, mouseY, 0));
+  // adapt mouse movement to buffer size and pass info
+  cursorX = mouseX * fb.width / width;
+  cursorY = mouseY * fb.height / height;
+  pick.setCursor(new Vec(cursorX, cursorY, 0));
 }
 
 void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
 {
-  println("eye:", eye);
   proscene.beginDraw();
   this.modelview =  modelview;
   proscene.setProjection(proscene.toMat(proj));
@@ -118,8 +124,10 @@ public void mainDrawing(Scene s) {
   drawGrid(pg, new PVector(0, -floorDist, 0), 10, 10);
 
   // fix orientation
-  pg.rotateY(PI);
-  pg.scale(-1);
+  // pg.rotateY(PI);
+  // pg.scale(-1);
+  s.rotateY(PI);
+  s.scale(-1);
 
   // text
   pg.pushMatrix();
@@ -136,14 +144,8 @@ public void mainDrawing(Scene s) {
   pg.text(frameRate, 10, 10);
   pg.popMatrix();
 
-  // show a cursor that is affected by shader, compensate for offset and cursor size
-  pg.pushMatrix();
-  pg.translate(mouseX*scale, mouseY*scale, 0);
-  //  pg.pushMatrix();
-  //  pg.scale(0.1);
-  pg.box(1);
-  //  pg.popMatrix();
-  pg.popMatrix();
+  // nice HUD for cursor indication
+  drawHud(s);
 }
 
 
@@ -190,5 +192,52 @@ void drawGrid(PGraphics pg, PVector center, float length, int repeat)
   pg.popMatrix();
 }
 
+// cue for cursor
+// FIXME: will break with scene manipulation. should use plane equation a projected line
+void drawHud(Scene s) {
+  Camera c = s.camera();
+  PGraphics pg = s.pg();
+  
+  // virtual sreen posisition in world unit
+  float worldZ = -4.9;
+  // confert unit to coeff between eye planes (cf proscene doc)
+  float screenZ =  c.zFar() / (c.zFar() - c.zNear()) * (1.0f - c.zNear() / (-worldZ));
+  // get virtual srceen coordinates
+  Vec topLeftScreen = new Vec(0, 0, screenZ);
+  Vec bottomRightScreen = new Vec(c.screenWidth(), c.screenHeight(), screenZ);
+  // corresponding world coordinates
+  Vec topLeftEye = c.unprojectedCoordinatesOf(topLeftScreen);
+  Vec bottomRightEye = c.unprojectedCoordinatesOf(bottomRightScreen);
+
+  // println("topLeftScreen:", topLeftScreen, "topLeftEye:", topLeftEye, "bottomRightScreen:", bottomRightScreen, "bottomRightEye", bottomRightEye);
+
+  // virtual screen size
+  float hudWidth = bottomRightEye.x() - topLeftEye.x();
+  float hudHeight = bottomRightEye.y() - topLeftEye.y();
+  float hudThickness = 0.01;
+  // virtual cursor size
+  float cursorSize =  hudWidth*0.05; // ratio of virtual screen width
+  float virtualCursorX = topLeftEye.x() + hudWidth * cursorX / c.screenWidth();
+  float virtualCursorY = topLeftEye.y() + hudHeight * cursorY / c.screenHeight();
+  // make thigs very right, adapt z do scene transformations (eg with mouse)
+  float virtualCursorZ =  c.unprojectedCoordinatesOf(new Vec(cursorX, cursorY, screenZ)).z();
+
+
+  pg.pushStyle();
+  pg.fill(0, 0, 128, 5);
+
+  // virtual srceen in center
+  pg.pushMatrix();
+  pg.translate(0, 0, topLeftEye.z());
+  pg.box(hudWidth, hudHeight, hudThickness);
+  pg.popMatrix();
+
+  // virtual cursor
+  pg.pushMatrix();
+  pg.translate(virtualCursorX, virtualCursorY, virtualCursorZ);
+  pg.box(cursorSize, cursorSize, hudThickness);
+  pg.popMatrix();
+  pg.popStyle();
+}
 //////////////////////////////////////////////
 
