@@ -104,6 +104,8 @@ class textHolder {
     textChunk prevChunk = null;
 
     for (textChunk chunk : chunks) {
+      // going to recompute groups, clean before
+      chunk.initGroups();
       String text = chunk.getText();
       // holder for each chunk of text
       RGroup textGroup = new RGroup();

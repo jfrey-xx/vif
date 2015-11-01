@@ -24,13 +24,18 @@ class textChunk {
     this.txtrdr = txtrdr;
     this.text = text;
     this.type = type;
-    group = new RGroup();
-    words = new ArrayList();
+    initGroups();
   }
 
   // return overall group
   public RGroup getGroup() {
     return group;
+  }
+
+  // to be called if groups are recomputed by holder before addWord is called again
+  public void initGroups() {
+    group = new RGroup();
+    words = new ArrayList();
   }
 
   // wold group given by textHolder, that computes group depending on wrapping

@@ -50,9 +50,9 @@ class textArea {
 
   // stub for populating textHolder
   public void loadText(String text) {
-    //  holder.addText("one");
-    //  holder.addText("second", textType.BEAT);
-    //  holder.addText(" et un et deux", textType.EMPHASIS);
+    holder.addText("one");
+    holder.addText("second", textType.BEAT);
+    holder.addText(" et un et deux", textType.EMPHASIS);
     holder.addText("nst nstnstnst aw ", textType.SHAKE);
   }
 
