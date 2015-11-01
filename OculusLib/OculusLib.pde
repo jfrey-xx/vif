@@ -122,13 +122,11 @@ public void mainDrawing(Scene s) {
   pg.scale(-1);
 
   // text
-
   pg.pushMatrix();
   textFrame.applyTransformation();
   // show debug with current matrix
   area.draw();
   pg.popMatrix();  
-
 
   // deal with FPS (have to place it manually)
   pg.pushMatrix();
@@ -150,7 +148,6 @@ public void mainDrawing(Scene s) {
 
 
 // reset / set orientation
-
 void keyPressed() {
   println("Key pressed: [", key, "]");
   if (key == ' ') {

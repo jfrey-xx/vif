@@ -10,6 +10,7 @@ import remixlab.proscene.*;
 
 
 Scene proscene;
+Frame mainFrame;
 
 textArea area;
 textPicking pick;
@@ -25,13 +26,14 @@ void setup() {
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
   proscene = new Scene(this);
-
+  mainFrame = new Frame(proscene); // for later use
+  
   // place frame
   PVector position = new PVector (0, 0, 50);
   float scale = 0.1;
   
   // world/font ratio = 10
-  area = new textArea(this.g, proscene, new PVector (40, 30), position, scale);
+  area = new textArea(this.g, proscene, mainFrame, new PVector (40, 30), position, scale);
   area.loadText("");
   
   pick = area.getPick();

@@ -15,6 +15,10 @@ import remixlab.proscene.*;
 import remixlab.dandelion.geom.*;
 
 Scene proscene;
+Frame mainFrame;
+Frame textFrame;
+float rotateLookX = 0;
+float rotateLookY = 0;
 
 float floorDist = 1.; // for grid, let's say we're seated
 
@@ -31,6 +35,10 @@ PGraphics scene;
 
 textPicking pick;
 textArea area;
+
+// position and scale of text
+PVector position;
+float scale;
 
 //----------------SETUP---------------------------------
 void setup() {
@@ -55,25 +63,45 @@ void setup() {
 
   proscene = new Scene(this, scene);
   proscene.addDrawHandler(this, "mainDrawing");
+  // disable keyboard action: we will handle it ourselves
+  proscene.disableKeyboardAgent();
+
 
   // our eye is the center of the world
   proscene.eye().setPosition(new Vec(0, 0, 0));
 
+  mainFrame = new Frame(proscene);
+  textFrame = new Frame(proscene);
+  textFrame.setReferenceFrame(mainFrame);
+
   // place frame
-  PVector position = new PVector (0, 0, -5);
-  float scale = 0.01;
+  position = new PVector (0, 0, -5);
+  scale = 0.01;
 
   // world/font ratio = 10
-  area = new textArea(proscene.pg(), proscene, new PVector (4, 3), position, scale);
+  area = new textArea(proscene.pg(), proscene, textFrame, new PVector (4, 3), position, scale);
   area.loadText("");
-  
   pick = area.getPick();
+  pick.debug = true;
+}
+
+
+// apply head transformation to frame (both from oculus and keyboard)
+void updateReferenceFrame() {
+  // yaw, pitch, roll
+  Quat head = new Quat(rotateLookX, rotateLookY, 0);
+  textFrame.setRotation(head);
 }
 
 //----------------DRAW---------------------------------
 
 
 void draw() {
+  float cursorX = mouseX/2;
+  float cursorY = mouseY;
+  
+  updateReferenceFrame();
+
   background(0);
 
   scene.beginDraw();
@@ -89,9 +117,10 @@ void draw() {
   shader(barrel);
   fb.beginDraw();
   fb.background(0);
-  fb.image(scene, 50, 0, eye_width, eye_height);
-  // show a cursor that is affected by shader, compensate for offset and cursor size
-  fb.rect(mouseX+50-5, mouseY-5, 10, 10);
+  // fb.image(scene, 50, 0, eye_width, eye_height);
+  fb.image(scene, 0, 0, eye_width, eye_height);
+  // show a cursor that is affected by shader, compensate for cursor size
+  fb.rect(cursorX-5, cursorY-5, 10, 10);
   fb.endDraw();
   image(fb, 0, 0);
 
@@ -102,12 +131,13 @@ void draw() {
   shader(barrel);
   fb.beginDraw();
   fb.background(0);
-  fb.image(scene, eye_width-50, 0, eye_width, eye_height);
-  fb.rect(mouseX-50+eye_width-5, mouseY-5, 10, 10);
+  // fb.image(scene, eye_width-50, 0, eye_width, eye_height);
+  fb.image(scene, eye_width, 0, eye_width, eye_height);
+  fb.rect(cursorX+eye_width-5, cursorY-5, 10, 10);
   fb.endDraw();
   image(fb, 0, 0);
 
-  pick.setCursor(new Vec(mouseX, mouseY, 0));
+  pick.setCursor(new Vec(cursorX , cursorY, 0));
 }
 
 public void mainDrawing(Scene s) {
@@ -117,17 +147,47 @@ public void mainDrawing(Scene s) {
 
   pg.pushMatrix();
   drawGrid(pg, new PVector(0, floorDist, 0), 10, 10);
+  
   // text
+  pg.pushMatrix();
+  textFrame.applyTransformation();
+  // show debug with current matrix
   area.draw();
+  pg.popMatrix();  
 
+  // deal with FPS (have to place it manually)
+  pg.pushMatrix();
+  pg.translate(position.x, position.y, position. z);
   pg.fill(0, 0, 255);
-  scene.scale(0.01);
+  pg.scale(scale);
   pg.text(frameRate, 10, 10);
+  pg.popMatrix();
+
+
   pg.popMatrix();
 }
 
+// reset / set orientation
 void keyPressed() {
-  println("distanceToSceneCenter:", proscene.camera().distanceToSceneCenter());
+  println("Key pressed: [", key, "]");
+  if (key == ' ') {
+    println("reset head orientation and position");
+    proscene.eye().setPosition(new Vec(0, 0, 0));
+    rotateLookX = 0;
+    rotateLookY = 0;
+  } else if (keyCode == UP) {
+    println("look up");
+    rotateLookX -= 0.1;
+  } else if (keyCode == DOWN) {
+    println("look down");
+    rotateLookX += 0.1;
+  } else if (keyCode == LEFT) {
+    println("look down");
+    rotateLookY += 0.1;
+  } else if (keyCode == RIGHT) {
+    println("look down");
+    rotateLookY -= 0.1;
+  }
 }
 
 void drawGrid(PGraphics pg, PVector center, float length, int repeat)
