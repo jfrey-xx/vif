@@ -20,16 +20,15 @@ class textArea {
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
   // scale: font (100 pixel size) to world ratio
-  textArea(PGraphics pg, Scene scene, PVector size, PVector position, float scale) {
+  textArea(PGraphics pg, Scene scene, Frame refFrame, PVector size, PVector position, float scale) {
     this.pg = pg;
     this.scale = scale;
-    frame = new Frame(proscene);
-    frame.setReferenceFrame(mainFrame);
+    frame = new Frame(scene);
+    frame.setReferenceFrame(refFrame);
     frame.setScaling(scale);
 
     pick = new textPicking(scene, position, scale);
     pick.setFrame(frame);
-    pick.debug = true;
 
     // fixed 100 pixels font size
     holder = new textHolder(pg, pick, "FreeSans.ttf", fontSize);
@@ -46,21 +45,21 @@ class textArea {
 
   private void setPosition(PVector position) {
     this.position = position;
-    frame.setPosition(new Vec(position.x, position.y, position.z));
+    frame.setTranslation(new Vec(position.x, position.y, position.z));
   }
 
   // stub for populating textHolder
   public void loadText(String text) {
-  //  holder.addText("one");
-  //  holder.addText("second", textType.BEAT);
-  //  holder.addText(" et un et deux", textType.EMPHASIS);
+    //  holder.addText("one");
+    //  holder.addText("second", textType.BEAT);
+    //  holder.addText(" et un et deux", textType.EMPHASIS);
     holder.addText("nst nstnstnst aw ", textType.SHAKE);
   }
 
   public void draw() {
+    pg.pushMatrix();
     frame.applyTransformation();
 
-    pg.pushMatrix();
     holder.draw();
     if (debug) {
       holder.drawDebug();

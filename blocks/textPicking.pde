@@ -101,6 +101,28 @@ class textPicker {
       pg.popStyle();
 
       println("*****");
+
+
+      // Vec Eye =  pick.scene.eye().eyeCoordinatesOf(topLeftScreen);
+      // Vec bottomRightEye =  pick.scene.eye().eyeCoordinatesOf(bottomRightScreen);
+
+      //  Vec bottomRightEye =  pick.scene.eye().eyeCoordinatesOf(bottomRightScreen);
+
+      //  Vec topLeftEye =  pick.scene.eye().projectedCoordinatesOf(topLeftScreen, pick.frame);
+
+      Vec topLeftEye =  pick.scene.projectedCoordinatesOf(topLeftScreen);
+
+      Vec bottomRightEye =  pick.scene.eye().eyeCoordinatesOf(bottomRightScreen);
+
+      // Vec bottomRightEye =  pick.scene.eye().projectedCoordinatesOf(bottomRightScreen, pick.frame);
+
+      Mat mdlview = new Mat();
+      pick.scene.getModelView(mdlview);
+      Vec test = pick.scene.eye().projectedCoordinatesOf(mdlview, pick.frame.localInverseCoordinatesOf(bottomRight), mainFrame);
+
+      println("topLeftEye", topLeftEye, ", bottomRightEye:", bottomRightEye);
+      println("test", test);
+      println("---");
     }
   }
 

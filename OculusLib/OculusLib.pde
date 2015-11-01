@@ -24,6 +24,7 @@ float floorDist = 1.;
 // main scene, look control by keyboard
 Scene proscene;
 Frame mainFrame;
+Frame textFrame;
 float rotateLookX = 0;
 float rotateLookY = 0;
 
@@ -58,16 +59,18 @@ void setup() {
   proscene.eye().setPosition(new Vec(0, 0, 0));
 
   mainFrame = new Frame(proscene);
+  textFrame = new Frame(proscene);
+  textFrame.setReferenceFrame(mainFrame);
 
   // place frame
   position = new PVector (0, 0, -5);
   scale = 0.01;
 
   // world/font ratio = 10
-  area = new textArea(fb, proscene, new PVector (4, 3), position, scale);
+  area = new textArea(fb, proscene, textFrame, new PVector (4, 3), position, scale);
   area.loadText("");
   pick = area.getPick();
-  pick.debug = false;
+  pick.debug = true;
 
   oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }
@@ -76,26 +79,36 @@ void setup() {
 
 
 void draw() {
+  updateReferenceFrame();
+
   fb.beginDraw();
   fb.endDraw();
-  rect(10, 10, 10, 10);
   oculusRiftDev.draw();
-  rect(10, 10, 10, 10);
 
   pick.setCursor(new Vec(mouseX, mouseY, 0));
 }
 
 void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
 {
+  println("eye:", eye);
   proscene.beginDraw();
   this.modelview =  modelview;
-  //proscene.applyModelView(proscene.toMat(modelview));
   proscene.setProjection(proscene.toMat(proj));
   proscene.endDraw();
+}
 
-  // println("modelview:");
-  // modelview.print();
-  // rect(10, 10, 10, 10);
+// apply head transformation to frame (both from oculus and keyboard)
+void updateReferenceFrame() {
+  // yaw, pitch, roll
+  PVector orientation = oculusRiftDev.sensorOrientation();
+  // println("orientation from sensors:", orientation);
+  orientation.x += rotateLookX;
+  orientation.y += rotateLookY;
+  // println("orientation with also keyboard:", orientation);
+  Quat head = new Quat(orientation.x, orientation.y, orientation.z);
+  // println("head matrix:");
+  // head.print();
+  textFrame.setRotation(head);
 }
 
 public void mainDrawing(Scene s) {
@@ -109,31 +122,13 @@ public void mainDrawing(Scene s) {
   pg.scale(-1);
 
   // text
-  proscene.pushModelView();
 
-
-  // un fix orientation just the time to apply corect transformation
-  pg.rotateY(-PI);
-  proscene.applyModelView(proscene.toMat(modelview));
-
-  // apply angle if any
-  //  if (rotateLookX != 0) {
-  Mat sceneModelView = new Mat();
-  proscene.getModelView(sceneModelView);
-  sceneModelView.rotateX(rotateLookX);
-  proscene.setModelView(sceneModelView);
-
-  sceneModelView.rotateY(rotateLookY);
-  proscene.setModelView(sceneModelView);
-  // }
-
-
-  // 
-
-  pg.rotateY(PI);
+  pg.pushMatrix();
+  textFrame.applyTransformation();
+  // show debug with current matrix
   area.draw();
+  pg.popMatrix();  
 
-  proscene.popModelView();
 
   // deal with FPS (have to place it manually)
   pg.pushMatrix();
