@@ -22,7 +22,6 @@ public class textRenderer {
       // for debug, draw a background if picked
       if (pickedRatio >= 0) {
         pg.pushStyle();
-        println("piii:",  pickedRatio);
         float c = lerp(255, 0, pickedRatio);
         pg.fill(c);
         pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
@@ -98,4 +97,3 @@ public class textRenderer {
     }
   }
 }
-
