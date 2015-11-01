@@ -73,10 +73,21 @@ class textArea {
     pg.popStyle();
 
     pg.popMatrix();
+
+    // WIP
+    this.update();
   }
 
   public textPicking getPick() {
     return pick;
+  }
+
+  // WIP: update state depending on selection
+  private void update() {
+    textChunk selected = holder.chunkSelected();
+    if (selected != null) {
+      frame.setScaling(scale*2);
+    }
   }
 }
 

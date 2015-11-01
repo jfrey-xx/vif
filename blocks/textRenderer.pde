@@ -13,14 +13,21 @@ public class textRenderer {
     this.pg = pg;
   }
 
-  public void textDraw(RGroup group, textType type, boolean picked) {
-    // for debug, draw a background if picked
-    if (picked) {
-      pg.pushStyle();
-      pg.fill(128);
-      pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
-      pg.pushStyle();
-    }
+  public void textDraw(textChunk chunk) {
+
+    RGroup group = chunk.group;
+    textType type = chunk.type;
+    float pickedRatio = chunk.pickedRatio();
+
+      // for debug, draw a background if picked
+      if (pickedRatio >= 0) {
+        pg.pushStyle();
+        println("piii:",  pickedRatio);
+        float c = lerp(255, 0, pickedRatio);
+        pg.fill(c);
+        pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+        pg.pushStyle();
+      }
 
     pg.pushStyle();
     pg.fill(0);

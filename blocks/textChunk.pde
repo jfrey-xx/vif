@@ -52,13 +52,19 @@ class textChunk {
   }
 
   public void draw() {
+    picker.draw();
     if (group != null) {
-      txtrdr.textDraw(group, type, picker.isPicked());
-      if (pick.debug) {
-        println("group:", text);
-      }
-      picker.draw();
+      txtrdr.textDraw(this);
     }
+  }
+
+  // wrapers around picker
+  public boolean isPicked() {
+    return picker.isPicked();
+  }
+
+  public float pickedRatio() {
+    return picker.pickedRatio();
   }
 }
 
