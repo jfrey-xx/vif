@@ -7,7 +7,8 @@
 
 import geomerative.*;
 import remixlab.proscene.*;
-
+import remixlab.dandelion.core.*; // eg for Frame
+import remixlab.dandelion.geom.*; // eg for Vec
 
 Scene proscene;
 Frame mainFrame;
@@ -33,10 +34,8 @@ void setup() {
   float scale = 0.1;
   
   // world/font ratio = 10
-  area = new textArea(this.g, proscene, mainFrame, new PVector (40, 30), position, scale);
+  area = new textArea(this, this.g, proscene, mainFrame, new PVector (40, 30), position, scale);
   area.loadText("");
-  
-  pick = area.getPick();
 }
 
 //----------------DRAW---------------------------------
@@ -57,9 +56,8 @@ void draw() {
   area.draw();
 
   // could pick before...
-  pick.setCursor(new Vec(mouseX, mouseY, 0));
+  textPicking.setCursor(new Vec(mouseX, mouseY, 0));
 }
 
 void keyPressed() {
 }
-

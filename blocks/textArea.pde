@@ -5,10 +5,13 @@
  
  */
 
+import processing.core.*;
+
 class textArea {
 
   final private int fontSize = 100;
   private textHolder holder;
+  private PApplet parent;
   private PGraphics pg;
   private PVector size;
   private PVector position;
@@ -20,14 +23,15 @@ class textArea {
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
   // scale: font (100 pixel size) to world ratio
-  textArea(PGraphics pg, Scene scene, Frame refFrame, PVector size, PVector position, float scale) {
+  textArea(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, PVector size, PVector position, float scale) {
+    this.parent = parent;
     this.pg = pg;
     this.scale = scale;
     frame = new Frame(scene);
     frame.setReferenceFrame(refFrame);
     frame.setScaling(scale);
 
-    pick = new textPicking(scene, position, scale);
+    pick = new textPicking(parent, scene, position, scale);
     pick.setFrame(frame);
 
     // fixed 100 pixels font size
@@ -90,4 +94,3 @@ class textArea {
     }
   }
 }
-

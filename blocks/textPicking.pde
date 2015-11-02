@@ -4,25 +4,29 @@
  
  */
 
+import processing.core.*;
+import remixlab.proscene.*;
 import remixlab.dandelion.core.*;
 import remixlab.dandelion.geom.*;
 
 // this one holds reference (scene / position)
 class textPicking {
-  Scene scene;
-  Vec position;
-  Frame frame;
+  private PApplet parent;
+  public Scene scene;
+  private Vec position;
+  public Frame frame;
   // how long for selection (ms)
-  int selectionDelay = 1000;
+  public int selectionDelay = 1000;
 
   // font2world scale in order to get the bounding box right
   float scale;
   // frame coordinate of the cursor -- set by sketch
-  Vec cursor;
+  static Vec cursor;
 
   public boolean debug = false;
 
-  textPicking(Scene scene, PVector position, float scale) {
+  textPicking(PApplet parent, Scene scene, PVector position, float scale) {
+    this.parent = parent;
     this.scene = scene;
     this.position = scene.toVec(position);
     this.scale = scale;
@@ -34,11 +38,12 @@ class textPicking {
 
   // create a new interaction point to the relative position
   textPicker getNewPicker() {
-    return new textPicker(this);
+    return new textPicker(parent, this);
   }
 
   // should be updated by sketch
-  public void setCursor (Vec screenCursor) {
+  // NB: same cursor for all 
+  public static void setCursor (Vec screenCursor) {
     cursor =  screenCursor;
   }
 }
@@ -46,6 +51,8 @@ class textPicking {
 // this one is actually used for picking
 // NB: draw() should be called (at least) once per loop for updating status
 class textPicker {
+  private PApplet parent;
+  
   // we dont want to mess with different plane, puth the picking has a slight inacurracy, take a zone (in pixels) around frame
   private final float threshold = 1;
 
@@ -59,7 +66,8 @@ class textPicker {
   int startPicked = -1;
   int timePicked = -1;
 
-  textPicker(textPicking pick) {
+  textPicker(PApplet parent, textPicking pick) {
+    this.parent = parent;
     this.pick = pick;
   }
 
@@ -75,7 +83,6 @@ class textPicker {
     update();
   }
 
-
   private void update() {
     picked = false;
     if (boundsSet && pick.cursor != null) {
@@ -87,20 +94,10 @@ class textPicker {
       Vec topLeftScreen = pick.scene.eye().projectedCoordinatesOf(topLeftWorld);
       Vec bottomRightScreen = pick.scene.eye().projectedCoordinatesOf(bottomRightWorld);
 
-      Vec topLeftWorldbis = pick.scene.eye().projectedCoordinatesOf(topLeft, pick.frame);
-      Vec bottomRightWorldbis = pick.scene.eye().projectedCoordinatesOf(bottomRight, pick.frame);
-
-      if (pick.debug) {
-        println("cursor:", pick.cursor);
-        println("topLeftWorld:", topLeftWorld, ", bottomRightWorld:", bottomRightWorld);
-        println("topLeftWorldbis:", topLeftWorldbis, ", bottomRightWorldbis:", bottomRightWorldbis);
-        println("topLeftScreen :", topLeftScreen, ", bottomRightScreen:", bottomRightScreen);
-      }
-
       // one hell of a if to handle each axis both ways
-      picked = abs(topLeftScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold && abs(bottomRightScreen.x() - pick.cursor.x()) <  abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold &&
-        abs(topLeftScreen.y() - pick.cursor.y()) <  abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&& abs(bottomRightScreen.y() - pick.cursor.y()) <  abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&&
-        abs(topLeftScreen.z() - pick.cursor.z()) <  abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold && abs(bottomRightScreen.z() - pick.cursor.z()) <  abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold;
+      picked = parent.abs(topLeftScreen.x() - pick.cursor.x()) <  parent.abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold && parent.abs(bottomRightScreen.x() - pick.cursor.x()) <  parent.abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold &&
+        parent.abs(topLeftScreen.y() - pick.cursor.y()) <  parent.abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&& parent.abs(bottomRightScreen.y() - pick.cursor.y()) <  parent.abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&&
+        parent.abs(topLeftScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold && parent.abs(bottomRightScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold;
     }
     // reset timer if nothing
     if (!picked) {
@@ -110,10 +107,10 @@ class textPicker {
     // start or update timer otherwise
     else { 
       if ( timePicked < 0) {
-        startPicked = millis();
+        startPicked = parent.millis();
         timePicked = 0;
       } else {
-        timePicked = millis() - startPicked;
+        timePicked = parent.millis() - startPicked;
       }
     }
   }
@@ -122,7 +119,7 @@ class textPicker {
   public boolean isPicked() {
     return picked;
   }
-  
+
   // -1: not picked
   // between 0 and 1: ratio before timesUp
   public float pickedRatio() {
@@ -134,6 +131,4 @@ class textPicker {
     }
     return ( (float)timePicked / pick.selectionDelay);
   }
-  
 }
-
