@@ -1,19 +1,15 @@
-/*
+/* //<>//
 
  Create entities out of text. Dumb class at the moment.
  **/
 
-/*
-    holder.addText("one");
- holder.addText("second", textType.BEAT);
- holder.addText(" et un et deux", textType.EMPHASIS);
- holder.addText("nst nstnstnst aw ", textType.SHAKE);
- */
+import java.util.ArrayList; 
 
 class textParser {
   // WIP: awful way to get various results
   static int nbText = 0;
   static int nbType = 0;
+  static int nbTrigger = 0;
 
   // return string content of chunks
   public static String[] getChunksText(String src) {
@@ -48,5 +44,33 @@ class textParser {
     }
     nbType++;
     return types;
+  }
+
+  public static textTrigger[] getChunksTrigger(String scr, textPicking pick) {
+    ArrayList<textTrigger> triggers = new ArrayList();
+
+    switch (nbTrigger) {
+    case 0:
+      triggers.add(pick.getNewPicker());
+      triggers.add(pick.getNewPicker());
+      triggers.add(pick.getNewPicker());
+      triggers.add(pick.getNewPicker());
+      break;
+    case 1:
+      triggers.add(null);
+      triggers.add(pick.getNewPicker());
+      triggers.add(null);
+      break;
+    default:
+      triggers.add(null);
+      break;
+    }
+    nbTrigger++;
+
+    // workaround for cast
+    textTrigger[] trig = new textTrigger[triggers.size()];
+    trig  = triggers.toArray(trig);
+    
+    return trig;
   }
 }

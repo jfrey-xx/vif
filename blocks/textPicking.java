@@ -1,6 +1,6 @@
 /**
  
- Abstracts proscene object picking
+ Object picking using proscene. Implements textTrigger.
  
  */
 
@@ -15,8 +15,6 @@ class textPicking {
   public Scene scene;
   private Vec position;
   public Frame frame;
-  // how long for selection (ms)
-  public int selectionDelay = 1000;
 
   // font2world scale in order to get the bounding box right
   float scale;
@@ -50,9 +48,8 @@ class textPicking {
 
 // this one is actually used for picking
 // NB: draw() should be called (at least) once per loop for updating status
-class textPicker {
-  private PApplet parent;
-  
+class textPicker extends textTrigger {
+
   // we dont want to mess with different plane, puth the picking has a slight inacurracy, take a zone (in pixels) around frame
   private final float threshold = 1;
 
@@ -61,30 +58,23 @@ class textPicker {
   Vec topLeft, bottomRight;
   textPicking pick;
 
-  // flag for pick and timer (in ms) since picked
-  private boolean picked = false;
-  int startPicked = -1;
-  int timePicked = -1;
-
   textPicker(PApplet parent, textPicking pick) {
-    this.parent = parent;
+    super(parent);
     this.pick = pick;
+    setDelay(1000);
   }
 
   // set position (handles internally reference position
-  void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+  @Override
+    void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
     topLeft = new Vec(topLeftX, topLeftY, 0);
     bottomRight = new Vec(bottomRightX, bottomRightY);
     boundsSet = true;
   }
 
-  // may draw debug, update also
-  void draw() {
-    update();
-  }
-
-  private void update() {
-    picked = false;
+  @Override
+    protected boolean update() {
+    boolean picked = false;
     if (boundsSet && pick.cursor != null) {
       // look how boundaries translates to word space
       Vec topLeftWorld = pick.frame.inverseCoordinatesOf(topLeft);
@@ -99,36 +89,6 @@ class textPicker {
         parent.abs(topLeftScreen.y() - pick.cursor.y()) <  parent.abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&& parent.abs(bottomRightScreen.y() - pick.cursor.y()) <  parent.abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&&
         parent.abs(topLeftScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold && parent.abs(bottomRightScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold;
     }
-    // reset timer if nothing
-    if (!picked) {
-      startPicked = -1;
-      timePicked = -1;
-    } 
-    // start or update timer otherwise
-    else { 
-      if ( timePicked < 0) {
-        startPicked = parent.millis();
-        timePicked = 0;
-      } else {
-        timePicked = parent.millis() - startPicked;
-      }
-    }
-  }
-
-  // update and return picked
-  public boolean isPicked() {
     return picked;
-  }
-
-  // -1: not picked
-  // between 0 and 1: ratio before timesUp
-  public float pickedRatio() {
-    if (!isPicked()) {
-      return -1;
-    }
-    if (timePicked >= pick.selectionDelay || pick.selectionDelay <= 0) {
-      return 1;
-    }
-    return ( (float)timePicked / pick.selectionDelay);
   }
 }

@@ -37,7 +37,7 @@ class textArea {
     pick.setFrame(frame);
 
     // fixed 100 pixels font size
-    holder = new textHolder(pg, pick, "FreeSans.ttf", fontSize);
+    holder = new textHolder(pg, "FreeSans.ttf", fontSize);
 
     setSize(size);
     setPosition(position);
@@ -69,11 +69,12 @@ class textArea {
   public void loadText(String text) {
     String[] texts = textParser.getChunksText(text);
     textType[] types = textParser.getChunksType(text);
+    textTrigger[] triggers = textParser.getChunksTrigger(text, pick);
 
     // TODO: proper exception
     if (texts.length == types.length) {
       for (int i = 0; i < texts.length; i++) {
-        holder.addText(texts[i], types[i]);
+        holder.addText(texts[i], types[i], triggers[i]);
       }
     } else {
       println("Error, texts/types mismatch");
@@ -100,10 +101,6 @@ class textArea {
 
     // WIP
     this.update();
-  }
-
-  public textPicking getPick() {
-    return pick;
   }
 
   // WIP: update state depending on selection

@@ -5,12 +5,12 @@
  */
 
 import geomerative.*;
+import java.util.Arrays;
 
 class textChunk {
   // renderer and scene are created outside
   private textRenderer txtrdr;
   private Scene scene;
-  private textPicker picker;
   // main holder
   public RGroup group;
   // sub words to split interaction
@@ -18,12 +18,17 @@ class textChunk {
   private textType type;
   // warning, actual text in group may differ -- textHolder discard whitespaces
   private String text;
+  private textTrigger trig;
 
-  textChunk(textPicking pick, textRenderer txtrdr, String text, textType type) {
-    this.picker = pick.getNewPicker();
+  textChunk(textRenderer txtrdr, String text, textType type) {
+    this(txtrdr, text, type, null);
+  }
+
+  textChunk(textRenderer txtrdr, String text, textType type, textTrigger trig) {
     this.txtrdr = txtrdr;
     this.text = text;
     this.type = type;
+    this.trig = trig;
     initGroups();
   }
 
@@ -44,7 +49,9 @@ class textChunk {
     textWord word = new textWord(wGroup, wText);
     words.add(word);
     group.addGroup(wGroup);
-    picker.setBoundaries( group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
+    if (trig != null) {
+      trig.setBoundaries(group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
+    }
   }
 
   public String getText() {
@@ -52,19 +59,29 @@ class textChunk {
   }
 
   public void draw() {
-    picker.draw();
+    if (trig != null) {
+      trig.draw();
+    }
     if (group != null) {
       txtrdr.textDraw(this);
     }
   }
 
   // wrapers around picker
+  // FIXME: better archi, eg interface?
   public boolean isPicked() {
-    return picker.isPicked();
+    if (trig != null) {
+      return trig.isPicked();
+    } else {
+      return false;
+    }
   }
 
   public float pickedRatio() {
-    return picker.pickedRatio();
+    if (trig != null) {
+      return trig.pickedRatio();
+    } else {
+      return -1;
+    }
   }
 }
-
