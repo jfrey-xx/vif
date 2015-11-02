@@ -54,10 +54,18 @@ class textArea {
 
   // stub for populating textHolder
   public void loadText(String text) {
-    holder.addText("one");
-    holder.addText("second", textType.BEAT);
-    holder.addText(" et un et deux", textType.EMPHASIS);
-    holder.addText("nst nstnstnst aw ", textType.SHAKE);
+    String[] texts = textParser.getChunksText(text);
+    textType[] types = textParser.getChunksType(text);
+    
+    // TODO: proper exception
+    if (texts.length == types.length) {
+      for (int i = 0; i < texts.length; i++) {
+        holder.addText(texts[i], types[i]);
+      }
+    }
+    else {
+      println("Error, texts/types mismatch");
+    }
   }
 
   public void draw() {

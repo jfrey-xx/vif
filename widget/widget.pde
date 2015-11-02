@@ -13,7 +13,7 @@ import remixlab.dandelion.geom.*; // eg for Vec
 Scene proscene;
 Frame mainFrame;
 
-textArea area;
+textArea area, area2;
 textPicking pick;
 
 //----------------SETUP---------------------------------
@@ -28,14 +28,17 @@ void setup() {
 
   proscene = new Scene(this);
   mainFrame = new Frame(proscene); // for later use
-  
+
   // place frame
   PVector position = new PVector (0, 0, 50);
   float scale = 0.1;
-  
+
   // world/font ratio = 10
   area = new textArea(this, this.g, proscene, mainFrame, new PVector (40, 30), position, scale);
   area.loadText("");
+
+  area2 = new textArea(this, this.g, proscene, mainFrame, new PVector (40, 30), new PVector (-100, 0, 50), scale);
+  area2.loadText("");
 }
 
 //----------------DRAW---------------------------------
@@ -54,6 +57,7 @@ void draw() {
 
   // text
   area.draw();
+  area2.draw();
 
   // could pick before...
   textPicking.setCursor(new Vec(mouseX, mouseY, 0));
