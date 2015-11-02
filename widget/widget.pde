@@ -27,7 +27,7 @@ void setup() {
   RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
   proscene = new Scene(this);
-  mainFrame = new Frame(proscene); // for later use
+  mainFrame = new Frame(proscene);
 
   // place frame
   PVector position = new PVector (0, 0, 50);
@@ -64,4 +64,5 @@ void draw() {
 }
 
 void keyPressed() {
+  area.lookAtViewer();
 }

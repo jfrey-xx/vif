@@ -13,6 +13,7 @@ class textArea {
   private textHolder holder;
   private PApplet parent;
   private PGraphics pg;
+  private Scene scene;
   private PVector size;
   private PVector position;
   private float scale;
@@ -26,6 +27,7 @@ class textArea {
   textArea(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, PVector size, PVector position, float scale) {
     this.parent = parent;
     this.pg = pg;
+    this.scene = scene;
     this.scale = scale;
     frame = new Frame(scene);
     frame.setReferenceFrame(refFrame);
@@ -39,6 +41,17 @@ class textArea {
 
     setSize(size);
     setPosition(position);
+
+    lookAtViewer();
+  }
+
+  // rotate the frame so it faces viewer (proscene eye)
+  public void lookAtViewer() {
+    // work on a copy of the eye to get a "lookAt" orientation
+    Eye cam = scene.eye().get();
+    cam.lookAt(frame.position());
+    Rotation theLook = cam.orientation();
+    frame.setOrientation(theLook);
   }
 
   private void setSize(PVector size) {
@@ -56,14 +69,13 @@ class textArea {
   public void loadText(String text) {
     String[] texts = textParser.getChunksText(text);
     textType[] types = textParser.getChunksType(text);
-    
+
     // TODO: proper exception
     if (texts.length == types.length) {
       for (int i = 0; i < texts.length; i++) {
         holder.addText(texts[i], types[i]);
       }
-    }
-    else {
+    } else {
       println("Error, texts/types mismatch");
     }
   }

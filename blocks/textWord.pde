@@ -1,6 +1,8 @@
 /**
  
- Atomic unit for text, handle picking 
+ Atomic unit for text.
+ 
+ TODO: handle picking at word level. 
  
  */
 
