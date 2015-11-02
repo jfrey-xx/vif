@@ -10,7 +10,8 @@
 
 import geomerative.*;
 import remixlab.proscene.*;
-import remixlab.dandelion.geom.*;
+import remixlab.dandelion.core.*; // eg for Frame
+import remixlab.dandelion.geom.*; // eg for Vec
 import SimpleOculusRift.*;
 
 SimpleOculusRift   oculusRiftDev;
@@ -71,7 +72,7 @@ void setup() {
   scale = 0.01;
 
   // world/font ratio = 10
-  area = new textArea(fb, proscene, textFrame, new PVector (4, 3), position, scale);
+  area = new textArea(this, fb, proscene, textFrame, new PVector (4, 3), position, scale);
   area.loadText("");
   pick = area.getPick();
   //pick.debug = true;
@@ -105,15 +106,11 @@ void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
 
 // apply head transformation to frame (both from oculus and keyboard)
 void updateReferenceFrame() {
-  // yaw, pitch, roll
+  // yaw, pitch, roll -- NB: again refeference is not the same from oculus and from proscene, hence weirdities to come with Y/X
   PVector orientation = oculusRiftDev.sensorOrientation();
-  // println("orientation from sensors:", orientation);
-  orientation.x += rotateLookX;
-  orientation.y += rotateLookY;
-  // println("orientation with also keyboard:", orientation);
-  Quat head = new Quat(orientation.x, orientation.y, orientation.z);
-  // println("head matrix:");
-  // head.print();
+  orientation.x -= rotateLookY;
+  orientation.y += rotateLookX;
+  Quat head = new Quat(orientation.y, -orientation.x, orientation.z);
   textFrame.setRotation(head);
 }
 
@@ -124,8 +121,6 @@ public void mainDrawing(Scene s) {
   drawGrid(pg, new PVector(0, -floorDist, 0), 10, 10);
 
   // fix orientation
-  // pg.rotateY(PI);
-  // pg.scale(-1);
   s.rotateY(PI);
   s.scale(-1);
 
@@ -197,7 +192,7 @@ void drawGrid(PGraphics pg, PVector center, float length, int repeat)
 void drawHud(Scene s) {
   Camera c = s.camera();
   PGraphics pg = s.pg();
-  
+
   // virtual sreen posisition in world unit
   float worldZ = -4.9;
   // confert unit to coeff between eye planes (cf proscene doc)
