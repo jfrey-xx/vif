@@ -1,0 +1,38 @@
+* archi for action 
+** trigger
+*** quand
+**** upon init
+**** pick time out
+**** elapsed time out 
+**** gaze focus
+***** get
+***** lost
+**** var value
+***** equals, less, more
+**** optionnal delay for all before actions taken
+*** quoi
+**** var
+***** declare
+***** reset (could reset stream counter)
+***** inc
+***** dec
+***** stream (attach)
+**** goto section
+**** change text
+** state
+*** dico avec variables / état (de vrais états ?)
+*** dico avec streams (variable changing externally)
+*** streams == variable ?
+**** normalize between 0 and 1 ?
+***** history of last values
+**** counter for number of 1 and how long
+** chunk extended
+*** link to stream
+*** type animation
+**** bang
+**** ...and stuff (see anim)
+** section -- facultative (area may do the job)
+*** type renderer 
+*** position
+*** hold textarea (paragraphs)
+*** generic from one paragraph to other
