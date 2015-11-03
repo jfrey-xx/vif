@@ -18,6 +18,7 @@ class textArea {
   private PVector position;
   private float scale;
   private Frame frame;
+  private textPicking pick;
 
   private boolean debug = true;
 

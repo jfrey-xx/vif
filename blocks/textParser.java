@@ -4,6 +4,7 @@
  **/
 
 import java.util.ArrayList; 
+import processing.core.*;
 
 class textParser {
   // WIP: awful way to get various results
@@ -69,8 +70,38 @@ class textParser {
 
     // workaround for cast
     textTrigger[] trig = new textTrigger[triggers.size()];
-    trig  = triggers.toArray(trig);
-    
+    triggers.toArray(trig);
+
     return trig;
   }
+
+  public static textAreaData[] getAreasData(String src) {
+    ArrayList<textAreaData> datas = new ArrayList();
+
+    textAreaData data;
+
+    data = new textAreaData();
+    data.size = new PVector (40, 30);
+    data.position = new PVector (0, 0, -5);
+    datas.add(data);
+
+    data = new textAreaData();
+    data.size = new PVector (40, 30);
+    data.position = new PVector (-100, 0, 50);
+    datas.add(data);
+
+    // workaround for cast
+    textAreaData[] dat = new textAreaData[datas.size()];
+    datas.toArray(dat);
+
+    return dat;
+  }
+}
+
+// holder for data associated to text areas
+class textAreaData {
+  PVector size;
+  PVector position;
+  String id = "none";
+  String content = "";
 }
