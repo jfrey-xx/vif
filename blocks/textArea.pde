@@ -22,7 +22,7 @@ class textArea {
   private PVector position;
   private float scale;
   private Frame frame;
-  private textPicking pick;
+  textPicking pick;
 
   private boolean debug = true;
 
@@ -76,16 +76,31 @@ class textArea {
     String[] texts = textParser.getChunksText(text);
     textType[] types = textParser.getChunksType(text);
     textTrigger[] triggers = textParser.getChunksTrigger(text, pick);
+    textAction[] actions = textParser.getChunksAction(text, this);
+
+    // register actions
+    // TODO: rethink archi, proper exceptions
+    if (triggers.length == actions.length) {
+      for (int i = 0; i < triggers.length; i++) {
+        if (triggers[i] != null) {
+          triggers[i].setAction(actions[i]);
+        }
+      }
+    } else
+    {
+      parent.println("Error, triggers/actions length mismatch");
+    }
+
 
     // TODO: proper exception
-    if (texts.length == types.length) {
+    if (texts.length == types.length && texts.length == triggers.length) {
       for (int i = 0; i < texts.length; i++) {
         holder.addText(texts[i], types[i], triggers[i]);
       }
       // inform dispatcher
       universe.registerTriggers(triggers);
     } else {
-      parent.println("Error, texts/types mismatch");
+      parent.println("Error, texts/types/triggers length mismatch");
     }
   }
 

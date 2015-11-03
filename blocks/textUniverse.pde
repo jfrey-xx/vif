@@ -70,13 +70,13 @@ class textUniverse {
     }
 
     // apply triggers effects, if any
-    for (textTrigger trig : triggers) {
+    // NB: working on copy as safeguard since triggers could do *anything*
+    for (textTrigger trig : new ArrayList<textTrigger>(triggers)) {
       if (trig.isActive() && trig.pickedRatio() >= 1 && trig.action != null) {
         if (trig.action.done()) {
           trig.disable();
         } else {
           trig.action.fire(this);
-          parent.println("fire!");
         }
       }
     }

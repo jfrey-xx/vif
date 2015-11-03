@@ -11,6 +11,7 @@ class textParser {
   static int nbText = 0;
   static int nbType = 0;
   static int nbTrigger = 0;
+  static int nbAction = 0;
 
   // return string content of chunks
   public static String[] getChunksText(String src) {
@@ -73,6 +74,34 @@ class textParser {
     triggers.toArray(trig);
 
     return trig;
+  }
+
+  public static textAction[] getChunksAction(String scr, textArea area) {
+    ArrayList<textAction> actions = new ArrayList();
+
+    switch (nbAction) {
+    case 0:
+      actions.add(null);
+      actions.add(new textTAGoto(area, "toto"));
+      actions.add(null);
+      actions.add(null);
+      break;
+    case 1:
+      actions.add(null);
+      actions.add(new textTAGoto(area, "toto"));
+      actions.add(null);
+      break;
+    default:
+      actions.add(null);
+      break;
+    }
+    nbAction++;
+
+    // workaround for cast
+    textAction[] act = new textAction[actions.size()];
+    actions.toArray(act);
+
+    return act;
   }
 
   public static textAreaData[] getAreasData(String src) {
