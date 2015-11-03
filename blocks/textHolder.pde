@@ -5,12 +5,12 @@
  groups -> chunk of text -> words
  */
 
+import processing.core.*;
 import geomerative.*;
-
-import java.util.Arrays;
+import java.util.ArrayList;
 
 class textHolder {
-
+  private PApplet parent;
   // where we will draw into
   private PGraphics pg;
 
@@ -38,26 +38,27 @@ class textHolder {
   // hacky flag for spamming stdout
   public boolean debug = false;
 
-  textHolder(PGraphics pg, String fontFile, int fontSize) {
-    this(pg, fontFile, fontSize, 1);
+  textHolder(PApplet parent, PGraphics pg, String fontFile, int fontSize) {
+    this(parent, pg, fontFile, fontSize, 1);
   }
 
   // fontSize: in pixels the higher
   // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 1 meter font size
-  textHolder(PGraphics pg, String fontFile, int fontSize, float worldRatio) {
+  textHolder(PApplet parent, PGraphics pg, String fontFile, int fontSize, float worldRatio) {
+    this.parent = parent;
     this.pg = pg;
     this.fontSize = fontSize;
     this.worldRatio = worldRatio;
 
-    txtrdr = new textRenderer(pg, fontSize);
+    txtrdr = new textRenderer(parent, pg, fontSize);
 
-    font = new RFont(fontFile, fontSize, LEFT); // left align by default
+    font = new RFont(fontFile, fontSize, parent.LEFT); // left align by default
 
     // Height: takes on the tallest char (?)
     fontLineHeight = font.toGroup("(").getHeight();
     debugln("Font line height: " + fontLineHeight);
     // space between lines: height * 1.25
-    fontLineSpacing =fontLineHeight * 1.25;
+    fontLineSpacing = fontLineHeight * (float) 1.25;
     debugln("Font line spacing: " + fontLineSpacing);
     // cannot get just a space apparently..
     fontWordSpacing = font.toGroup("a w").getWidth() - font.toGroup("aw").getWidth();
@@ -226,7 +227,7 @@ class textHolder {
   // we don't want to *always* spam stdout
   private void debugln(String... mes) {
     if (debug) {
-      println(mes);
+      parent.println(mes);
     }
   }
 

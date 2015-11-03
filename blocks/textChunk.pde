@@ -6,6 +6,8 @@
 
 import geomerative.*;
 import java.util.Arrays;
+import remixlab.proscene.*;
+import java.util.ArrayList;
 
 class textChunk {
   // renderer and scene are created outside
@@ -15,7 +17,7 @@ class textChunk {
   public RGroup group;
   // sub words to split interaction
   public ArrayList<textWord> words;
-  private textType type;
+  textType type;
   // warning, actual text in group may differ -- textHolder discard whitespaces
   private String text;
   private textTrigger trig;

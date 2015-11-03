@@ -10,7 +10,7 @@ abstract class textTrigger {
 
   protected PApplet parent;
   // optionnal action
-  private textTriggerAction action;
+  private textAction action;
 
   // how long for selection (ms). Immediate action if 0 or less
   private int selectionDelay = 0;
@@ -28,7 +28,7 @@ abstract class textTrigger {
     this.selectionDelay = selectionDelay;
   }
 
-  public final void setAction(textTriggerAction action) {
+  public final void setAction(textAction action) {
     this.action = action;
   }
 
@@ -78,5 +78,18 @@ abstract class textTrigger {
 }
 
 // what will be done
-class textTriggerAction {
+abstract class textAction {
+  // the actual action, give access to the whole universe (simplicity > safety)
+  abstract void fire(textUniverse universe);
+  // raised when finished
+  abstract boolean done();
+}
+
+class textTAGoto extends textAction {
+  void fire(textUniverse universe) {
+  }
+  
+  boolean done() {
+    return false;
+  }
 }

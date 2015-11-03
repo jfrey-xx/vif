@@ -6,11 +6,15 @@
  */
 
 import processing.core.*;
+import remixlab.proscene.*;
+import remixlab.dandelion.core.*; // eg for Frame
+import remixlab.dandelion.geom.*; // eg for Vec
 
 class textArea {
 
   final private int fontSize = 100;
   private textHolder holder;
+  private textUniverse universe;
   private PApplet parent;
   private PGraphics pg;
   private Scene scene;
@@ -25,20 +29,21 @@ class textArea {
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
   // scale: font (100 pixel size) to world ratio
-  textArea(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, PVector size, PVector position, float scale) {
-    this.parent = parent;
-    this.pg = pg;
-    this.scene = scene;
-    this.scale = scale;
+  textArea(textUniverse universe, PVector size, PVector position) {
+    this.universe = universe;
+    this.parent = universe.parent;
+    this.pg = universe.pg;
+    this.scene = universe.scene;
+    this.scale = universe.scale;
     frame = new Frame(scene);
-    frame.setReferenceFrame(refFrame);
+    frame.setReferenceFrame(universe.frame);
     frame.setScaling(scale);
 
     pick = new textPicking(parent, scene, position, scale);
     pick.setFrame(frame);
 
     // fixed 100 pixels font size
-    holder = new textHolder(pg, "FreeSans.ttf", fontSize);
+    holder = new textHolder(parent, pg, "FreeSans.ttf", fontSize);
 
     setSize(size);
     setPosition(position);
@@ -78,7 +83,7 @@ class textArea {
         holder.addText(texts[i], types[i], triggers[i]);
       }
     } else {
-      println("Error, texts/types mismatch");
+      parent.println("Error, texts/types mismatch");
     }
   }
 

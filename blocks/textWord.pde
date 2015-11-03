@@ -6,6 +6,8 @@
  
  */
 
+import geomerative.*;
+
 class textWord {
   RGroup group;
   String text;
