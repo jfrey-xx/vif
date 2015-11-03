@@ -10,7 +10,7 @@ abstract class textTrigger {
 
   protected PApplet parent;
   // optionnal action
-  private textAction action;
+  textAction action;
 
   // how long for selection (ms). Immediate action if 0 or less
   private int selectionDelay = 0;
@@ -19,6 +19,9 @@ abstract class textTrigger {
   private boolean picked = false;
   int startPicked = -1;
   int timePicked = -1;
+
+  // in activity upon further notice
+  private boolean active = true;
 
   textTrigger(PApplet parent) {
     this.parent = parent;
@@ -75,6 +78,15 @@ abstract class textTrigger {
     }
     return ( (float)timePicked / selectionDelay);
   }
+
+  public final boolean isActive() {
+    return active;
+  }
+
+  // should be called by universe upon de-registsration
+  public final void disable() {
+    active = false;
+  }
 }
 
 // what will be done
@@ -88,7 +100,7 @@ abstract class textAction {
 class textTAGoto extends textAction {
   void fire(textUniverse universe) {
   }
-  
+
   boolean done() {
     return false;
   }

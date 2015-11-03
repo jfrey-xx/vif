@@ -82,6 +82,8 @@ class textArea {
       for (int i = 0; i < texts.length; i++) {
         holder.addText(texts[i], types[i], triggers[i]);
       }
+      // inform dispatcher
+      universe.registerTriggers(triggers);
     } else {
       parent.println("Error, texts/types mismatch");
     }
@@ -104,16 +106,5 @@ class textArea {
     pg.popStyle();
 
     pg.popMatrix();
-
-    // WIP
-    this.update();
-  }
-
-  // WIP: update state depending on selection
-  private void update() {
-    textChunk selected = holder.chunkSelected();
-    if (selected != null) {
-      frame.setScaling(scale*2);
-    }
   }
 }

@@ -26,8 +26,9 @@ class textUniverse {
   // currently active areas
   ArrayList <textArea> areas;
 
-  // currently active actions
-  ArrayList <textAction> actions;
+  // Will monitor triggers from here
+  // TODO: possibility to unregister old triggers
+  ArrayList <textTrigger> triggers;
 
   textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float scale) {
     if (!init) {
@@ -44,7 +45,7 @@ class textUniverse {
     this.frame = refFrame;
     this.scale = scale;
     areas = new ArrayList();
-    actions = new ArrayList();
+    triggers = new ArrayList();
 
     // load text areas
     textAreaData[]  areaData = textParser.getAreasData("");
@@ -55,8 +56,38 @@ class textUniverse {
   }
 
   public void draw() {
+    // update triggers
+    for (textTrigger trig : triggers) {
+      // pass on disabled triggers or that had done their actions
+      if (trig.isActive() && (trig.action == null || !trig.action.done())) {
+        trig.draw();
+      }
+    }
+
+    // update text world
     for (textArea area : areas) {
       area.draw();
+    }
+
+    // apply triggers effects, if any
+    for (textTrigger trig : triggers) {
+      if (trig.isActive() && trig.pickedRatio() >= 1 && trig.action != null) {
+        if (trig.action.done()) {
+          trig.disable();
+        } else {
+          trig.action.fire(this);
+          parent.println("fire!");
+        }
+      }
+    }
+  }
+
+  // add new triggers to the watch list
+  void registerTriggers(textTrigger[] newTrigs) {
+    for (int i = 0; i < newTrigs.length; i++) {
+      if (newTrigs[i] != null) {
+        triggers.add(newTrigs[i]);
+      }
     }
   }
 }

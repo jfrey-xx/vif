@@ -61,24 +61,13 @@ class textChunk {
   }
 
   public void draw() {
-    if (trig != null) {
-      trig.draw();
-    }
     if (group != null) {
       txtrdr.textDraw(this);
     }
   }
 
-  // wrapers around picker
-  // FIXME: better archi, eg interface?
-  public boolean isPicked() {
-    if (trig != null) {
-      return trig.isPicked();
-    } else {
-      return false;
-    }
-  }
-
+  // for textRenderer
+  // FIXME: better archi
   public float pickedRatio() {
     if (trig != null) {
       return trig.pickedRatio();

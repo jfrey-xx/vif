@@ -230,14 +230,4 @@ class textHolder {
       parent.println(mes);
     }
   }
-
-  // return selected chunk, if any
-  public textChunk chunkSelected() {
-    for (textChunk chunk : chunks) {
-      if (chunk.pickedRatio() >= 1) {
-        return chunk;
-      }
-    }
-    return null;
-  }
 }
