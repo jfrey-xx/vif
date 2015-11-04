@@ -22,6 +22,7 @@ class textArea {
   private PVector position;
   private float scale;
   private Frame frame;
+  private String id; // specific ID in this universe
   textPicking pick;
 
   private boolean debug = true;
@@ -29,12 +30,13 @@ class textArea {
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
   // scale: font (100 pixel size) to world ratio
-  textArea(textUniverse universe, PVector size, PVector position) {
+  textArea(textUniverse universe, PVector size, PVector position, String id) {
     this.universe = universe;
     this.parent = universe.parent;
     this.pg = universe.pg;
     this.scene = universe.scene;
     this.scale = universe.scale;
+    this.id = id;
     frame = new Frame(scene);
     frame.setReferenceFrame(universe.frame);
     frame.setScaling(scale);
@@ -76,7 +78,7 @@ class textArea {
     String[] texts = textParser.getChunksText(text);
     textType[] types = textParser.getChunksType(text);
     textTrigger[] triggers = textParser.getChunksTrigger(text, pick);
-    textAction[] actions = textParser.getChunksAction(text, this);
+    textAction[] actions = textParser.getChunksAction(text, this.id);
 
     // register actions
     // TODO: rethink archi, proper exceptions

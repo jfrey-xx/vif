@@ -76,19 +76,19 @@ class textParser {
     return trig;
   }
 
-  public static textAction[] getChunksAction(String scr, textArea area) {
+  public static textAction[] getChunksAction(String scr, String areaID) {
     ArrayList<textAction> actions = new ArrayList();
 
     switch (nbAction) {
     case 0:
       actions.add(null);
-      actions.add(new textTAGoto(area, "toto"));
+      actions.add(new textTAGoto(areaID, "toto"));
       actions.add(null);
       actions.add(null);
       break;
     case 1:
       actions.add(null);
-      actions.add(new textTAGoto(area, "toto"));
+      actions.add(new textTAGoto(areaID, "toto"));
       actions.add(null);
       break;
     default:
@@ -112,11 +112,13 @@ class textParser {
     data = new textAreaData();
     data.size = new PVector (40, 30);
     data.position = new PVector (0, 0, -5);
+    data.id = "a1";
     datas.add(data);
 
     data = new textAreaData();
     data.size = new PVector (40, 30);
     data.position = new PVector (-100, 0, 50);
+    data.id = "a2";
     datas.add(data);
 
     // workaround for cast

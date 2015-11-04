@@ -99,17 +99,19 @@ abstract class textAction {
 
 class textTAGoto extends textAction {
   // ID of textArea source and target
-  private textArea src;
+  private String src;
   private String target;
   private boolean done = false;
 
-  textTAGoto(textArea src, String target) {
+  textTAGoto(String src, String target) {
     this.src = src;
     this.target = target;
   }
 
   void fire(textUniverse universe) {
     universe.parent.println("fire!");
+    universe.disableArea(src);
+    universe.enableArea(target);
     done = true;
   }
 

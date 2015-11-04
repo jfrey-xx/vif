@@ -50,9 +50,26 @@ class textUniverse {
     // load text areas
     textAreaData[]  areaData = textParser.getAreasData("");
     for (int i = 0; i < areaData.length; i++) {
-      areas.add(new textArea(this, areaData[i].size, areaData[i].position));
+      areas.add(new textArea(this, areaData[i].size, areaData[i].position, areaData[i].id));
       areas.get(i).loadText(areaData[i].content);
     }
+  }
+
+  // WIP fade out for selected area
+  void disableArea(String id) {
+    areas.remove(1);
+  }
+
+  // WIP new challenger incoming
+  void enableArea(String id) {
+    textAreaData data = new textAreaData();
+    data.size = new PVector (40, 30);
+    data.position = new PVector (-100, 0, 50);
+    data.id = "a2";
+
+    textArea area = new textArea(this, data.size, data.position, data.id);
+    area.loadText(data.content);
+    areas.add(area);
   }
 
   public void draw() {
