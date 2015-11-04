@@ -88,7 +88,7 @@ class textParser {
       break;
     case 1:
       actions.add(null);
-      actions.add(new textTAGoto(areaID, "toto"));
+      actions.add(new textTAGoto(areaID, "a1"));
       actions.add(null);
       break;
     default:
@@ -113,13 +113,22 @@ class textParser {
     data.size = new PVector (40, 30);
     data.position = new PVector (0, 0, -5);
     data.id = "a1";
+    data.atStart = true;
     datas.add(data);
 
     data = new textAreaData();
     data.size = new PVector (40, 30);
     data.position = new PVector (-100, 0, 50);
     data.id = "a2";
+    data.atStart = true;
     datas.add(data);
+    
+    data = new textAreaData();
+    data.size = new PVector (40, 30);
+    data.position = new PVector (-100, 100, 50);
+    data.id = "toto";
+    datas.add(data);
+    
 
     // workaround for cast
     textAreaData[] dat = new textAreaData[datas.size()];
@@ -135,4 +144,5 @@ class textAreaData {
   PVector position;
   String id = "none";
   String content = "";
+  boolean atStart = false;
 }

@@ -93,7 +93,6 @@ class textArea {
       parent.println("Error, triggers/actions length mismatch");
     }
 
-
     // TODO: proper exception
     if (texts.length == types.length && texts.length == triggers.length) {
       for (int i = 0; i < texts.length; i++) {

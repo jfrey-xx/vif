@@ -6,7 +6,7 @@
 
 import geomerative.*;
 import processing.core.*;
-import java.util.ArrayList; 
+import java.util.*;
 import remixlab.proscene.*;
 import remixlab.dandelion.core.*; // eg for Frame
 import remixlab.dandelion.geom.*; // eg for Vec
@@ -23,8 +23,11 @@ class textUniverse {
   // world scale
   float scale;
 
+  // availables areas
+  Map <String, textAreaData> areasStock;
+
   // currently active areas
-  ArrayList <textArea> areas;
+  Map <String, textArea> areas;
 
   // Will monitor triggers from here
   // TODO: possibility to unregister old triggers
@@ -44,32 +47,37 @@ class textUniverse {
     this.scene = scene;
     this.frame = refFrame;
     this.scale = scale;
-    areas = new ArrayList();
+    areasStock = new LinkedHashMap<String, textAreaData>();
+    areas = new LinkedHashMap<String, textArea>();
     triggers = new ArrayList();
 
-    // load text areas
+    // load text area data, add to stock, grab those to init on start
     textAreaData[]  areaData = textParser.getAreasData("");
     for (int i = 0; i < areaData.length; i++) {
-      areas.add(new textArea(this, areaData[i].size, areaData[i].position, areaData[i].id));
-      areas.get(i).loadText(areaData[i].content);
+      areasStock.put(areaData[i].id, areaData[i]);
+      // check if should go live
+      if (areaData[i].atStart) {
+        enableArea(areaData[i].id);
+      }
     }
   }
 
   // WIP fade out for selected area
   void disableArea(String id) {
-    areas.remove(1);
+    areas.remove(id);
   }
 
   // WIP new challenger incoming
   void enableArea(String id) {
-    textAreaData data = new textAreaData();
-    data.size = new PVector (40, 30);
-    data.position = new PVector (-100, 0, 50);
-    data.id = "a2";
-
+    textAreaData data = areasStock.get(id);
+    if (data == null) {
+      // TODO: exception
+      parent.println("Error, no area associated to id [", id, "]");
+      return;
+    }
     textArea area = new textArea(this, data.size, data.position, data.id);
     area.loadText(data.content);
-    areas.add(area);
+    areas.put(data.id, area);
   }
 
   public void draw() {
@@ -82,8 +90,8 @@ class textUniverse {
     }
 
     // update text world
-    for (textArea area : areas) {
-      area.draw();
+    for (String key : areas.keySet()) { 
+      areas.get(key).draw();
     }
 
     // apply triggers effects, if any
