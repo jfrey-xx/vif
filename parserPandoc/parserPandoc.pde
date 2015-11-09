@@ -33,7 +33,6 @@ class areaData implements Cloneable {
     clone.position = position;
     clone.style = style;
     clone.objects = new ArrayList();
-    println("Heir from level:", level);
     return clone;
   }
 
@@ -44,6 +43,14 @@ class areaData implements Cloneable {
     }
     return parent.getHeir(level);
   }
+
+  public void addContent(String str) {
+    content += str;
+  }
+
+  public String toString() {
+    return "Header level " + level + "  -- content: [" + content + "]";
+  }
 }
 
 ArrayList<areaData> areas;
@@ -51,9 +58,7 @@ ArrayList<areaData> areas;
 // fith file, iterate over first raw
 void loadData(String file) {
 
-
   JSONArray values = loadJSONArray(file);
-  println("values:", values.size());
 
   areaData dumb = new areaData();
   // the great grand mother came by herself
@@ -64,12 +69,6 @@ void loadData(String file) {
 
 // lastArea: current area held in areas
 void loadArray(JSONArray values, areaData lastArea) {
-
-  for (int i = 0; i <  lastArea.level; i++) {
-    print(lastArea.level);
-  }
-
-  print(" values:", values.size(), " -- ");
 
   for (int i = 0; i < values.size(); i++) {
     // try to fetch object
@@ -100,12 +99,12 @@ void loadArray(JSONArray values, areaData lastArea) {
   }
 }
 
-// create new area
+// create new area, parse the array content
 areaData loadObjectArea(JSONObject object, areaData lastArea) {
   areaData newArea; 
   JSONArray content = object.getJSONArray("c");
   int level = content.getInt(0);
-  println("header level:", level);
+  //println("header level:", level);
   newArea = lastArea.getHeir(level-1);
   return newArea;
 }
@@ -115,6 +114,8 @@ areaData loadObjectArea(JSONObject object, areaData lastArea) {
 areaData loadObject(JSONObject object, areaData lastArea) {
   areaData curArea = lastArea; 
   String type = object.getString("t", "");
+  JSONArray contentArray;
+  String contentString;
   switch(type) {
   case "Header":
     println("New header");
@@ -122,15 +123,24 @@ areaData loadObject(JSONObject object, areaData lastArea) {
     // TODO: grab title
     break;
   case "Space":
-    println("space");
+    lastArea.addContent(" ");
     break;
+    // a paragraph is an array of text element
   case "Para":
-    println("para");
+    // TODO: new area
+    lastArea.addContent(" ");
+    contentArray = object.getJSONArray("c");
+    loadArray(contentArray, lastArea);
     break;
-  case "String":
-    println("string");
+  case "Str":
+    contentString = object.getString("c");
+    lastArea.addContent(contentString);
+    break;
+    // no type, likely first header
+  case "":
     break;
   default:
+    println("Header:", lastArea.toString());
     println("Unsupported:", type);
     break;
   }
