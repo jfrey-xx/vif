@@ -33,27 +33,16 @@ class areaData implements Cloneable {
     clone.position = position;
     clone.style = style;
     clone.objects = new ArrayList();
+    println("Heir from level:", level);
     return clone;
   }
 
-  // inheritate from same parent
-  public areaData getSibling() {
-    areaData clone = new areaData();
-    clone.parent = parent;
-    clone.level = level;
-    clone.position = parent.position;
-    clone.style = parent.style;
-    clone.objects = new ArrayList();
-    return clone;
-  }
-
-  // retrieve parent of level "level"
-  public areaData getAncestor(int level) {
-    if (level <= parent.level) {
-      // FIXME: should not be inferior...
-      return parent;
+  // inheritate from a specific level
+  public areaData getHeir(int level) {
+    if (level == this.level) {
+      return getHeir();
     }
-    return parent.getAncestor(level-1);
+    return parent.getHeir(level);
   }
 }
 
@@ -114,18 +103,10 @@ void loadArray(JSONArray values, areaData lastArea) {
 // create new area
 areaData loadObjectArea(JSONObject object, areaData lastArea) {
   areaData newArea; 
-
   JSONArray content = object.getJSONArray("c");
   int level = content.getInt(0);
   println("header level:", level);
-
-  if (level == lastArea.level) {
-    newArea = lastArea.getSibling();
-  } else if (level > lastArea.level) {
-    newArea = lastArea.getHeir();
-  } else {
-    newArea = lastArea.getAncestor(level-1).getHeir();
-  }
+  newArea = lastArea.getHeir(level-1);
   return newArea;
 }
 
