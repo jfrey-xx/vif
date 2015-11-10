@@ -2,6 +2,8 @@
  
  Testing parsing of org-mode files from emacs json export.
  
+ Using pandoc' 1.15.1
+ 
  Not supported:
  
  - triggers (links) with style
@@ -10,7 +12,7 @@
 
 import java.util.*;
 
-class areaData implements Cloneable {
+class areaData {
   ArrayList <String> content;
   ArrayList <String> types;
   // triggers (i.e "links") and associated actions

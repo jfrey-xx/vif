@@ -1,23 +1,17 @@
+#+ACTIVATE: text 1
 
-[[init:goto-lev2:null]]
+* perso 1                                               :@north:#toto:%medium:
 
-* Text
+** text 1
 
-** leve2
+This is a good text. [[pick:goto-text 2:Goto to next]].
 
-text under level 2
+** text 2
 
-** other level 2
+Another *good text* and a [[pick:goto-text 3:link]] to the next step.
 
-some more text under level2
+Additional text may say more.
 
-* John's text                                                  :@north:#toto:
+**  text 3                                                            :@west:
 
-link to [[timer:goto-lev2:aller vers lev2]] tout de suite.
-
-** bigday                                                  :@south:
-
-
-Alors comme ça on est un dur ? Un vrai de vrai ?
-
-Peut-être que c'est /le moment/ de briller en société ?
+This is the *end*.

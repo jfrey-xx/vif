@@ -1,6 +1,7 @@
 /* //<>//
 
- Create entities out of text. Dumb class at the moment.
+ Create entities out of an org-mode file parsed by pandoc (version 1.15.1)
+ 
  **/
 
 import java.util.ArrayList; 
@@ -11,17 +12,22 @@ class textParser {
 
   private PApplet parent;
   private ArrayList<textAreaData> areas;
+  // those activated on start
+  private ArrayList<String> startAreas;
 
   // fetch area data
   public textParser(PApplet parent, String file) {
     this.parent = parent;
     areas = new ArrayList();
+    startAreas = new ArrayList();
     JSONArray values = parent.loadJSONArray(file);
     textAreaData dumb = new textAreaData(parent);
     // the great grand mother came by herself
     dumb.ancestor = dumb;
     areas.add(dumb);
     loadArray(values, dumb);
+    // meta info should at least hold starting area
+    processMeta();
     // process triggers / actions
     processTriggers();
 
@@ -37,7 +43,14 @@ class textParser {
       // try to fetch object
       JSONObject object = values.getJSONObject(i, null);
       if (object != null) {
-        lastArea = loadObject(object, lastArea);
+        // test if header info
+        try {
+          loadObjectMeta(object.getJSONObject("unMeta"));
+        }
+        catch (Exception e) {
+          // no meta, usual stuff
+          lastArea = loadObject(object, lastArea);
+        }
       } 
       // then may be array
       else {
@@ -59,6 +72,38 @@ class textParser {
           // println("Got string ?? [", val, "]");
         }
       }
+    }
+  }
+
+  // process meta info
+  // eg: #+ACTIVATE: target area
+  // TODO: handle several targets
+  void loadObjectMeta(JSONObject meta) {
+    // which area to activate on start
+    try {
+      JSONObject activate = meta.getJSONObject("activate");
+      JSONArray content = activate.getJSONArray("c");
+
+      String startArea = "";
+
+      for (int i = 0; i < content.size(); i++) {
+        JSONObject object = content.getJSONObject(i);
+        String type = object.getString("t", "");
+        switch (type) {
+        case "Str":
+          startArea += object.getString("c", "");
+          break;
+        case "Space":
+          startArea += " ";
+          break;
+        }
+      }
+
+      parent.println("Starting area:", startArea);
+      startAreas.add(startArea);
+    }
+    catch (Exception e) {
+      parent.println("Error: did not found meta info for activation");
     }
   }
 
@@ -110,7 +155,7 @@ class textParser {
 
   // call correct methods depending on objects
   // return the current area -- changes if new header occurs
-  textAreaData loadObject(JSONObject object, textAreaData lastArea) {
+  textAreaData loadObject(JSONObject object, textAreaData lastArea) {   
     textAreaData curArea = lastArea; 
     String type = object.getString("t", "");
     JSONArray contentArray;
@@ -158,6 +203,24 @@ class textParser {
       break;
     }
     return curArea;
+  }
+
+  void processMeta() {
+    boolean gotStart = false;
+    // set activation flag
+    for (textAreaData area : areas) {
+      for (String target : startAreas) {
+        if (area.id.equals(target)) {
+          area.atStart = true;
+          gotStart = true;
+        }
+      }
+    }
+
+    // TODO exception
+    if (!gotStart) {
+      parent.println("Error: no area set for start");
+    }
   }
 
   // run through areas, convert link type to triggers / actions
