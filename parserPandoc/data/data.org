@@ -1,10 +1,4 @@
 
-
-[[cite:toto]]
-
-[Namespace:Name][Text]]
-
-
 * Text
 
 ** leve2
@@ -17,23 +11,11 @@ some more text under level2
 
 * John's text                                                  :@north:#toto:
 
+link to [[timer:goto-lev2:aller vers lev2]] tout de suite.
 
-:TRIGGERS:
-- equals value 8: [[big day]]
-- init: reset value2 
-:END:
+** bigday                                                  :@south:
 
-[[ G@value@8:big day][st et je parle longtemps] ]]
-[[G@value@8:big day][st et je parle longtemps]]
-
-[[nst:nst]nst]
-
-[[big day]]
-
-[[big day][also toward big day]]
-
-** big day
 
 Alors comme ça on est un dur ? Un vrai de vrai ?
 
-Peut-être que c'est le moment de briller en société ?
+Peut-être que c'est /le moment/ de briller en société ?

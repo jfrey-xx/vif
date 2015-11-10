@@ -2,6 +2,10 @@
  
  Testing parsing of org-mode files from emacs json export.
  
+ Not supported:
+ 
+ - triggers (links) with style
+ 
  */
 
 import java.util.*;
@@ -9,6 +13,9 @@ import java.util.*;
 class areaData implements Cloneable {
   ArrayList <String> content;
   ArrayList <String> types;
+  // triggers (i.e "links") and associated chunk
+  ArrayList <String> triggers;
+  ArrayList <Integer> triggersChunk;
   int level = 0;
   String id = "noID";
   String position = "noPosition";
@@ -18,6 +25,8 @@ class areaData implements Cloneable {
   areaData() {
     content = new ArrayList();
     types = new ArrayList();
+    triggers = new ArrayList();
+    triggersChunk = new ArrayList();
   }
 
   // inheritate from this instance
@@ -107,7 +116,8 @@ void loadArray(JSONArray values, areaData lastArea) {
           // ok, not really a string
           println("nothing??");
         }
-        println("Got string ?? [", val, "]");
+        // could be a link residue
+        // println("Got string ?? [", val, "]");
       }
     }
   }
@@ -187,6 +197,13 @@ areaData loadObject(JSONObject object, areaData lastArea) {
     lastArea.newChunk("emph");
     contentArray = object.getJSONArray("c");
     loadArray(contentArray, lastArea);
+    lastArea.newChunk("regular");
+    break;
+  case "Link":
+    lastArea.newChunk("link");
+    contentArray = object.getJSONArray("c");
+    loadArray(contentArray, lastArea);
+    lastArea.newChunk("regular");
     break;
   case "Str":
     contentString = object.getString("c");
