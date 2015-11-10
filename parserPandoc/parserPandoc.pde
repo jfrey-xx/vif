@@ -54,8 +54,16 @@ class areaData implements Cloneable {
     this.id = id;
   }
 
+  public void setPosition(String position) {
+    this.position = position;
+  }
+
+  public void setStyle(String style) {
+    this.style = style;
+  }
+
   public String toString() {
-    return "Header " + level + " ID: [" + id + "]  -- content: {" + content + "}" + " -- types: {" + types + "}";
+    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + types + "}";
   }
 }
 
@@ -105,6 +113,11 @@ void loadArray(JSONArray values, areaData lastArea) {
   }
 }
 
+// structure is like [["",["tag"],[["data-tag-name","@north"]]],[]]
+String parseTag(JSONArray array) {
+  return array.getJSONArray(0).getJSONArray(2).getJSONArray(0).getString(1);
+}
+
 // create new area, parse the array content
 areaData loadObjectArea(JSONObject object, areaData lastArea) {
   areaData newArea; 
@@ -123,6 +136,20 @@ areaData loadObjectArea(JSONObject object, areaData lastArea) {
       break;
     case "Space":
       id += " ";
+      break;
+      // holder for a tag
+    case "Span":
+      String tag = parseTag(objectID.getJSONArray("c"));
+      // first char of tag set type, eg @direction or #style
+      char tagType = tag.charAt(0);
+      String tagContent = tag.substring(1);
+      if (tag.charAt(0) == '#') {
+        newArea.setStyle(tagContent);
+      } else if (tagType == '@') {
+        newArea.setPosition(tagContent);
+      } else {
+        println("Cannot process tag:", tag);
+      }
       break;
     default:
       print("Unsupported format for header:", type);
