@@ -7,22 +7,16 @@
 import java.util.*;
 
 class areaData implements Cloneable {
-  String content = "";
+  ArrayList <String> content;
+  ArrayList <String> types;
   int level = 0;
   String position = "noPosition";
   String style = "noStyle";
   areaData parent = null;
-  ArrayList <JSONObject> objects = new ArrayList();
-
-  public areaData clone() {
-    areaData clone = new areaData();
-    clone.parent = parent;
-    clone.content = content;
-    clone.level = level;
-    clone.position = position;
-    clone.style = style;
-    clone.objects = new ArrayList();
-    return clone;
+  
+  areaData() {
+    content = new ArrayList();
+    types = new ArrayList();
   }
 
   // inheritate from this instance
@@ -32,7 +26,6 @@ class areaData implements Cloneable {
     clone.level = level+1;
     clone.position = position;
     clone.style = style;
-    clone.objects = new ArrayList();
     return clone;
   }
 
@@ -45,11 +38,19 @@ class areaData implements Cloneable {
   }
 
   public void addContent(String str) {
-    content += str;
+    String curContent =  content.get(content.size() - 1);
+    curContent += str;
+    content.set(content.size() - 1, curContent);
+  }
+  
+  // create new chunk of text
+  public void newChunk(String type) {
+    content.add("");
+    types.add(type);
   }
 
   public String toString() {
-    return "Header level " + level + "  -- content: [" + content + "]";
+    return "Header level " + level + "  -- content: {" + content + "}" + " -- types: {" + types + "}";
   }
 }
 
@@ -104,7 +105,6 @@ areaData loadObjectArea(JSONObject object, areaData lastArea) {
   areaData newArea; 
   JSONArray content = object.getJSONArray("c");
   int level = content.getInt(0);
-  //println("header level:", level);
   newArea = lastArea.getHeir(level-1);
   return newArea;
 }
@@ -118,8 +118,8 @@ areaData loadObject(JSONObject object, areaData lastArea) {
   String contentString;
   switch(type) {
   case "Header":
-    println("New header");
     curArea = loadObjectArea(object, lastArea);
+    areas.add(curArea);
     // TODO: grab title
     break;
   case "Space":
@@ -128,7 +128,13 @@ areaData loadObject(JSONObject object, areaData lastArea) {
     // a paragraph is an array of text element
   case "Para":
     // TODO: new area
-    lastArea.addContent(" ");
+    lastArea.newChunk("regular");
+    contentArray = object.getJSONArray("c");
+    loadArray(contentArray, lastArea);
+    break;
+    // new chunk
+  case "Emph":
+    lastArea.newChunk("emph");
     contentArray = object.getJSONArray("c");
     loadArray(contentArray, lastArea);
     break;
@@ -137,6 +143,7 @@ areaData loadObject(JSONObject object, areaData lastArea) {
     lastArea.addContent(contentString);
     break;
     // no type, likely first header
+
   case "":
     break;
   default:
@@ -153,10 +160,12 @@ void setup() {
   size(800, 600);
   areas = new ArrayList();
   loadData("data.json");
-  /*int id = animal.getInt("id");
-   String species = animal.getString("species");
-   String name = animal.getString("name");
-   println(id + ", " + species + ", " + name);*/
+
+for(areaData area : areas) {
+  println(area);
+}
+   
+   
 }
 
 void draw() {
