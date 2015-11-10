@@ -10,10 +10,11 @@ class areaData implements Cloneable {
   ArrayList <String> content;
   ArrayList <String> types;
   int level = 0;
+  String id = "noID";
   String position = "noPosition";
   String style = "noStyle";
   areaData parent = null;
-  
+
   areaData() {
     content = new ArrayList();
     types = new ArrayList();
@@ -42,15 +43,19 @@ class areaData implements Cloneable {
     curContent += str;
     content.set(content.size() - 1, curContent);
   }
-  
+
   // create new chunk of text
   public void newChunk(String type) {
     content.add("");
     types.add(type);
   }
 
+  public void setID(String id) {
+    this.id = id;
+  }
+
   public String toString() {
-    return "Header level " + level + "  -- content: {" + content + "}" + " -- types: {" + types + "}";
+    return "Header " + level + " ID: [" + id + "]  -- content: {" + content + "}" + " -- types: {" + types + "}";
   }
 }
 
@@ -106,6 +111,24 @@ areaData loadObjectArea(JSONObject object, areaData lastArea) {
   JSONArray content = object.getJSONArray("c");
   int level = content.getInt(0);
   newArea = lastArea.getHeir(level-1);
+  // ID is in array of 3rd element
+  JSONArray contentID = content.getJSONArray(2);
+  String id = "";
+  for (int i = 0; i < contentID.size(); i++) {
+    JSONObject objectID = contentID.getJSONObject(i);
+    String type = objectID.getString("t", "");
+    switch (type) {
+    case "Str":
+      id += objectID.getString("c", "");
+      break;
+    case "Space":
+      id += " ";
+      break;
+    default:
+      print("Unsupported format for header:", type);
+    }
+  }
+  newArea.setID(id);
   return newArea;
 }
 
@@ -161,11 +184,9 @@ void setup() {
   areas = new ArrayList();
   loadData("data.json");
 
-for(areaData area : areas) {
-  println(area);
-}
-   
-   
+  for (areaData area : areas) {
+    println(area);
+  }
 }
 
 void draw() {
