@@ -74,11 +74,11 @@ class textArea {
   }
 
   // stub for populating textHolder
-  public void loadText(String text) {
-    String[] texts = textParser.getChunksText(text);
-    textType[] types = textParser.getChunksType(text);
-    textTrigger[] triggers = textParser.getChunksTrigger(text, pick);
-    textAction[] actions = textParser.getChunksAction(text, this.id);
+  public void load(textAreaData data) {
+    String[] texts = data.getChunksText();
+    textType[] types = data.getChunksType();
+    textTrigger[] triggers = data.getChunksTrigger(pick);
+    textAction[] actions = data.getChunksAction(this.id);
 
     // register actions
     // TODO: rethink archi, proper exceptions

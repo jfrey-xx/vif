@@ -1,0 +1,23 @@
+
+[[init:goto-lev2:null]]
+
+* Text
+
+** leve2
+
+text under level 2
+
+** other level 2
+
+some more text under level2
+
+* John's text                                                  :@north:#toto:
+
+link to [[timer:goto-lev2:aller vers lev2]] tout de suite.
+
+** bigday                                                  :@south:
+
+
+Alors comme ça on est un dur ? Un vrai de vrai ?
+
+Peut-être que c'est /le moment/ de briller en société ?
