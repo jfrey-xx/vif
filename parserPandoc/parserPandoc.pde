@@ -13,9 +13,9 @@ import java.util.*;
 class areaData implements Cloneable {
   ArrayList <String> content;
   ArrayList <String> types;
-  // triggers (i.e "links") and associated chunk
+  // triggers (i.e "links") and associated actions
   ArrayList <String> triggers;
-  ArrayList <Integer> triggersChunk;
+  ArrayList <String> actions;
   int level = 0;
   String id = "noID";
   String position = "noPosition";
@@ -26,7 +26,7 @@ class areaData implements Cloneable {
     content = new ArrayList();
     types = new ArrayList();
     triggers = new ArrayList();
-    triggersChunk = new ArrayList();
+    actions = new ArrayList();
   }
 
   // inheritate from this instance
@@ -72,7 +72,7 @@ class areaData implements Cloneable {
   }
 
   public String toString() {
-    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + types + "}";
+    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + types + "} -- triggers: {" + triggers + "} actions: {" + actions + "}";
   }
 }
 
@@ -88,6 +88,8 @@ void loadData(String file) {
   dumb.parent = dumb;
   areas.add(dumb);
   loadArray(values, dumb);
+  // process triggers / actions
+  processTriggers();
 }
 
 // lastArea: current area held in areas
@@ -221,7 +223,36 @@ areaData loadObject(JSONObject object, areaData lastArea) {
   return curArea;
 }
 
-
+// run through areas, convert link type to triggers / actions
+void processTriggers() {
+  for (areaData area : areas) {
+    // TODO: exception instead of log
+    if (area.content.size() != area.types.size()) {
+      println("Error, content/type mismatch for header: ", area);
+      continue;
+    }
+    for (int i = 0; i < area.content.size();  i++) {
+      switch(area.types.get(i)) {
+      case "link":
+        // colon as separator
+        String[] link = area.content.get(i).split(":");
+        if (link.length != 3) {
+          println("Error, bad link:", area.content.get(i));
+          continue;
+        }
+        area.triggers.add(link[0]);
+        area.actions.add(link[1]);
+        // replace content with actual text
+        area.content.set(i,link[2]);
+        break;
+      default:
+        area.triggers.add("");
+        area.actions.add("");
+        break;
+      }
+    }
+  }
+}
 
 void setup() {
   size(800, 600);
