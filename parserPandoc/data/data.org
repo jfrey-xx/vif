@@ -1,4 +1,6 @@
 
+[[init:goto-lev2:null]]
+
 * Text
 
 ** leve2
