@@ -175,6 +175,8 @@ class textParser {
     case "Para":
       // TODO: new area
       lastArea.newChunk(textType.REGULAR);
+      // a white space separator between paragraphs, waiting for line return
+      lastArea.addContent(" ");
       contentArray = object.getJSONArray("c");
       loadArray(contentArray, lastArea);
       break;
