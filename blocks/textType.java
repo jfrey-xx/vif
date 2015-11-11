@@ -3,6 +3,8 @@
  
  Set semantical types for pieces of text -- and position, and size.
  
+ Units for position and size is in pixels, textUniverse will adjust with scale before passin to textArea.
+ 
  */
 
 import processing.core.*;
@@ -14,10 +16,10 @@ enum textType {
   // where to put text
 enum textPosition {
   // NORTH: 5 unit in front, and so on
-  NORTH("NORTH", new PVector(0, 0, -5)), 
-    EAST("EAST", new PVector(5, 0, 0)), 
-    SOUTH("SOUTH", new PVector(0, 0, 5)), 
-    WEST("WEST", new PVector(-5, 0, 0));
+  NORTH("NORTH", new PVector(0, 0, -500)), 
+    EAST("EAST", new PVector(500, 0, 0)), 
+    SOUTH("SOUTH", new PVector(0, 0, 500)), 
+    WEST("WEST", new PVector(-500, 0, 0));
 
   private String text;
   private PVector position;
@@ -49,7 +51,7 @@ enum textPosition {
 
 // size of text
 enum textSize {
-  MEDIUM("MEDIUM", new PVector(4, 3));
+  MEDIUM("MEDIUM", new PVector(1000, 1500));
 
   private String text;
   private PVector size;

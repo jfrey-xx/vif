@@ -79,7 +79,8 @@ class textUniverse {
       parent.println("Error, no area associated to id [", id, "]");
       return;
     }
-    textArea area = new textArea(this, data.size, data.position, data.id);
+    // adjust position and size with scale
+    textArea area = new textArea(this, data.size.mult(scale), data.position.mult(scale), data.id);
     area.load(data);
     areas.put(data.id, area);
   }
