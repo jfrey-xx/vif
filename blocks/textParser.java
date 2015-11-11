@@ -141,6 +141,8 @@ class textParser {
           newArea.setStyle(tagContent);
         } else if (tagType == '@') {
           newArea.setPosition(tagContent);
+        } else if (tagType == '%') {
+          newArea.setSize(tagContent);
         } else {
           parent.println("Cannot process tag:", tag);
         }
@@ -266,8 +268,8 @@ class textParser {
 class textAreaData {
   PApplet parent;
 
-  PVector sizeVec;
-  PVector positionVec;
+  PVector size;
+  PVector position;
   boolean atStart = false;
 
   ArrayList <String> content;
@@ -277,7 +279,6 @@ class textAreaData {
   ArrayList <String> actions;
   int level = 0;
   String id = "noID";
-  String position = "noPosition";
   String style = "noStyle";
   textAreaData ancestor = null;
 
@@ -287,6 +288,10 @@ class textAreaData {
     types = new ArrayList();
     triggers = new ArrayList();
     actions = new ArrayList();
+
+    // put a default size and position just to avoid null pointer
+    size = new PVector(10, 10);
+    position = new PVector(0, 0, 0);
   }
 
   // inheritate from this instance
@@ -323,8 +328,13 @@ class textAreaData {
     this.id = id;
   }
 
+  // convert string code to actual position
   public void setPosition(String position) {
-    this.position = position;
+    //  this.position = position;
+  }
+
+  public void setSize(String size) {
+    //  this.size = size;
   }
 
   public void setStyle(String style) {
@@ -360,6 +370,7 @@ class textAreaData {
         tTriggers.add(pick.getNewPicker());
         break;
       case "":
+        // no trigger associated to current chunk
         tTriggers.add(null);
         break;
       default:
@@ -373,7 +384,7 @@ class textAreaData {
     textTrigger[] trig = new textTrigger[tTriggers.size()];
     tTriggers.toArray(trig);
 
-    return null;
+    return trig;
   }
 
   // convert actions coded with strings to actual actions
@@ -393,6 +404,10 @@ class textAreaData {
         }
         String targetID = split[1];
         tActions.add(new textTAGoto(areaID, targetID));
+        break;
+      case "":
+        // no action associated to current chunk
+        tActions.add(null);
         break;
       default:
         parent.println("Action not supported: [", split[0], "] from", actions.get(i));
