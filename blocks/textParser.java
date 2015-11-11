@@ -299,7 +299,8 @@ class textAreaData {
     textAreaData clone = new textAreaData(parent);
     clone.ancestor = this;
     clone.level = level+1;
-    clone.position = position;
+    clone.position = position.copy();
+    clone.size = size.copy();
     clone.style = style;
     return clone;
   }
@@ -330,11 +331,21 @@ class textAreaData {
 
   // convert string code to actual position
   public void setPosition(String position) {
-    //  this.position = position;
+    textPosition pos = textPosition.fromString(position);
+    if (pos == null) {
+      parent.println("Error, no position for keyword:", position);
+    } else {
+      this.position = pos.getPosition();
+    }
   }
 
   public void setSize(String size) {
-    //  this.size = size;
+    textSize siz = textSize.fromString(size);
+    if (siz == null) {
+      parent.println("Error, no size for keyword:", size);
+    } else {
+      this.size = siz.getSize();
+    }
   }
 
   public void setStyle(String style) {
@@ -342,7 +353,7 @@ class textAreaData {
   }
 
   public String toString() {
-    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + types + "} -- triggers: {" + triggers + "} actions: {" + actions + "}";
+    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- size: [" + size + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + types + "} -- triggers: {" + triggers + "} actions: {" + actions + "}";
   }
 
   //// giving to textArea
