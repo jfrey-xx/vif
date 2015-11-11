@@ -185,8 +185,14 @@ class textParser {
       loadArray(contentArray, lastArea);
       lastArea.newChunk(textType.REGULAR);
       break;
+    case "Strong":
+      lastArea.newChunk(textType.STRONG);
+      contentArray = object.getJSONArray("c");
+      loadArray(contentArray, lastArea);
+      lastArea.newChunk(textType.REGULAR);
+      break;
     case "Link":
-      lastArea.newChunk(textType.SHAKE);
+      lastArea.newChunk(textType.LINK);
       contentArray = object.getJSONArray("c");
       loadArray(contentArray, lastArea);
       lastArea.newChunk(textType.REGULAR);
@@ -235,7 +241,7 @@ class textParser {
       }
       for (int i = 0; i < area.content.size(); i++) {
         switch(area.types.get(i)) {
-        case SHAKE:
+        case LINK:
           // colon as separator
           String[] link = area.content.get(i).split(":");
           if (link.length != 3) {

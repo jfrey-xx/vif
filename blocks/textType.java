@@ -10,7 +10,7 @@
 import processing.core.*;
 
 enum textType { 
-  REGULAR, EMPHASIS, SHAKE, BEAT
+  REGULAR, EMPHASIS, LINK, STRONG
 };
 
   // where to put text

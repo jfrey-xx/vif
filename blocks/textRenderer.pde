@@ -41,10 +41,10 @@ public class textRenderer {
     case EMPHASIS:
       textDrawEmphasis(group);
       break;
-    case SHAKE:
+    case LINK:
       textDrawShake(group);
       break;
-    case BEAT:
+    case STRONG:
       textDrawBeat(group);
       break;
     default:
