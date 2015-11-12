@@ -19,6 +19,8 @@ abstract class textTrigger {
   private boolean picked = false;
   int startPicked = -1;
   int timePicked = -1;
+  // if has already fired since ratio >= 1
+  private boolean waitingFire = true;
 
   // in activity upon further notice
   private boolean active = true;
@@ -69,18 +71,32 @@ abstract class textTrigger {
 
   // -1: not picked
   // between 0 and 1: ratio before timesUp
+  // update waitingFire flag -- once per "1" reached
   public final float pickedRatio() {
     if (!isPicked()) {
+      waitingFire = true;
       return -1;
     }
     if (timePicked >= selectionDelay || selectionDelay <= 0) {
       return 1;
     }
+    waitingFire = true;
     return ( (float)timePicked / selectionDelay);
   }
 
+  // if this trigger should still be updated (may be disabled depending on action)
   public final boolean isActive() {
     return active;
+  }
+
+  // picked reached one and still no action taken. usefull to ensure that there is no two actions in a row
+  // NB: state reset after each call
+  public final boolean waitingFire() {
+    if ((waitingFire) &&  pickedRatio() >=1) {
+      waitingFire = false;
+      return true;
+    }
+    return false;
   }
 
   // should be called by universe upon de-registsration
@@ -109,7 +125,7 @@ class textTAGoto extends textAction {
   }
 
   void fire(textUniverse universe) {
-    universe.parent.println("fire!");
+    universe.parent.println("go from [" + src + "] to " + target + "]");
     universe.disableArea(src);
     universe.enableArea(target);
     done = true;
@@ -120,10 +136,9 @@ class textTAGoto extends textAction {
   }
 }
 
-// incremente variable
+// increments variable
 class textTAInc extends textAction {
   private String var;
-  private boolean done = false;
 
   textTAInc(String var) {
     this.var = var;
@@ -132,10 +147,10 @@ class textTAInc extends textAction {
   void fire(textUniverse universe) {
     textState.incVar(var);
     universe.parent.println("increments:", textState.getValue(var));
-    done = true;
   }
 
+  // can procude the effect several times
   boolean done() {
-    return done;
+    return false;
   }
 }

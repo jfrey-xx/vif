@@ -101,8 +101,9 @@ class textUniverse {
 
     // apply triggers effects, if any
     // NB: working on copy as safeguard since triggers could do *anything*
+    // FIXME: remove old triggers?? (e.g. dead areas)
     for (textTrigger trig : new ArrayList<textTrigger> (triggers)) {
-      if (trig.isActive() && trig.pickedRatio() >= 1 && trig.action != null) {
+      if (trig.isActive() && trig.waitingFire() && trig.action != null) {
         if (trig.action.done()) {
           trig.disable();
         } else {
@@ -121,4 +122,3 @@ class textUniverse {
     }
   }
 }
-
