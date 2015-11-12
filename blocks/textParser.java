@@ -10,6 +10,9 @@ import processing.data.*;
 
 class textParser {
 
+  // separator for trigger type/param/style
+  final static String TRIGGER_SEPARATOR = "-";
+
   private PApplet parent;
   private ArrayList<textAreaData> areas;
   // those activated on start
@@ -248,17 +251,51 @@ class textParser {
     }
   }
 
-  // 
+  // split and return type trig
+  static String getTriggerType(String trig) {
+    // trigger format: type, [parameter, animation]
+    String[] split = trig.split(TRIGGER_SEPARATOR);
+    return split[0];
+  }
+
+  // split and return style trig (will be type if no given)
+  static String getTriggerStyle(String trig) {
+    // trigger format: type, [parameter, animation]
+    String[] split = trig.split(TRIGGER_SEPARATOR);
+    if (split.length > 2) {
+      return split[2];
+    } 
+    return split[0];
+  }
+
+  // split and return type action
+  static String getActionType(String action) {
+    // action format: type, parameter
+    // "-" is also separator for actions options
+    String[] split = action.split(TRIGGER_SEPARATOR);
+    return split[0];
+  }
+
+  // split and return param action
+  // return null if finds nothing
+  static String getActionParam(String action) {
+    String[] split = action.split(TRIGGER_SEPARATOR);
+    if (split.length < 2) {
+      return null;
+    }
+    return split[1];
+  }
+
+  // match trigger style with animation
   // FIXME: kind of duplication with getChunksTrigger, quick'n dirty, use enum string for auto match
   void processAnimations() {
     for (textAreaData area : areas) {
       for (String trig : area.triggers) {
-        // trigger format: type, [parameter, animation]
-        String[] split = trig.split("-");
+        String trigStyle = getTriggerStyle(trig);
         // default for trig
-        if (split[0].equals("pick")) {
+        if (trigStyle.equals("pick")) {
           area.anim.add(textAnim.SHADOW);
-        } else if (split.length > 2 && split[2].equals("heartstyle")) {
+        } else if (trigStyle.equals("heartstyle")) {
           area.anim.add(textAnim.HEART);
         } else {
           area.anim.add(textAnim.NONE);
@@ -397,14 +434,17 @@ class textAreaData {
     ArrayList<textTrigger> tTriggers = new ArrayList();
 
     for (int i = 0; i < triggers.size (); i++) {
-      String triggerType = triggers.get(i);
+      String triggerType = textParser.getTriggerType(triggers.get(i));
       if (triggerType.equals("pick")) {
+        tTriggers.add(pick.getNewPicker());
+      } else if (triggerType.equals("bind")) {
+        // WIP: bind as pick for debug
         tTriggers.add(pick.getNewPicker());
       } else if (triggerType.equals("")) {
         // no trigger associated to current chunk
         tTriggers.add(null);
       } else {
-        parent.println("Trigger not supported:", triggers.get(i));
+        parent.println("Trigger not supported:", triggerType);
         tTriggers.add(null);
       }
     }
@@ -421,23 +461,29 @@ class textAreaData {
     ArrayList<textAction> tActions = new ArrayList();
 
     for (int i = 0; i < actions.size (); i++) {
-      // "-" is separator for actions options
-      String[] split = actions.get(i).split("-");
-      // first substring is code
-      String actionType = split[0];
+      // first substrings codes
+      String actionType = textParser.getActionType(actions.get(i));
+      String actionParam = textParser.getActionParam(actions.get(i)); 
       if (actionType.equals ("goto")) {
-        if (split.length != 2) {
-          parent.println("Bad format for GOTO action:", split);
+        if (actionParam == null) {
+          parent.println("Bad format for GOTO action:", actions.get(i));
           tActions.add(null);
           continue;
         }
-        String targetID = split[1];
-        tActions.add(new textTAGoto(areaID, targetID));
+        tActions.add(new textTAGoto(areaID, actionParam));
+      } else if (actionType.equals("inc")) {
+        if (actionParam == null) {
+          parent.println("Bad format for INC action:", actions.get(i));
+          tActions.add(null);
+          continue;
+        }
+        // will increment said value
+        tActions.add(new textTAInc(actionParam));
       } else if (actionType.equals("")) {
         // no action associated to current chunk
         tActions.add(null);
       } else {
-        parent.println("Action not supported: [", split[0], "] from", actions.get(i));
+        parent.println("Action not supported: [", actionType, "] from", actions.get(i));
         tActions.add(null);
       }
     }

@@ -119,3 +119,23 @@ class textTAGoto extends textAction {
     return done;
   }
 }
+
+// incremente variable
+class textTAInc extends textAction {
+  private String var;
+  private boolean done = false;
+
+  textTAInc(String var) {
+    this.var = var;
+  }
+
+  void fire(textUniverse universe) {
+    textState.incVar(var);
+    universe.parent.println("increments:", textState.getValue(var));
+    done = true;
+  }
+
+  boolean done() {
+    return done;
+  }
+}
