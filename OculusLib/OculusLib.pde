@@ -35,6 +35,9 @@ textUniverse universe;
 // scale of text
 float scale;
 
+// position for FPS
+PVector positionFPS = new PVector(0, 0, -5);
+
 // for interaction, will adapt mouse position to VR
 float cursorX = 0;
 float cursorY = 0;
@@ -121,7 +124,7 @@ public void mainDrawing(Scene s) {
 
   // deal with FPS (have to place it manually)
   pg.pushMatrix();
-  //pg.translate(position.x, position.y, position. z);
+  pg.translate(positionFPS.x, positionFPS.y, positionFPS.z);
   pg.fill(0, 0, 255);
   pg.scale(scale);
   pg.text(frameRate, 10, 10);
@@ -223,4 +226,3 @@ void drawHud(Scene s) {
   pg.popStyle();
 }
 //////////////////////////////////////////////
-

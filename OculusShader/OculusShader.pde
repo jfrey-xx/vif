@@ -12,7 +12,8 @@
 import geomerative.*;
 import SimpleOculusRift.*;
 import remixlab.proscene.*;
-import remixlab.dandelion.geom.*;
+import remixlab.dandelion.core.*; // eg for Frame
+import remixlab.dandelion.geom.*; // eg for Vec
 
 Scene proscene;
 Frame mainFrame;
@@ -22,23 +23,19 @@ float rotateLookY = 0;
 
 float floorDist = 1.; // for grid, let's say we're seated
 
-
-RFont font;
-textHolder desc;
-
-
 PShader barrel;
 int eye_width = 640;
 int eye_height = 800;
 PGraphics fb;
 PGraphics scene;
 
-textPicking pick;
-textArea area;
+textUniverse universe;
 
-// position and scale of text
-PVector position;
+// scale of text
 float scale;
+
+// position for FPS
+PVector positionFPS = new PVector(0, 0, -5);
 
 //----------------SETUP---------------------------------
 void setup() {
@@ -53,19 +50,10 @@ void setup() {
   // Load fragment shader for oculus rift barrel distortion
   barrel = loadShader("barrel_frag.glsl");
 
-  //surface.setResizable(true);
-  RG.init(this); 
-
-  //CONFIGURE SEGMENT LENGTH AND MODE
-  //SETS THE SEGMENT LENGTH BETWEEN TWO POINTS ON A SHAPE/FONT OUTLINE
-  RCommand.setSegmentLength(10);//ASSIGN A VALUE OF 10, SO EVERY 10 PIXELS
-  RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
-
   proscene = new Scene(this, scene);
   proscene.addDrawHandler(this, "mainDrawing");
   // disable keyboard action: we will handle it ourselves
   proscene.disableKeyboardAgent();
-
 
   // our eye is the center of the world
   proscene.eye().setPosition(new Vec(0, 0, 0));
@@ -74,15 +62,9 @@ void setup() {
   textFrame = new Frame(proscene);
   textFrame.setReferenceFrame(mainFrame);
 
-  // place frame
-  position = new PVector (0, 0, -5);
-  scale = 0.01;
-
   // world/font ratio = 10
-  area = new textArea(proscene.pg(), proscene, textFrame, new PVector (4, 3), position, scale);
-  area.loadText("");
-  pick = area.getPick();
-  pick.debug = true;
+  scale = 0.01;
+  universe = new textUniverse(this, proscene.pg(), proscene, textFrame, scale, "data.json");
 }
 
 
@@ -99,7 +81,7 @@ void updateReferenceFrame() {
 void draw() {
   float cursorX = mouseX/2;
   float cursorY = mouseY;
-  
+
   updateReferenceFrame();
 
   background(0);
@@ -137,7 +119,7 @@ void draw() {
   fb.endDraw();
   image(fb, 0, 0);
 
-  pick.setCursor(new Vec(cursorX , cursorY, 0));
+  textPicking.setCursor(new Vec(cursorX, cursorY, 0));
 }
 
 public void mainDrawing(Scene s) {
@@ -147,17 +129,17 @@ public void mainDrawing(Scene s) {
 
   pg.pushMatrix();
   drawGrid(pg, new PVector(0, floorDist, 0), 10, 10);
-  
+
   // text
   pg.pushMatrix();
   textFrame.applyTransformation();
   // show debug with current matrix
-  area.draw();
+  universe.draw();
   pg.popMatrix();  
 
   // deal with FPS (have to place it manually)
   pg.pushMatrix();
-  pg.translate(position.x, position.y, position. z);
+  pg.translate(positionFPS.x, positionFPS.y, positionFPS.z);
   pg.fill(0, 0, 255);
   pg.scale(scale);
   pg.text(frameRate, 10, 10);
@@ -201,10 +183,10 @@ void drawGrid(PGraphics pg, PVector center, float length, int repeat)
     pos = -length *.5 + x * length / repeat;
 
     pg.line(-length*.5, 0, pos, 
-    length*.5, 0, pos);
+      length*.5, 0, pos);
 
     pg.line(pos, 0, -length*.5, 
-    pos, 0, length*.5);
+      pos, 0, length*.5);
   }
   pg.popMatrix();
 }
@@ -251,4 +233,3 @@ void set_shader(String eye)
 }
 
 //////////////////////////////////////////////
-
