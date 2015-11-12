@@ -79,8 +79,8 @@ class textUniverse {
       parent.println("Error, no area associated to id [", id, "]");
       return;
     }
-    // adjust position and size with scale
-    textArea area = new textArea(this, data.size.mult(scale), data.position.mult(scale), data.id);
+    // adjust position and size with scale -- no mult() in processing 2xxx
+    textArea area = new textArea(this, new PVector(data.size.x * scale, data.size.y * scale), new PVector(data.position.x*scale, data.position.y*scale, data.position.z*scale), data.id);
     area.load(data);
     areas.put(data.id, area);
   }
@@ -95,13 +95,13 @@ class textUniverse {
     }
 
     // update text world
-    for (String key : areas.keySet()) { 
+    for (String key : areas.keySet ()) { 
       areas.get(key).draw();
     }
 
     // apply triggers effects, if any
     // NB: working on copy as safeguard since triggers could do *anything*
-    for (textTrigger trig : new ArrayList<textTrigger>(triggers)) {
+    for (textTrigger trig : new ArrayList<textTrigger> (triggers)) {
       if (trig.isActive() && trig.pickedRatio() >= 1 && trig.action != null) {
         if (trig.action.done()) {
           trig.disable();
@@ -121,3 +121,4 @@ class textUniverse {
     }
   }
 }
+

@@ -1,5 +1,5 @@
 /* //<>//
-
+ 
  Create entities out of an org-mode file parsed by pandoc (version 1.15.1)
  
  **/
@@ -39,7 +39,7 @@ class textParser {
   // lastArea: current area held in areas
   void loadArray(JSONArray values, textAreaData lastArea) {
 
-    for (int i = 0; i < values.size(); i++) {
+    for (int i = 0; i < values.size (); i++) {
       // try to fetch object
       JSONObject object = values.getJSONObject(i, null);
       if (object != null) {
@@ -86,16 +86,13 @@ class textParser {
 
       String startArea = "";
 
-      for (int i = 0; i < content.size(); i++) {
+      for (int i = 0; i < content.size (); i++) {
         JSONObject object = content.getJSONObject(i);
         String type = object.getString("t", "");
-        switch (type) {
-        case "Str":
+        if (type.equals("Str")) {
           startArea += object.getString("c", "");
-          break;
-        case "Space":
+        } else if (type.equals("Space")) {
           startArea += " ";
-          break;
         }
       }
 
@@ -121,18 +118,15 @@ class textParser {
     // ID is in array of 3rd element
     JSONArray contentID = content.getJSONArray(2);
     String id = "";
-    for (int i = 0; i < contentID.size(); i++) {
+    for (int i = 0; i < contentID.size (); i++) {
       JSONObject objectID = contentID.getJSONObject(i);
       String type = objectID.getString("t", "");
-      switch (type) {
-      case "Str":
+      if (type.equals("Str")) {
         id += objectID.getString("c", "");
-        break;
-      case "Space":
+      } else if (type.equals("Space")) {
         id += " ";
-        break;
+      } else if (type.equals("Span")) {
         // holder for a tag
-      case "Span":
         String tag = parseTag(objectID.getJSONArray("c"));
         // first char of tag set type, eg @direction or #style
         char tagType = tag.charAt(0);
@@ -146,8 +140,7 @@ class textParser {
         } else {
           parent.println("Cannot process tag:", tag);
         }
-        break;
-      default:
+      } else {
         parent.print("Unsupported format for header:", type);
       }
     }
@@ -162,55 +155,44 @@ class textParser {
     String type = object.getString("t", "");
     JSONArray contentArray;
     String contentString;
-    switch(type) {
-    case "Header":
+    if (type.equals("Header")) {
       curArea = loadObjectArea(object, lastArea);
       areas.add(curArea);
-      // TODO: grab title
-      break;
-    case "Space":
+    } else if (type.equals("Space")) {
       lastArea.addContent(" ");
-      break;
+    } else if (type.equals("Para")) {
       // a paragraph is an array of text element
-    case "Para":
+
       // TODO: new area
       lastArea.newChunk(textType.REGULAR);
       // a white space separator between paragraphs, waiting for line return
       lastArea.addContent(" ");
       contentArray = object.getJSONArray("c");
       loadArray(contentArray, lastArea);
-      break;
+    } else if (type.equals("Emph")) {
       // new chunk
-    case "Emph":
       lastArea.newChunk(textType.EMPHASIS);
       contentArray = object.getJSONArray("c");
       loadArray(contentArray, lastArea);
       lastArea.newChunk(textType.REGULAR);
-      break;
-    case "Strong":
+    } else if (type.equals("Strong")) {
       lastArea.newChunk(textType.STRONG);
       contentArray = object.getJSONArray("c");
       loadArray(contentArray, lastArea);
       lastArea.newChunk(textType.REGULAR);
-      break;
-    case "Link":
+    } else if (type.equals("Link")) {
       lastArea.newChunk(textType.LINK);
       contentArray = object.getJSONArray("c");
       loadArray(contentArray, lastArea);
       lastArea.newChunk(textType.REGULAR);
-      break;
-    case "Str":
+    } else if (type.equals("Str")) {
       contentString = object.getString("c");
       lastArea.addContent(contentString);
-      break;
+    } else if (type.equals("")) {
       // no type, likely first header
-
-    case "":
-      break;
-    default:
+    } else {
       parent.println("Header:", lastArea.toString());
       parent.println("Unsupported:", type);
-      break;
     }
     return curArea;
   }
@@ -241,7 +223,7 @@ class textParser {
         parent.println("Error, content/type mismatch for header: ", area);
         continue;
       }
-      for (int i = 0; i < area.content.size(); i++) {
+      for (int i = 0; i < area.content.size (); i++) {
         switch(area.types.get(i)) {
         case LINK:
           // colon as separator
@@ -307,8 +289,8 @@ class textAreaData {
     textAreaData clone = new textAreaData(parent);
     clone.ancestor = this;
     clone.level = level+1;
-    clone.position = position.copy();
-    clone.size = size.copy();
+    clone.position = new PVector(position.x, position.y, position.z);
+    clone.size = new PVector (size.x, size.y);
     clone.style = style;
     return clone;
   }
@@ -383,19 +365,16 @@ class textAreaData {
   public textTrigger[] getChunksTrigger(textPicking pick) {
     ArrayList<textTrigger> tTriggers = new ArrayList();
 
-    for (int i = 0; i < triggers.size(); i++) {
-      switch(triggers.get(i)) {
-      case "pick":
+    for (int i = 0; i < triggers.size (); i++) {
+      String triggerType = triggers.get(i);
+      if (triggerType.equals("pick")) {
         tTriggers.add(pick.getNewPicker());
-        break;
-      case "":
+      } else if (triggerType.equals("")) {
         // no trigger associated to current chunk
         tTriggers.add(null);
-        break;
-      default:
+      } else {
         parent.println("Trigger not supported:", triggers.get(i));
         tTriggers.add(null);
-        break;
       }
     }
 
@@ -410,12 +389,12 @@ class textAreaData {
   public textAction[] getChunksAction(String areaID) {
     ArrayList<textAction> tActions = new ArrayList();
 
-    for (int i = 0; i < actions.size(); i++) {
+    for (int i = 0; i < actions.size (); i++) {
       // "-" is separator for actions options
       String[] split = actions.get(i).split("-");
       // first substring is code
-      switch(split[0]) {
-      case "goto":
+      String actionType = split[0];
+      if (actionType.equals ("goto")) {
         if (split.length != 2) {
           parent.println("Bad format for GOTO action:", split);
           tActions.add(null);
@@ -423,15 +402,12 @@ class textAreaData {
         }
         String targetID = split[1];
         tActions.add(new textTAGoto(areaID, targetID));
-        break;
-      case "":
+      } else if (actionType.equals("")) {
         // no action associated to current chunk
         tActions.add(null);
-        break;
-      default:
+      } else {
         parent.println("Action not supported: [", split[0], "] from", actions.get(i));
         tActions.add(null);
-        break;
       }
     }
 
@@ -441,3 +417,4 @@ class textAreaData {
     return act;
   }
 }
+
