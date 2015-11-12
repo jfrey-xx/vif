@@ -224,9 +224,12 @@ class textHolder {
   public void draw() {
     pg.pushMatrix();
     pg.scale(worldRatio);
+    pg.pushStyle();
+    txtrdr.areaDraw(group);
     for (int i = 0; i < chunks.size (); i++) {
       chunks.get(i).draw();
     }
+    pg.popStyle();
     pg.popMatrix();
   }
 
