@@ -25,7 +25,7 @@ class textArea {
   private String id; // specific ID in this universe
   textPicking pick;
 
-  private boolean debug = true;
+  private boolean debug = false;
 
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
@@ -74,11 +74,11 @@ class textArea {
   }
 
   // stub for populating textHolder
-  public void loadText(String text) {
-    String[] texts = textParser.getChunksText(text);
-    textType[] types = textParser.getChunksType(text);
-    textTrigger[] triggers = textParser.getChunksTrigger(text, pick);
-    textAction[] actions = textParser.getChunksAction(text, this.id);
+  public void load(textAreaData data) {
+    String[] texts = data.getChunksText();
+    textType[] types = data.getChunksType();
+    textTrigger[] triggers = data.getChunksTrigger(pick);
+    textAction[] actions = data.getChunksAction(this.id);
 
     // register actions
     // TODO: rethink archi, proper exceptions
@@ -112,14 +112,14 @@ class textArea {
     holder.draw();
     if (debug) {
       holder.drawDebug();
-    }
 
-    // textArea limits
-    pg.pushStyle();
-    pg.fill(0, 255, 0, 200);
-    pg.strokeWeight(fontSize * scale *2);
-    pg.rect(0, 0, size.x/scale, size.y/scale);
-    pg.popStyle();
+      // textArea limits
+      pg.pushStyle();
+      pg.fill(0, 255, 0, 200);
+      pg.strokeWeight(fontSize * scale *2);
+      pg.rect(0, 0, size.x/scale, size.y/scale);
+      pg.popStyle();
+    }
 
     pg.popMatrix();
   }

@@ -20,6 +20,8 @@ class textUniverse {
   Scene scene;
   Frame frame;
 
+  textParser parser;
+
   // world scale
   float scale;
 
@@ -33,7 +35,7 @@ class textUniverse {
   // TODO: possibility to unregister old triggers
   ArrayList <textTrigger> triggers;
 
-  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float scale) {
+  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float scale, String file) {
     if (!init) {
       // init geomerative
       RG.init(parent); 
@@ -52,7 +54,9 @@ class textUniverse {
     triggers = new ArrayList();
 
     // load text area data, add to stock, grab those to init on start
-    textAreaData[]  areaData = textParser.getAreasData("");
+    parser = new textParser(parent, file);
+    textAreaData[]  areaData = parser.getAreasData();
+
     for (int i = 0; i < areaData.length; i++) {
       areasStock.put(areaData[i].id, areaData[i]);
       // check if should go live
@@ -75,8 +79,9 @@ class textUniverse {
       parent.println("Error, no area associated to id [", id, "]");
       return;
     }
-    textArea area = new textArea(this, data.size, data.position, data.id);
-    area.loadText(data.content);
+    // adjust position and size with scale -- no mult() in processing 2xxx
+    textArea area = new textArea(this, new PVector(data.size.x * scale, data.size.y * scale), new PVector(data.position.x*scale, data.position.y*scale, data.position.z*scale), data.id);
+    area.load(data);
     areas.put(data.id, area);
   }
 
@@ -90,13 +95,13 @@ class textUniverse {
     }
 
     // update text world
-    for (String key : areas.keySet()) { 
+    for (String key : areas.keySet ()) { 
       areas.get(key).draw();
     }
 
     // apply triggers effects, if any
     // NB: working on copy as safeguard since triggers could do *anything*
-    for (textTrigger trig : new ArrayList<textTrigger>(triggers)) {
+    for (textTrigger trig : new ArrayList<textTrigger> (triggers)) {
       if (trig.isActive() && trig.pickedRatio() >= 1 && trig.action != null) {
         if (trig.action.done()) {
           trig.disable();
@@ -116,3 +121,4 @@ class textUniverse {
     }
   }
 }
+

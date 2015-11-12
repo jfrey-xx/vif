@@ -1,0 +1,17 @@
+#+ACTIVATE: text 1
+
+* perso 1                                               :@north:#toto:%medium:
+
+** text 1
+
+This is a good text. [[pick:goto-text 2:Goto to next]].
+
+** text 2
+
+Another *good text* and a [[pick:goto-text 3:link]] to the next step.
+
+Additional text may say more.
+
+**  text 3                                                            :@west:
+
+This is the *end*.
