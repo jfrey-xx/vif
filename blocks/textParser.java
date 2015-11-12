@@ -30,6 +30,8 @@ class textParser {
     processMeta();
     // process triggers / actions
     processTriggers();
+    // set animations
+    processAnimations();
 
     for (textAreaData area : areas) {
       parent.println(area);
@@ -246,6 +248,31 @@ class textParser {
     }
   }
 
+  // 
+  // FIXME: kind of duplication with getChunksTrigger, quick'n dirty, use enum string for auto match
+  void processAnimations() {
+    for (textAreaData area : areas) {
+      for (String trig : area.triggers) {
+        // trigger format: type, [parameter, animation]
+        String[] split = trig.split("-");
+
+        parent.print("trigger split:");
+        for (int i = 0; i < split.length; i++) {
+          parent.print("["+split[i]+"]");
+        }
+        parent.println();
+        // default for trig
+        if (split[0].equals("pick")) {
+          area.anim.add(textAnim.SHADOW);
+        } else if (split.length > 2 && split[2].equals("heartstyle")) {
+          area.anim.add(textAnim.HEART);
+        } else {
+          area.anim.add(textAnim.NONE);
+        }
+      }
+    }
+  }
+
   // get an array copy of textAreaData
   public textAreaData[] getAreasData() {
     textAreaData[] dat = new textAreaData[areas.size()];
@@ -264,9 +291,10 @@ class textAreaData {
 
   ArrayList <String> content;
   ArrayList <textType> types;
-  // triggers (i.e "links") and associated actions
+  // triggers (i.e "links") and associated actions / animations
   ArrayList <String> triggers;
   ArrayList <String> actions;
+  ArrayList <textAnim> anim;
   int level = 0;
   String id = "noID";
   String style = "noStyle";
@@ -278,6 +306,7 @@ class textAreaData {
     types = new ArrayList();
     triggers = new ArrayList();
     actions = new ArrayList();
+    anim = new ArrayList();
 
     // put a default size and position just to avoid null pointer
     size = new PVector(10, 10);
@@ -343,7 +372,9 @@ class textAreaData {
   }
 
   public String toString() {
-    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- size: [" + size + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + types + "} -- triggers: {" + triggers + "} actions: {" + actions + "}";
+    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- size: [" + 
+      size + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + 
+      types + "} -- triggers: {" + triggers + "} actions: {" + actions + "} -- anim: {" + anim + "}";
   }
 
   //// giving to textArea
@@ -417,4 +448,3 @@ class textAreaData {
     return act;
   }
 }
-

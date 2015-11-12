@@ -1,6 +1,10 @@
-#+ACTIVATE: text 1
+#+ACTIVATE: dynamic
 
 * perso 1                                               :@north:#toto:%medium:
+
+** dynamic
+
+The heart [[bind-heart-heartstyle:inc-heartVar:beats]] /fast/. Go [[pick:goto-text 1:further]].
 
 ** text 1
 
