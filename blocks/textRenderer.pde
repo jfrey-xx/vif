@@ -1,26 +1,36 @@
 
 import geomerative.*;
+import processing.core.*;
+
 public class textRenderer {
 
   // where we will draw into
   private PGraphics pg;
+  private PApplet parent;
 
   // will draw according to a ratio
   float fontSize;
 
-  textRenderer(PGraphics pg, float fontSie) {
+  textRenderer(PApplet parent, PGraphics pg, float fontSie) {
+    this.parent = parent;
     this.fontSize = 100;
     this.pg = pg;
   }
 
-  public void textDraw(RGroup group, textType type, boolean picked) {
-    // for debug, draw a background if picked
-    if (picked) {
-      pg.pushStyle();
-      pg.fill(128);
-      pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
-      pg.pushStyle();
-    }
+  public void textDraw(textChunk chunk) {
+
+    RGroup group = chunk.group;
+    textType type = chunk.type;
+    float pickedRatio = chunk.pickedRatio();
+
+      // for debug, draw a background if picked
+      if (pickedRatio >= 0) {
+        pg.pushStyle();
+        float c = parent.lerp(255, 0, pickedRatio);
+        pg.fill(c);
+        pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+        pg.pushStyle();
+      }
 
     pg.pushStyle();
     pg.fill(0);
@@ -65,7 +75,7 @@ public class textRenderer {
     pg.fill(255, 0, 0);
     //DRAW ELLIPSES AT EACH OF THESE POINTS
     for (int i=0; i<points.length; i++) {
-      float noise = random(fontSize/20);
+      float noise = parent.random(fontSize/20);
       pg.ellipse(points[i].x, points[i].y, fontSize/20+noise, fontSize/20+noise);
     }
   }
@@ -74,7 +84,7 @@ public class textRenderer {
     pg.translate(0, 0, fontSize/2);
 
     // beat and fade
-    float noise = random(0.1);
+    float noise = parent.random((float)0.1);
 
     // scale from center
     pg.translate(group.getCenter().x, group.getCenter().y);
@@ -91,4 +101,3 @@ public class textRenderer {
     }
   }
 }
-

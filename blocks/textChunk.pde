@@ -5,25 +5,32 @@
  */
 
 import geomerative.*;
+import java.util.Arrays;
+import remixlab.proscene.*;
+import java.util.ArrayList;
 
 class textChunk {
   // renderer and scene are created outside
   private textRenderer txtrdr;
   private Scene scene;
-  private textPicker picker;
   // main holder
   public RGroup group;
   // sub words to split interaction
   public ArrayList<textWord> words;
-  private textType type;
+  textType type;
   // warning, actual text in group may differ -- textHolder discard whitespaces
   private String text;
+  private textTrigger trig;
 
-  textChunk(textPicking pick, textRenderer txtrdr, String text, textType type) {
-    this.picker = pick.getNewPicker();
+  textChunk(textRenderer txtrdr, String text, textType type) {
+    this(txtrdr, text, type, null);
+  }
+
+  textChunk(textRenderer txtrdr, String text, textType type, textTrigger trig) {
     this.txtrdr = txtrdr;
     this.text = text;
     this.type = type;
+    this.trig = trig;
     initGroups();
   }
 
@@ -44,7 +51,9 @@ class textChunk {
     textWord word = new textWord(wGroup, wText);
     words.add(word);
     group.addGroup(wGroup);
-    picker.setBoundaries( group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
+    if (trig != null) {
+      trig.setBoundaries(group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
+    }
   }
 
   public String getText() {
@@ -53,12 +62,17 @@ class textChunk {
 
   public void draw() {
     if (group != null) {
-      txtrdr.textDraw(group, type, picker.isPicked());
-      if (pick.debug) {
-        println("group:", text);
-      }
-      picker.draw();
+      txtrdr.textDraw(this);
+    }
+  }
+
+  // for textRenderer
+  // FIXME: better archi
+  public float pickedRatio() {
+    if (trig != null) {
+      return trig.pickedRatio();
+    } else {
+      return -1;
     }
   }
 }
-
