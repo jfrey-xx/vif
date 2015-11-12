@@ -77,6 +77,7 @@ class textArea {
   public void load(textAreaData data) {
     String[] texts = data.getChunksText();
     textType[] types = data.getChunksType();
+    textAnim[] anim = data.getChunksAnim();
     textTrigger[] triggers = data.getChunksTrigger(pick);
     textAction[] actions = data.getChunksAction(this.id);
 
@@ -96,7 +97,7 @@ class textArea {
     // TODO: proper exception
     if (texts.length == types.length && texts.length == triggers.length) {
       for (int i = 0; i < texts.length; i++) {
-        holder.addText(texts[i], types[i], triggers[i]);
+        holder.addText(texts[i], types[i], triggers[i], anim[i]);
       }
       // inform dispatcher
       universe.registerTriggers(triggers);

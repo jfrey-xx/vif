@@ -255,12 +255,6 @@ class textParser {
       for (String trig : area.triggers) {
         // trigger format: type, [parameter, animation]
         String[] split = trig.split("-");
-
-        parent.print("trigger split:");
-        for (int i = 0; i < split.length; i++) {
-          parent.print("["+split[i]+"]");
-        }
-        parent.println();
         // default for trig
         if (split[0].equals("pick")) {
           area.anim.add(textAnim.SHADOW);
@@ -389,6 +383,12 @@ class textAreaData {
   public textType[] getChunksType() {
     textType[] dat = new textType[types.size()];
     types.toArray(dat);
+    return dat;
+  }
+
+  public textAnim[] getChunksAnim() {
+    textAnim[] dat = new textAnim[anim.size()];
+    anim.toArray(dat);
     return dat;
   }
 

@@ -82,9 +82,15 @@ class textHolder {
     addText(newText, textType.REGULAR, null);
   }
 
-  // append text to right
+  // null anim by default
   // each call to this function create new group
   public void addText(String newText, textType type, textTrigger trig) {
+    addText(newText, textType.REGULAR, null, textAnim.NONE);
+  }
+
+  // append text to right
+  // each call to this function create new group
+  public void addText(String newText, textType type, textTrigger trig, textAnim anim) {
     if (newText.length() < 1) {
       debugln("Empty new text, abort");
       return;
@@ -92,7 +98,7 @@ class textHolder {
       debugln("Adding [", newText, "] of type", type.toString(), "to the stack.");
     }
 
-    chunks.add(new textChunk(txtrdr, newText, type, trig));
+    chunks.add(new textChunk(txtrdr, newText, type, trig, anim));
     // update inner state
     rebuildGroup();
   }

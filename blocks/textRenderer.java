@@ -2,6 +2,9 @@
 import geomerative.*;
 import processing.core.*;
 
+/** 
+ Handle animation and drawing (transforms of the former applied before latter)
+ */
 public class textRenderer {
 
   // where we will draw into
@@ -21,20 +24,36 @@ public class textRenderer {
 
     RGroup group = chunk.group;
     textType type = chunk.type;
+    textAnim anim = chunk.anim;
     float pickedRatio = chunk.pickedRatio();
 
-      // for debug, draw a background if picked
-      if (pickedRatio >= 0) {
-        pg.pushStyle();
-        float c = parent.lerp(255, 0, pickedRatio);
-        pg.fill(c);
-        pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
-        pg.pushStyle();
-      }
 
+
+    // for anim
     pg.pushStyle();
+    pg.pushMatrix();
+
+    // text black by default
     pg.fill(0);
-    pg.noStroke();
+
+    // call anim only if a trigger is occurring
+    if (pickedRatio >= 0) {
+
+      switch(anim) {
+      case SHADOW:
+        textAnimShadow(group, pickedRatio);
+        break;
+        // nothing particular otherwise
+      case NONE:
+      default:
+        textAnimNone(group, pickedRatio);
+        break;
+      }
+    }
+
+    // for drawing
+    pg.pushStyle();
+    //pg.noStroke();
     pg.pushMatrix();
 
     switch (type) {
@@ -51,6 +70,10 @@ public class textRenderer {
       textDrawRegular(group);
       break;
     }
+    // draw
+    pg.popMatrix();
+    pg.popStyle();
+    // anim
     pg.popMatrix();
     pg.popStyle();
   }
@@ -99,5 +122,17 @@ public class textRenderer {
     for (int i=0; i<points.length; i++) {
       pg.ellipse(points[i].x, points[i].y, fontSize/20, fontSize/20);
     }
+  }
+
+  // shadow get darker for picking
+  // ratio: between 0 and 1
+  private void textAnimShadow(RGroup group, float ratio) {
+    float c = parent.lerp(255, 0, ratio);
+    pg.fill(c);
+    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+  }
+
+  // do nothing for none...
+  private void textAnimNone(RGroup group, float ratio) {
   }
 }
