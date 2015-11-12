@@ -29,11 +29,10 @@ Frame textFrame;
 float rotateLookX = 0;
 float rotateLookY = 0;
 
-textPicking pick;
-textArea area;
+textUniverse universe;
 
-// position and scale of text
-PVector position;
+
+// scale of text
 float scale;
 
 // for interaction, will adapt mouse position to VR
@@ -48,13 +47,8 @@ void setup() {
   // Create framebuffer
   fb = createGraphics(640, 800, P3D);
 
-  // init geomerative
-  RG.init(this); 
-  RCommand.setSegmentLength(10);
-  RCommand.setSegmentator(RCommand.UNIFORMLENGTH);
 
   proscene = new Scene(this, fb);
-  println(proscene.info());
   // add callback for draws
   proscene.addDrawHandler(this, "mainDrawing");
   // disable keyboard action: we will handle it ourselves
@@ -67,15 +61,9 @@ void setup() {
   textFrame = new Frame(proscene);
   textFrame.setReferenceFrame(mainFrame);
 
-  // place frame
-  position = new PVector (0, 0, -5);
+  // world ratio
   scale = 0.01;
-
-  // world/font ratio = 10
-  area = new textArea(this, fb, proscene, textFrame, new PVector (4, 3), position, scale);
-  area.loadText("");
-  pick = area.getPick();
-  //pick.debug = true;
+  universe = new textUniverse(this, fb, proscene, textFrame, scale, "data.json");
 
   oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }
@@ -93,7 +81,7 @@ void draw() {
   // adapt mouse movement to buffer size and pass info
   cursorX = mouseX * fb.width / width;
   cursorY = mouseY * fb.height / height;
-  pick.setCursor(new Vec(cursorX, cursorY, 0));
+  textPicking.setCursor(new Vec(cursorX, cursorY, 0));
 }
 
 void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
@@ -128,12 +116,12 @@ public void mainDrawing(Scene s) {
   pg.pushMatrix();
   textFrame.applyTransformation();
   // show debug with current matrix
-  area.draw();
+  universe.draw();
   pg.popMatrix();  
 
   // deal with FPS (have to place it manually)
   pg.pushMatrix();
-  pg.translate(position.x, position.y, position. z);
+  //pg.translate(position.x, position.y, position. z);
   pg.fill(0, 0, 255);
   pg.scale(scale);
   pg.text(frameRate, 10, 10);

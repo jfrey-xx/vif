@@ -31,7 +31,8 @@ enum textPosition {
 
   // return a copy of position
   public PVector getPosition() {
-    return this.position.copy();
+    // .copy() not in processing 2...
+    return new PVector(position.x, position.y, position.z);
   }
 
   // return enum from string, insensitive to case
@@ -63,7 +64,7 @@ enum textSize {
 
   // return a copy of position
   public PVector getSize() {
-    return this.size.copy();
+    return new PVector(size.x, size.y);
   }
 
   // return enum from string, insensitive to case
