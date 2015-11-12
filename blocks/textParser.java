@@ -12,6 +12,8 @@ class textParser {
 
   // separator for trigger type/param/style
   final static String TRIGGER_SEPARATOR = "-";
+  // separator for trigger params, i.e. eq-heart.3 (escape regular expression)
+  final static String TRIGGER_PARAM_SEPARATOR = "\\.";
 
   private PApplet parent;
   private ArrayList<textAreaData> areas;
@@ -233,14 +235,18 @@ class textParser {
         case LINK:
           // colon as separator
           String[] link = area.content.get(i).split(":");
-          if (link.length != 3) {
+          if (link.length < 2 || link.length > 3) {
             parent.println("Error, bad link:", area.content.get(i));
             continue;
           }
           area.triggers.add(link[0]);
           area.actions.add(link[1]);
-          // replace content with actual text
-          area.content.set(i, link[2]);
+          // adds nothing to text if only here for trigger
+          if (link.length > 2) {
+            area.content.set(i, link[2]);
+          } else {
+            area.content.set(i, "");
+          }
           break;
         default:
           area.triggers.add("");
@@ -256,6 +262,17 @@ class textParser {
     // trigger format: type, [parameter, animation]
     String[] split = trig.split(TRIGGER_SEPARATOR);
     return split[0];
+  }
+
+  // split and return param trig
+  // (null if nothing)
+  static String getTriggerParam(String trig) {
+    // trigger format: type, [parameter, animation]
+    String[] split = trig.split(TRIGGER_SEPARATOR);
+    if (split.length < 2) {
+      return null;
+    }
+    return split[1];
   }
 
   // split and return style trig (will be type if no given)
@@ -440,6 +457,8 @@ class textAreaData {
       } else if (triggerType.equals("bind")) {
         // WIP: bind as pick for debug
         tTriggers.add(pick.getNewPicker());
+      } else if (triggerType.equals("eq")) {
+        tTriggers.add(new textTrigEq(parent, textParser.getTriggerParam(triggers.get(i))));
       } else if (triggerType.equals("")) {
         // no trigger associated to current chunk
         tTriggers.add(null);

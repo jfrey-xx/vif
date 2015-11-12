@@ -4,6 +4,8 @@
 
 ** dynamic
 
+[[eq-heartVar.3:goto-text 3]]
+
 The heart [[bind-heart-heartstyle:inc-heartVar:beats]] /fast/. Go [[pick:goto-text 1:further]].
 
 ** text 1

@@ -113,6 +113,38 @@ abstract class textAction {
   abstract boolean done();
 }
 
+// check if a value reaches a threshold
+// NB: immediate fire
+class textTrigEq extends textTrigger {
+  private String var;
+  private int value;
+  // set to true in constructors if parameters ok
+  private boolean init = false;
+
+  textTrigEq(PApplet parent, String param) {
+    super(parent);
+    setDelay(0);
+
+    String [] split = param.split(textParser.TRIGGER_PARAM_SEPARATOR);
+
+    if (split.length != 2) {
+      parent.println("Wrong parameter for eq trigger [" + param + "] of length", split.length);
+    } else {
+      var = split[0];
+      value = Integer.parseInt(split[1]);
+      parent.println("new eq with var", var, "and value", value);
+      init = true;
+    }
+  }
+
+  @Override
+    protected boolean update() {
+    return textState.getValue(var) == value;
+  }
+}
+
+/****** Actions ******/
+
 class textTAGoto extends textAction {
   // ID of textArea source and target
   private String src;
@@ -125,7 +157,7 @@ class textTAGoto extends textAction {
   }
 
   void fire(textUniverse universe) {
-    universe.parent.println("go from [" + src + "] to " + target + "]");
+    universe.parent.println("go from [" + src + "] to [" + target + "]");
     universe.disableArea(src);
     universe.enableArea(target);
     done = true;
