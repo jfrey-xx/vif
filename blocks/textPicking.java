@@ -52,6 +52,7 @@ class textPicking {
 
 // this one is actually used for picking
 // NB: draw() should be called (at least) once per loop for updating status
+// TODO: small duplication with textVisible algo
 class textPicker extends textTrigger {
 
   // we dont want to mess with different plane, puth the picking has a slight inacurracy, take a zone (in pixels) around frame
@@ -59,7 +60,9 @@ class textPicker extends textTrigger {
 
   // serve as init flag for picking
   boolean boundsSet = false;
+  boolean boundsAreaSet = false;
   Vec topLeft, bottomRight;
+  Vec topLeftArea, bottomRightArea;
   textPicking pick;
 
   textPicker(PApplet parent, textPicking pick) {
@@ -76,10 +79,18 @@ class textPicker extends textTrigger {
     boundsSet = true;
   }
 
+  // set position (handles internally reference position
+  @Override
+    void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+    topLeftArea = new Vec(topLeftX, topLeftY, 0);
+    bottomRightArea = new Vec(bottomRightX, bottomRightY, 0);
+    boundsAreaSet = true;
+  }
+
   @Override
     protected boolean update() {
     boolean picked = false;
-    if (boundsSet && pick.cursor != null) {
+    if (boundsSet && boundsAreaSet && pick.cursor != null) {
       // look how boundaries translates to world space
       Vec topLeftWorld = pick.frame.inverseCoordinatesOf(topLeft);
       Vec bottomRightWorld = pick.frame.inverseCoordinatesOf(bottomRight);
@@ -92,6 +103,14 @@ class textPicker extends textTrigger {
       picked = parent.abs(topLeftScreen.x() - pick.cursor.x()) <  parent.abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold && parent.abs(bottomRightScreen.x() - pick.cursor.x()) <  parent.abs(topLeftScreen.x() - bottomRightScreen.x()) + threshold &&
         parent.abs(topLeftScreen.y() - pick.cursor.y()) <  parent.abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&& parent.abs(bottomRightScreen.y() - pick.cursor.y()) <  parent.abs(topLeftScreen.y() - bottomRightScreen.y()) + threshold&&
         parent.abs(topLeftScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold && parent.abs(bottomRightScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold;
+
+      // check that chunk is visible on screen -- could be behind
+      Vec topLeftAreaWorld = pick.frame.inverseCoordinatesOf(topLeftArea);
+      Vec bottomRightAreaWorld = pick.frame.inverseCoordinatesOf(bottomRightArea);
+      Eye.Visibility vis = pick.scene.boxVisibility(topLeftAreaWorld, bottomRightAreaWorld);
+      if (picked && vis == Eye.Visibility.INVISIBLE) {
+        picked = false;
+      }
     }
     return picked;
   }
@@ -99,7 +118,7 @@ class textPicker extends textTrigger {
 
 // if area is visible or not by eye
 class textVisible extends textTrigger {
-  boolean boundsSet = false;
+  boolean boundsAreaSet = false;
   textPicking pick;
   boolean onVisible;
   Vec topLeftArea, bottomRightArea;
@@ -114,7 +133,7 @@ class textVisible extends textTrigger {
 
   @Override
     protected boolean update() {
-    if (boundsSet) {
+    if (boundsAreaSet) {
       Vec topLeftAreaWorld = pick.frame.inverseCoordinatesOf(topLeftArea);
       Vec bottomRightAreaWorld = pick.frame.inverseCoordinatesOf(bottomRightArea);
       Eye.Visibility vis = pick.scene.boxVisibility(topLeftAreaWorld, bottomRightAreaWorld);
@@ -133,6 +152,6 @@ class textVisible extends textTrigger {
     void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
     topLeftArea = new Vec(topLeftX, topLeftY, 0);
     bottomRightArea = new Vec(bottomRightX, bottomRightY, 0);
-    boundsSet = true;
+    boundsAreaSet = true;
   }
 }
