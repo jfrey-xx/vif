@@ -59,9 +59,9 @@ class textArea {
   public void lookAtViewer() {
     // work on a copy of the eye to get a "lookAt" orientation
     Eye cam = scene.eye().get();
-    cam.lookAt(frame.position());
+    cam.lookAt(new Vec(position.x, position.y, position.z));
     Rotation theLook = cam.orientation();
-    frame.setOrientation(theLook);
+    frame.setRotation(theLook);
   }
 
   // stub for populating textHolder
@@ -137,3 +137,4 @@ class textArea {
     pg.popMatrix();
   }
 }
+

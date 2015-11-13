@@ -145,7 +145,7 @@ public void mainDrawing(Scene s) {
 
 // reset / set orientation
 void keyPressed() {
-  println("Key pressed: [", key, "]");
+  // println("Key pressed: [", key, "]");
   if (key == ' ') {
     println("reset head orientation and position");
     oculusRiftDev.resetOrientation();
@@ -153,16 +153,16 @@ void keyPressed() {
     rotateLookX = 0;
     rotateLookY = 0;
   } else if (keyCode == UP) {
-    println("look up");
+    // println("look up");
     rotateLookX -= 0.1;
   } else if (keyCode == DOWN) {
-    println("look down");
+    // println("look down");
     rotateLookX += 0.1;
   } else if (keyCode == LEFT) {
-    println("look down");
+    // println("look down");
     rotateLookY += 0.1;
   } else if (keyCode == RIGHT) {
-    println("look down");
+    // println("look down");
     rotateLookY -= 0.1;
   }
 }
