@@ -99,12 +99,18 @@ void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
 
 // apply head transformation to frame (both from oculus and keyboard)
 void updateReferenceFrame() {
-  // yaw, pitch, roll -- NB: again refeference is not the same from oculus and from proscene, hence weirdities to come with Y/X
+  // retrieve headset orientation
   PVector orientation = oculusRiftDev.sensorOrientation();
-  orientation.x -= rotateLookY;
-  orientation.y += rotateLookX;
-  Quat head = new Quat(orientation.y, -orientation.x, orientation.z);
-  textFrame.setRotation(head);
+
+  // apparently it's not truely euler angles, use same method as in source to get matrix
+  // apply on the fly correct hand and keyboard transform
+  PMatrix3D pmat = new PMatrix3D();
+  pmat.rotateY(orientation.x +  rotateLookY);
+  pmat.rotateX(-orientation.y + rotateLookX);
+  pmat.rotateZ(-orientation.z);
+
+  // convert to proscene format and apply
+  textFrame.setRotation(new Quat(proscene.toMat(pmat)));
 }
 
 public void mainDrawing(Scene s) {
@@ -228,3 +234,4 @@ void drawHud(Scene s) {
   pg.popStyle();
 }
 //////////////////////////////////////////////
+
