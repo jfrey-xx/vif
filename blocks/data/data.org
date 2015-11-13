@@ -1,4 +1,11 @@
-#+ACTIVATE: dynamic
+#+ACTIVATE: init
+
+* init
+
+# Go upon init. Fake variable just to trigger right away.
+
+[[eq-init.0:goto-text 3]]
+[[eq-init.0:goto-dynamic]]
 
 * perso 1                                               :@north:#toto:%medium:
 
@@ -21,3 +28,9 @@ Additional text may say more.
 **  text 3                                                            :@west:
 
 This is the *end*.
+
+* perso 2                                               :@south:#toto:%medium:
+
+** intro
+
+I'm right here!
