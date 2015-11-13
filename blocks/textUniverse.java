@@ -68,6 +68,7 @@ class textUniverse {
 
   // WIP fade out for selected area
   void disableArea(String id) {
+    areas.get(id).unload();
     areas.remove(id);
   }
 
@@ -118,6 +119,18 @@ class textUniverse {
     for (int i = 0; i < newTrigs.length; i++) {
       if (newTrigs[i] != null) {
         triggers.add(newTrigs[i]);
+      }
+    }
+  }
+
+  // disable and remove triggers from watch list
+  void unregisterTriggers(textTrigger[] oldTrigs) {
+    for (int i = 0; i < oldTrigs.length; i++) {
+      if (oldTrigs[i] != null) {
+        oldTrigs[i].disable();
+        if (!triggers.remove(oldTrigs[i])) {
+          parent.println("Error while unregistering trigger, not present in list.");
+        }
       }
     }
   }

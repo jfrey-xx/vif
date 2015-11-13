@@ -24,6 +24,8 @@ class textArea {
   private Frame frame;
   private String id; // specific ID in this universe
   textPicking pick;
+  // triggers associated to current area, populated and registered on load(), unregistered on unload() 
+  private textTrigger[] triggers;
 
   private boolean debug = false;
 
@@ -78,7 +80,7 @@ class textArea {
     String[] texts = data.getChunksText();
     textType[] types = data.getChunksType();
     textAnim[] anim = data.getChunksAnim();
-    textTrigger[] triggers = data.getChunksTrigger(pick);
+    triggers = data.getChunksTrigger(pick);
     textAction[] actions = data.getChunksAction(this.id);
 
     // register actions
@@ -104,6 +106,11 @@ class textArea {
     } else {
       parent.println("Error, texts/types/triggers length mismatch");
     }
+  }
+
+  // call that before area is disabled
+  public void unload() {
+    universe.unregisterTriggers(triggers);
   }
 
   public void draw() {
