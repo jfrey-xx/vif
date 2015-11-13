@@ -50,41 +50,83 @@ class textPicking {
   }
 }
 
-// this one is actually used for picking
+// if area is visible or not by eye
+class textVisible extends textTrigger {
+  boolean boundsAreaSet = false;
+  textPicking pick;
+  boolean onVisible;
+  Vec topLeftArea, bottomRightArea;
+
+  // onVisible: if true will trigger when is visible, when invisible otherwise
+  textVisible(PApplet parent, textPicking pick, boolean onVisible) {
+    super(parent);
+    this.pick = pick;
+    this.onVisible = onVisible;
+    setDelay(1000);
+  }
+
+  Eye.Visibility visibility() {
+    if (boundsAreaSet) {
+      Vec topLeftAreaWorld = pick.frame.inverseCoordinatesOf(topLeftArea);
+      Vec bottomRightAreaWorld = pick.frame.inverseCoordinatesOf(bottomRightArea);
+      Eye.Visibility vis = pick.scene.boxVisibility(topLeftAreaWorld, bottomRightAreaWorld);
+      return vis;
+    }
+    return Eye.Visibility.INVISIBLE;
+  }
+
+  @Override
+    protected boolean update() {
+    Eye.Visibility vis = visibility();
+    if (vis == Eye.Visibility.VISIBLE && onVisible) {
+      return true;
+    }
+    if (vis == Eye.Visibility.INVISIBLE && !onVisible) {
+      return true;
+    }
+    return false;
+  }
+
+  // set position (handles internally reference position)
+  @Override
+    void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+    topLeftArea = new Vec(topLeftX, topLeftY, 0);
+    bottomRightArea = new Vec(bottomRightX, bottomRightY, 0);
+    boundsAreaSet = true;
+  }
+}
+
+// this one is actually used for picking -- reuse algo from textVisible
 // NB: draw() should be called (at least) once per loop for updating status
-// TODO: small duplication with textVisible algo
-class textPicker extends textTrigger {
+class textPicker extends textVisible {
 
   // we dont want to mess with different plane, puth the picking has a slight inacurracy, take a zone (in pixels) around frame
   private final float threshold = 1;
 
   // serve as init flag for picking
   boolean boundsSet = false;
-  boolean boundsAreaSet = false;
   Vec topLeft, bottomRight;
-  Vec topLeftArea, bottomRightArea;
   textPicking pick;
 
   textPicker(PApplet parent, textPicking pick) {
-    super(parent);
+    super(parent, pick, true);
     this.pick = pick;
     setDelay(1000);
   }
 
-  // set position (handles internally reference position
+  // set position (handles internally reference position)
   @Override
     void setBoundariesChunk(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
     topLeft = new Vec(topLeftX, topLeftY, 0);
     bottomRight = new Vec(bottomRightX, bottomRightY, 0);
     boundsSet = true;
+    super.setBoundariesArea(topLeftX, topLeftY, bottomRightX, bottomRightY);
   }
 
-  // set position (handles internally reference position
+  // intercepts call for area; here it'll be chunk size
   @Override
     void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
-    topLeftArea = new Vec(topLeftX, topLeftY, 0);
-    bottomRightArea = new Vec(bottomRightX, bottomRightY, 0);
-    boundsAreaSet = true;
+    return;
   }
 
   @Override
@@ -105,53 +147,10 @@ class textPicker extends textTrigger {
         parent.abs(topLeftScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold && parent.abs(bottomRightScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold;
 
       // check that chunk is visible on screen -- could be behind
-      Vec topLeftAreaWorld = pick.frame.inverseCoordinatesOf(topLeftArea);
-      Vec bottomRightAreaWorld = pick.frame.inverseCoordinatesOf(bottomRightArea);
-      Eye.Visibility vis = pick.scene.boxVisibility(topLeftAreaWorld, bottomRightAreaWorld);
-      if (picked && vis == Eye.Visibility.INVISIBLE) {
+      if (picked && visibility() == Eye.Visibility.INVISIBLE) {
         picked = false;
       }
     }
     return picked;
-  }
-}
-
-// if area is visible or not by eye
-class textVisible extends textTrigger {
-  boolean boundsAreaSet = false;
-  textPicking pick;
-  boolean onVisible;
-  Vec topLeftArea, bottomRightArea;
-
-  // onVisible: if true will trigger when is visible, when invisible otherwise
-  textVisible(PApplet parent, textPicking pick, boolean onVisible) {
-    super(parent);
-    this.pick = pick;
-    this.onVisible = onVisible;
-    setDelay(1000);
-  }
-
-  @Override
-    protected boolean update() {
-    if (boundsAreaSet) {
-      Vec topLeftAreaWorld = pick.frame.inverseCoordinatesOf(topLeftArea);
-      Vec bottomRightAreaWorld = pick.frame.inverseCoordinatesOf(bottomRightArea);
-      Eye.Visibility vis = pick.scene.boxVisibility(topLeftAreaWorld, bottomRightAreaWorld);
-      if (vis == Eye.Visibility.VISIBLE && onVisible) {
-        return true;
-      }
-      if (vis == Eye.Visibility.INVISIBLE && !onVisible) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // set position (handles internally reference position
-  @Override
-    void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
-    topLeftArea = new Vec(topLeftX, topLeftY, 0);
-    bottomRightArea = new Vec(bottomRightX, bottomRightY, 0);
-    boundsAreaSet = true;
   }
 }
