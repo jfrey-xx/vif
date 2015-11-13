@@ -16,12 +16,10 @@ class textHolder {
 
   // actual font size in pixel and correspondce ratio for real-world unit
   private int fontSize;
-  private float worldRatio;
   textRenderer txtrdr;
 
   final String SEPARATOR = " ";
 
-  private RFont font;
   private float fontLineHeight;
   private float fontLineSpacing; // will be height of one char * 1.25
   private float fontWordSpacing;
@@ -38,30 +36,22 @@ class textHolder {
   // hacky flag for spamming stdout
   public boolean debug = false;
 
-  textHolder(PApplet parent, PGraphics pg, String fontFile, int fontSize) {
-    this(parent, pg, fontFile, fontSize, 1);
-  }
-
   // fontSize: in pixels the higher
   // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 1 meter font size
-  textHolder(PApplet parent, PGraphics pg, String fontFile, int fontSize, float worldRatio) {
+  textHolder(PApplet parent, PGraphics pg, textRenderer txtrdr) {
     this.parent = parent;
     this.pg = pg;
     this.fontSize = fontSize;
-    this.worldRatio = worldRatio;
-
-    txtrdr = new textRenderer(parent, pg, fontSize);
-
-    font = new RFont(fontFile, fontSize, parent.LEFT); // left align by default
+    this.txtrdr =  txtrdr;
 
     // Height: takes on the tallest char (?)
-    fontLineHeight = font.toGroup("(").getHeight();
+    fontLineHeight = txtrdr.font.toGroup("(").getHeight();
     debugln("Font line height: " + fontLineHeight);
     // space between lines: height * 1.25
     fontLineSpacing = fontLineHeight * (float) 1.25;
     debugln("Font line spacing: " + fontLineSpacing);
     // cannot get just a space apparently..
-    fontWordSpacing = font.toGroup("a w").getWidth() - font.toGroup("aw").getWidth();
+    fontWordSpacing = txtrdr.font.toGroup("a w").getWidth() - txtrdr.font.toGroup("aw").getWidth();
     debugln("Font word spacing: " + fontWordSpacing);
 
     chunks = new ArrayList();
@@ -69,7 +59,7 @@ class textHolder {
 
   // set width boundaries (in world unit)
   public void setWidth(float maxWidth) {
-    this.maxWidth = maxWidth/worldRatio;
+    this.maxWidth = maxWidth;
     rebuildGroup();
   }
 
@@ -146,7 +136,7 @@ class textHolder {
 
       for (int i=0; i < words.length; i++) {
         // one subgroup per word
-        RGroup wGroup = font.toGroup(words[i]);
+        RGroup wGroup = txtrdr.font.toGroup(words[i]);
 
         debugln("Adding: [", words[i], "] -- size: " + words[i].length() + " -- width: " + wGroup.getWidth());
 
@@ -181,7 +171,7 @@ class textHolder {
           } else {
             // we obviously have something before, get the right spacing
             String firstChar = words[i].substring(0, 1);
-            float fontCharSpacing = font.toGroup(lastChar + firstChar).getWidth() - font.toGroup(firstChar).getWidth() -  font.toGroup(lastChar).getWidth();
+            float fontCharSpacing = txtrdr.font.toGroup(lastChar + firstChar).getWidth() - txtrdr.font.toGroup(firstChar).getWidth() -  txtrdr.font.toGroup(lastChar).getWidth();
             debugln("Font char spacing between [", lastChar, "] / [", firstChar, "]:" + fontCharSpacing);
             curWidth += fontCharSpacing;
           }
@@ -200,10 +190,9 @@ class textHolder {
   // bounding box
   public void drawDebug() {
     pg.pushMatrix();
-    pg.scale(worldRatio);
     if (group.countElements() > 0) {
       pg.pushStyle();
-      pg.strokeWeight(fontSize * worldRatio*2);
+      pg.strokeWeight(txtrdr.fontSize * 2);
       pg.stroke(0);
       pg.noFill();
       pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
@@ -213,7 +202,7 @@ class textHolder {
     // width limit
     if (maxWidth > 0) {
       pg.pushStyle();
-      pg.strokeWeight(fontSize * worldRatio*2);
+      pg.strokeWeight(fontSize *2);
       pg.fill(255, 0, 0);
       pg.rect(0, 0, maxWidth, 2);
       pg.popStyle();
@@ -223,7 +212,6 @@ class textHolder {
 
   public void draw() {
     pg.pushMatrix();
-    pg.scale(worldRatio);
     pg.pushStyle();
     txtrdr.areaDraw(group);
     for (int i = 0; i < chunks.size (); i++) {

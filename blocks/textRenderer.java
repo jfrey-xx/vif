@@ -13,11 +13,13 @@ public class textRenderer {
 
   // will draw according to a ratio
   float fontSize;
+  RFont font;
 
-  textRenderer(PApplet parent, PGraphics pg, float fontSie) {
+  textRenderer(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
     this.parent = parent;
-    this.fontSize = 100;
+    this.fontSize = fontSize;
     this.pg = pg;
+    this.font = new RFont(fontFile, (int) fontSize, parent.LEFT); // left align by default
   }
 
   // set default colors background/foreground

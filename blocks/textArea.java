@@ -28,8 +28,10 @@ class textArea {
   textPicking pick;
   // triggers associated to current area, populated and registered on load(), unregistered on unload() 
   private textTrigger[] triggers;
+  private textRenderer txtrdr;
 
   private boolean debug = false;
+
 
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
@@ -49,7 +51,8 @@ class textArea {
     pick.setFrame(frame);
 
     // fixed 100 pixels font size
-    holder = new textHolder(parent, pg, "FreeSans.ttf", fontSize);
+    txtrdr = new textRenderer(parent, pg, "FreeSans.ttf", fontSize);
+    holder = new textHolder(parent, pg, txtrdr);
 
     setSize(size);
     setPosition(position);
