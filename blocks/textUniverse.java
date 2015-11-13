@@ -31,8 +31,10 @@ class textUniverse {
   // currently active areas
   Map <String, textArea> areas;
 
+  // areas soon to be removed
+  ArrayList <String> dyingAreas;
+
   // Will monitor triggers from here
-  // TODO: possibility to unregister old triggers
   ArrayList <textTrigger> triggers;
 
   textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float scale, String file) {
@@ -51,7 +53,12 @@ class textUniverse {
     this.scale = scale;
     areasStock = new LinkedHashMap<String, textAreaData>();
     areas = new LinkedHashMap<String, textArea>();
+    dyingAreas = new ArrayList();
     triggers = new ArrayList();
+
+    // enable update of camera frustrum for (in)visible trigger
+    // TODO: left disabled if no such trigger
+    scene.enableBoundaryEquations();
 
     // load text area data, add to stock, grab those to init on start
     parser = new textParser(parent, file);
@@ -66,17 +73,36 @@ class textUniverse {
     }
   }
 
-  // WIP fade out for selected area
+  // Adding area to list to be cleaned
   void disableArea(String id) {
-    areas.remove(id);
+    dyingAreas.add(id);
   }
 
-  // WIP new challenger incoming
+  // two-steps removal (cf disableArea) 'cause may have several triggers at the same time, typically upon init
+  private void cleanArea() {
+    for (String areaID : dyingAreas) {
+      parent.println("unloading area:", areaID);
+      textArea area = areas.get(areaID);
+      // may attempt to remove twice the same, e.g. two "goto"
+      if (area != null) {
+        area.unload();
+        areas.remove(areaID);
+      }
+    }
+    dyingAreas.clear();
+  }
+
+  // New challenger incoming. 
+  // NB: Won't reload an area if already present 
   void enableArea(String id) {
     textAreaData data = areasStock.get(id);
     if (data == null) {
       // TODO: exception
       parent.println("Error, no area associated to id [", id, "]");
+      return;
+    }
+    if (areas.get(id) != null) {
+      parent.println("Warning, not loading area [", id, "] because it is already active");
       return;
     }
     // adjust position and size with scale -- no mult() in processing 2xxx
@@ -101,8 +127,9 @@ class textUniverse {
 
     // apply triggers effects, if any
     // NB: working on copy as safeguard since triggers could do *anything*
+    // FIXME: remove old triggers?? (e.g. dead areas)
     for (textTrigger trig : new ArrayList<textTrigger> (triggers)) {
-      if (trig.isActive() && trig.pickedRatio() >= 1 && trig.action != null) {
+      if (trig.isActive() && trig.waitingFire() && trig.action != null) {
         if (trig.action.done()) {
           trig.disable();
         } else {
@@ -110,6 +137,9 @@ class textUniverse {
         }
       }
     }
+
+    // cleanup if needed
+    cleanArea();
   }
 
   // add new triggers to the watch list
@@ -120,5 +150,16 @@ class textUniverse {
       }
     }
   }
-}
 
+  // disable and remove triggers from watch list
+  void unregisterTriggers(textTrigger[] oldTrigs) {
+    for (int i = 0; i < oldTrigs.length; i++) {
+      if (oldTrigs[i] != null) {
+        oldTrigs[i].disable();
+        if (!triggers.remove(oldTrigs[i])) {
+          parent.println("Error while unregistering trigger, not present in list.");
+        }
+      }
+    }
+  }
+}

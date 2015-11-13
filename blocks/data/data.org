@@ -1,6 +1,19 @@
-#+ACTIVATE: text 1
+#+ACTIVATE: init
+
+* init
+
+# Go upon init. Fake variable just to trigger right away.
+
+[[eq-init.0:goto-intro]]
+[[eq-init.0:goto-dynamic]]
 
 * perso 1                                               :@north:#toto:%medium:
+
+** dynamic
+
+[[eq-heartVar.3:goto-text 3]]
+
+The heart [[bind-heart-heartstyle:inc-heartVar:beats]] /fast/. Go [[pick:goto-text 1:further]].
 
 ** text 1
 
@@ -15,3 +28,17 @@ Additional text may say more.
 **  text 3                                                            :@west:
 
 This is the *end*.
+
+* perso 2                                               :@south:#toto:%medium:
+
+** intro
+
+[[visible:goto-outro]]
+
+I'm right here!
+
+** outro
+
+[[invisible:goto-intro]]
+
+You found me!

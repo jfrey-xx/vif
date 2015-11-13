@@ -19,6 +19,8 @@ abstract class textTrigger {
   private boolean picked = false;
   int startPicked = -1;
   int timePicked = -1;
+  // if has already fired since ratio >= 1
+  private boolean waitingFire = true;
 
   // in activity upon further notice
   private boolean active = true;
@@ -58,7 +60,12 @@ abstract class textTrigger {
   abstract protected boolean update();
 
   // to be overriden for picking, by default does nothing
-  void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+  void setBoundariesChunk(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+    return;
+  }
+
+  // to be overriden for visible, by default does nothing
+  void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
     return;
   }
 
@@ -69,18 +76,32 @@ abstract class textTrigger {
 
   // -1: not picked
   // between 0 and 1: ratio before timesUp
+  // update waitingFire flag -- once per "1" reached
   public final float pickedRatio() {
     if (!isPicked()) {
+      waitingFire = true;
       return -1;
     }
     if (timePicked >= selectionDelay || selectionDelay <= 0) {
       return 1;
     }
+    waitingFire = true;
     return ( (float)timePicked / selectionDelay);
   }
 
+  // if this trigger should still be updated (may be disabled depending on action)
   public final boolean isActive() {
     return active;
+  }
+
+  // picked reached one and still no action taken. usefull to ensure that there is no two actions in a row
+  // NB: state reset after each call
+  public final boolean waitingFire() {
+    if ((waitingFire) &&  pickedRatio() >=1) {
+      waitingFire = false;
+      return true;
+    }
+    return false;
   }
 
   // should be called by universe upon de-registsration
@@ -97,6 +118,38 @@ abstract class textAction {
   abstract boolean done();
 }
 
+// check if a value reaches a threshold
+// NB: immediate fire
+class textTrigEq extends textTrigger {
+  private String var;
+  private int value;
+  // set to true in constructors if parameters ok
+  private boolean init = false;
+
+  textTrigEq(PApplet parent, String param) {
+    super(parent);
+    setDelay(0);
+
+    String [] split = param.split(textParser.TRIGGER_PARAM_SEPARATOR);
+
+    if (split.length != 2) {
+      parent.println("Wrong parameter for eq trigger [" + param + "] of length", split.length);
+    } else {
+      var = split[0];
+      value = Integer.parseInt(split[1]);
+      parent.println("new eq with var", var, "and value", value);
+      init = true;
+    }
+  }
+
+  @Override
+    protected boolean update() {
+    return textState.getValue(var) == value;
+  }
+}
+
+/****** Actions ******/
+
 class textTAGoto extends textAction {
   // ID of textArea source and target
   private String src;
@@ -109,7 +162,7 @@ class textTAGoto extends textAction {
   }
 
   void fire(textUniverse universe) {
-    universe.parent.println("fire!");
+    universe.parent.println("go from [" + src + "] to [" + target + "]");
     universe.disableArea(src);
     universe.enableArea(target);
     done = true;
@@ -117,5 +170,24 @@ class textTAGoto extends textAction {
 
   boolean done() {
     return done;
+  }
+}
+
+// increments variable
+class textTAInc extends textAction {
+  private String var;
+
+  textTAInc(String var) {
+    this.var = var;
+  }
+
+  void fire(textUniverse universe) {
+    textState.incVar(var);
+    universe.parent.println("increments:", textState.getValue(var));
+  }
+
+  // can procude the effect several times
+  boolean done() {
+    return false;
   }
 }

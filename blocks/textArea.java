@@ -3,6 +3,8 @@
  
  Container for textHolder, handle interaction
  
+ FIXME: size for (in)visible trigger set with holder boundaries at the moment.
+ 
  */
 
 import processing.core.*;
@@ -24,6 +26,8 @@ class textArea {
   private Frame frame;
   private String id; // specific ID in this universe
   textPicking pick;
+  // triggers associated to current area, populated and registered on load(), unregistered on unload() 
+  private textTrigger[] triggers;
 
   private boolean debug = false;
 
@@ -77,7 +81,8 @@ class textArea {
   public void load(textAreaData data) {
     String[] texts = data.getChunksText();
     textType[] types = data.getChunksType();
-    textTrigger[] triggers = data.getChunksTrigger(pick);
+    textAnim[] anim = data.getChunksAnim();
+    triggers = data.getChunksTrigger(pick);
     textAction[] actions = data.getChunksAction(this.id);
 
     // register actions
@@ -96,13 +101,26 @@ class textArea {
     // TODO: proper exception
     if (texts.length == types.length && texts.length == triggers.length) {
       for (int i = 0; i < texts.length; i++) {
-        holder.addText(texts[i], types[i], triggers[i]);
+        holder.addText(texts[i], types[i], triggers[i], anim[i]);
       }
+
+      // once holder's group is computed, set outer area -- usefull for (in)visible triggers
+      for (int i = 0; i < triggers.length; i++) {
+        if (triggers[i] != null) {
+          triggers[i].setBoundariesArea(holder.group.getTopLeft().x, holder.group.getTopLeft().y, holder.group.getBottomRight().x, holder.group.getBottomRight().y);
+        }
+      }
+
       // inform dispatcher
       universe.registerTriggers(triggers);
     } else {
       parent.println("Error, texts/types/triggers length mismatch");
     }
+  }
+
+  // call that before area is disabled
+  public void unload() {
+    universe.unregisterTriggers(triggers);
   }
 
   public void draw() {

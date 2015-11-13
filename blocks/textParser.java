@@ -10,6 +10,11 @@ import processing.data.*;
 
 class textParser {
 
+  // separator for trigger type/param/style
+  final static String TRIGGER_SEPARATOR = "-";
+  // separator for trigger params, i.e. eq-heart.3 (escape regular expression)
+  final static String TRIGGER_PARAM_SEPARATOR = "\\.";
+
   private PApplet parent;
   private ArrayList<textAreaData> areas;
   // those activated on start
@@ -30,6 +35,8 @@ class textParser {
     processMeta();
     // process triggers / actions
     processTriggers();
+    // set animations
+    processAnimations();
 
     for (textAreaData area : areas) {
       parent.println(area);
@@ -228,19 +235,87 @@ class textParser {
         case LINK:
           // colon as separator
           String[] link = area.content.get(i).split(":");
-          if (link.length != 3) {
+          if (link.length < 2 || link.length > 3) {
             parent.println("Error, bad link:", area.content.get(i));
             continue;
           }
           area.triggers.add(link[0]);
           area.actions.add(link[1]);
-          // replace content with actual text
-          area.content.set(i, link[2]);
+          // adds nothing to text if only here for trigger
+          if (link.length > 2) {
+            area.content.set(i, link[2]);
+          } else {
+            area.content.set(i, "");
+          }
           break;
         default:
           area.triggers.add("");
           area.actions.add("");
           break;
+        }
+      }
+    }
+  }
+
+  // split and return type trig
+  static String getTriggerType(String trig) {
+    // trigger format: type, [parameter, animation]
+    String[] split = trig.split(TRIGGER_SEPARATOR);
+    return split[0];
+  }
+
+  // split and return param trig
+  // (null if nothing)
+  static String getTriggerParam(String trig) {
+    // trigger format: type, [parameter, animation]
+    String[] split = trig.split(TRIGGER_SEPARATOR);
+    if (split.length < 2) {
+      return null;
+    }
+    return split[1];
+  }
+
+  // split and return style trig (will be type if no given)
+  static String getTriggerStyle(String trig) {
+    // trigger format: type, [parameter, animation]
+    String[] split = trig.split(TRIGGER_SEPARATOR);
+    if (split.length > 2) {
+      return split[2];
+    } 
+    return split[0];
+  }
+
+  // split and return type action
+  static String getActionType(String action) {
+    // action format: type, parameter
+    // "-" is also separator for actions options
+    String[] split = action.split(TRIGGER_SEPARATOR);
+    return split[0];
+  }
+
+  // split and return param action
+  // return null if finds nothing
+  static String getActionParam(String action) {
+    String[] split = action.split(TRIGGER_SEPARATOR);
+    if (split.length < 2) {
+      return null;
+    }
+    return split[1];
+  }
+
+  // match trigger style with animation
+  // FIXME: kind of duplication with getChunksTrigger, quick'n dirty, use enum string for auto match
+  void processAnimations() {
+    for (textAreaData area : areas) {
+      for (String trig : area.triggers) {
+        String trigStyle = getTriggerStyle(trig);
+        // default for trig
+        if (trigStyle.equals("pick")) {
+          area.anim.add(textAnim.SHADOW);
+        } else if (trigStyle.equals("heartstyle")) {
+          area.anim.add(textAnim.HEART);
+        } else {
+          area.anim.add(textAnim.NONE);
         }
       }
     }
@@ -264,9 +339,10 @@ class textAreaData {
 
   ArrayList <String> content;
   ArrayList <textType> types;
-  // triggers (i.e "links") and associated actions
+  // triggers (i.e "links") and associated actions / animations
   ArrayList <String> triggers;
   ArrayList <String> actions;
+  ArrayList <textAnim> anim;
   int level = 0;
   String id = "noID";
   String style = "noStyle";
@@ -278,6 +354,7 @@ class textAreaData {
     types = new ArrayList();
     triggers = new ArrayList();
     actions = new ArrayList();
+    anim = new ArrayList();
 
     // put a default size and position just to avoid null pointer
     size = new PVector(10, 10);
@@ -343,7 +420,9 @@ class textAreaData {
   }
 
   public String toString() {
-    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- size: [" + size + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + types + "} -- triggers: {" + triggers + "} actions: {" + actions + "}";
+    return "Header " + level + " ID: [" + id + "] -- position: [" + position + "] -- size: [" + 
+      size + "] -- type: [" + style + "] -- content: {" + content + "}" + " -- types: {" + 
+      types + "} -- triggers: {" + triggers + "} actions: {" + actions + "} -- anim: {" + anim + "}";
   }
 
   //// giving to textArea
@@ -361,19 +440,34 @@ class textAreaData {
     return dat;
   }
 
+  public textAnim[] getChunksAnim() {
+    textAnim[] dat = new textAnim[anim.size()];
+    anim.toArray(dat);
+    return dat;
+  }
+
   // convert triggers coded with strings to actual triggers
   public textTrigger[] getChunksTrigger(textPicking pick) {
     ArrayList<textTrigger> tTriggers = new ArrayList();
 
     for (int i = 0; i < triggers.size (); i++) {
-      String triggerType = triggers.get(i);
+      String triggerType = textParser.getTriggerType(triggers.get(i));
       if (triggerType.equals("pick")) {
         tTriggers.add(pick.getNewPicker());
+      } else if (triggerType.equals("visible")) {
+        tTriggers.add(pick.getNewVisible(true));
+      } else if (triggerType.equals("invisible")) {
+        tTriggers.add(pick.getNewVisible(false));
+      } else if (triggerType.equals("bind")) {
+        // WIP: bind as pick for debug
+        tTriggers.add(pick.getNewPicker());
+      } else if (triggerType.equals("eq")) {
+        tTriggers.add(new textTrigEq(parent, textParser.getTriggerParam(triggers.get(i))));
       } else if (triggerType.equals("")) {
         // no trigger associated to current chunk
         tTriggers.add(null);
       } else {
-        parent.println("Trigger not supported:", triggers.get(i));
+        parent.println("Trigger not supported:", triggerType);
         tTriggers.add(null);
       }
     }
@@ -390,23 +484,29 @@ class textAreaData {
     ArrayList<textAction> tActions = new ArrayList();
 
     for (int i = 0; i < actions.size (); i++) {
-      // "-" is separator for actions options
-      String[] split = actions.get(i).split("-");
-      // first substring is code
-      String actionType = split[0];
+      // first substrings codes
+      String actionType = textParser.getActionType(actions.get(i));
+      String actionParam = textParser.getActionParam(actions.get(i)); 
       if (actionType.equals ("goto")) {
-        if (split.length != 2) {
-          parent.println("Bad format for GOTO action:", split);
+        if (actionParam == null) {
+          parent.println("Bad format for GOTO action:", actions.get(i));
           tActions.add(null);
           continue;
         }
-        String targetID = split[1];
-        tActions.add(new textTAGoto(areaID, targetID));
+        tActions.add(new textTAGoto(areaID, actionParam));
+      } else if (actionType.equals("inc")) {
+        if (actionParam == null) {
+          parent.println("Bad format for INC action:", actions.get(i));
+          tActions.add(null);
+          continue;
+        }
+        // will increment said value
+        tActions.add(new textTAInc(actionParam));
       } else if (actionType.equals("")) {
         // no action associated to current chunk
         tActions.add(null);
       } else {
-        parent.println("Action not supported: [", split[0], "] from", actions.get(i));
+        parent.println("Action not supported: [", actionType, "] from", actions.get(i));
         tActions.add(null);
       }
     }
@@ -417,4 +517,3 @@ class textAreaData {
     return act;
   }
 }
-

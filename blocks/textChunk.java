@@ -18,6 +18,7 @@ class textChunk {
   // sub words to split interaction
   public ArrayList<textWord> words;
   textType type;
+  textAnim anim;
   // warning, actual text in group may differ -- textHolder discard whitespaces
   private String text;
   private textTrigger trig;
@@ -27,10 +28,15 @@ class textChunk {
   }
 
   textChunk(textRenderer txtrdr, String text, textType type, textTrigger trig) {
+    this(txtrdr, text, type, null, textAnim.NONE);
+  }
+
+  textChunk(textRenderer txtrdr, String text, textType type, textTrigger trig, textAnim anim) {
     this.txtrdr = txtrdr;
     this.text = text;
     this.type = type;
     this.trig = trig;
+    this.anim = anim;
     initGroups();
   }
 
@@ -52,7 +58,7 @@ class textChunk {
     words.add(word);
     group.addGroup(wGroup);
     if (trig != null) {
-      trig.setBoundaries(group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
+      trig.setBoundariesChunk(group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
     }
   }
 
