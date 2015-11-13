@@ -7,7 +7,7 @@
 [[eq-init.0:goto-intro]]
 [[eq-init.0:goto-dynamic]]
 
-* perso 1                                               :@north:#toto:%medium:
+* perso 1                                               :@north:#default:%medium:
 
 ** dynamic
 
@@ -29,13 +29,13 @@ Additional text may say more.
 
 This is the *end*.
 
-* perso 2                                               :@south:#toto:%medium:
+* perso 2                                               :@south:#bob:%medium:
 
 ** intro
 
 [[visible:goto-outro]]
 
-I'm right here!
+I'm right /here/!
 
 ** outro
 

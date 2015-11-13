@@ -2,6 +2,44 @@
 import geomerative.*;
 import processing.core.*;
 
+
+// list implemented textRenderer for parsing
+enum textStyle {
+  DEFAULT("default", "FreeSans.ttf"), 
+    BOB("bob", "GenBasR.ttf");
+  ;
+
+  // fixed 100 pixels font size
+  final private int fontSize = 100;
+  private String fontFile;
+  private String text;
+
+  textStyle(String text, String fontFile) {
+    this.text = text;
+    this.fontFile = fontFile;
+  }
+
+  // return enum from string, insensitive to case
+  public static textStyle fromString(String text) {
+    if (text != null) {
+      for (textStyle style : textStyle.values()) {
+        if (text.equalsIgnoreCase(style.text)) {
+          return style;
+        }
+      }
+    }
+    return null;
+  }
+
+  public int getFontSize() {
+    return fontSize;
+  }
+
+  public String getFontFile() {
+    return fontFile;
+  }
+}
+
 /** 
  Handle animation and drawing (transforms of the former applied before latter).
  */
@@ -15,7 +53,20 @@ public class textRenderer {
   float fontSize;
   RFont font;
 
-  textRenderer(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
+  // return itself by default
+  public static textRenderer getRenderer(PApplet parent, PGraphics pg, textStyle style) {
+    textRenderer txtrdr;
+    if (style == null) {
+      style = textStyle.DEFAULT;
+    }
+    switch(style) {
+    case DEFAULT:
+    default:
+      return new textRenderer(parent, pg, style.getFontFile(), style.getFontSize());
+    }
+  }
+
+  private textRenderer(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
     this.parent = parent;
     this.fontSize = fontSize;
     this.pg = pg;
