@@ -14,7 +14,7 @@ enum textType {
   REGULAR, EMPHASIS, LINK, STRONG
 };
 
-// how to animate (for triggers)
+  // how to animate (for triggers)
 enum textAnim {
   NONE, SHADOW, HEART
 };

@@ -1,4 +1,4 @@
-/* //<>//
+/* //<>// //<>//
  
  Create entities out of an org-mode file parsed by pandoc (version 1.15.1)
  
@@ -515,5 +515,13 @@ class textAreaData {
     textAction[] act = new textAction[tActions.size()];
     tActions.toArray(act);
     return act;
+  }
+
+  public textStyle getStyle() {
+    textStyle tStyle =  textStyle.fromString(style);
+    if (tStyle == null) {
+      parent.println("Warning: cannot find style corresponding to [" + style + "].");
+    }
+    return tStyle;
   }
 }

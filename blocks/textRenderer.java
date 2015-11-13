@@ -2,36 +2,91 @@
 import geomerative.*;
 import processing.core.*;
 
+
+// list implemented textRenderer for parsing
+enum textStyle {
+  DEFAULT("default", "FreeSans.ttf"), 
+    BOB("bob", "GenBasR.ttf");
+  ;
+
+  // fixed 100 pixels font size
+  final private int fontSize = 100;
+  private String fontFile;
+  private String text;
+
+  textStyle(String text, String fontFile) {
+    this.text = text;
+    this.fontFile = fontFile;
+  }
+
+  // return enum from string, insensitive to case
+  public static textStyle fromString(String text) {
+    if (text != null) {
+      for (textStyle style : textStyle.values()) {
+        if (text.equalsIgnoreCase(style.text)) {
+          return style;
+        }
+      }
+    }
+    return null;
+  }
+
+  public int getFontSize() {
+    return fontSize;
+  }
+
+  public String getFontFile() {
+    return fontFile;
+  }
+}
+
 /** 
  Handle animation and drawing (transforms of the former applied before latter).
  */
 public class textRenderer {
 
   // where we will draw into
-  private PGraphics pg;
-  private PApplet parent;
+  protected PGraphics pg;
+  protected PApplet parent;
 
   // will draw according to a ratio
   float fontSize;
+  RFont font;
 
-  textRenderer(PApplet parent, PGraphics pg, float fontSie) {
+  // return itself by default
+  final public static textRenderer getRenderer(PApplet parent, PGraphics pg, textStyle style) {
+    textRenderer txtrdr;
+    if (style == null) {
+      style = textStyle.DEFAULT;
+    }
+    switch(style) {
+    case BOB:
+      return new textRendererBob(parent, pg, style.getFontFile(), style.getFontSize());
+    case DEFAULT:
+    default:
+      return new textRenderer(parent, pg, style.getFontFile(), style.getFontSize());
+    }
+  }
+
+  protected textRenderer(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
     this.parent = parent;
-    this.fontSize = 100;
+    this.fontSize = fontSize;
     this.pg = pg;
+    this.font = new RFont(fontFile, (int) fontSize, parent.LEFT); // left align by default
   }
 
   // set default colors background/foreground
   // NB: push/pop systyle suposedly handled by caller
   public void areaDraw(RGroup group) {
     pg.noStroke();
-    // set a background -- solarized colorscheme
+    // set a background -- solarized colorscheme, base3
     pg.fill(253, 246, 227, 200);
     pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
-    // text black by default
-    pg.fill(101, 123, 131, 255);
+    // text base0 by default
+    pg.fill(131, 148, 150, 255);
   }
 
-  public void textDraw(textChunk chunk) {
+  final public void textDraw(textChunk chunk) {
     RGroup group = chunk.group;
     textType type = chunk.type;
     textAnim anim = chunk.anim;
@@ -153,5 +208,23 @@ public class textRenderer {
 
   // do nothing for none...
   private void textAnimNone(RGroup group, float ratio) {
+  }
+}
+
+// Bob has another colorscheme
+class textRendererBob extends textRenderer {
+
+  protected textRendererBob(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
+    super(parent, pg, fontFile, fontSize);
+  }
+
+  // solarized dark
+  public void areaDraw(RGroup group) {
+    pg.noStroke();
+    // set a background -- solarized colorscheme, base3
+    pg.fill(0, 43, 54, 200);
+    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+    // text base0 by default
+    pg.fill(131, 148, 150, 255);
   }
 }
