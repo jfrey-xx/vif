@@ -33,7 +33,7 @@ textUniverse universe;
 
 
 // scale of text
-float scale;
+float worldRatio, zoomFactor;
 
 // position for FPS
 PVector positionFPS = new PVector(0, 0, -5);
@@ -65,8 +65,10 @@ void setup() {
   textFrame.setReferenceFrame(mainFrame);
 
   // world ratio
-  scale = 0.01;
-  universe = new textUniverse(this, fb, proscene, textFrame, scale, "data.json");
+  worldRatio = 0.01;
+  // halve text size
+  zoomFactor = 0.5;
+  universe = new textUniverse(this, fb, proscene, textFrame, worldRatio, zoomFactor, "data.json");
 
   oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }
@@ -126,7 +128,7 @@ public void mainDrawing(Scene s) {
   pg.pushMatrix();
   pg.translate(positionFPS.x, positionFPS.y, positionFPS.z);
   pg.fill(0, 0, 255);
-  pg.scale(scale);
+  pg.scale(worldRatio);
   pg.text(frameRate, 10, 10);
   pg.popMatrix();
 

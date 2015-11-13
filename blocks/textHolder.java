@@ -14,7 +14,7 @@ class textHolder {
   // where we will draw into
   private PGraphics pg;
 
-  // actual font size in pixel and correspondce ratio for real-world unit
+  // actual font size in pixel
   private int fontSize;
   textRenderer txtrdr;
 
@@ -37,7 +37,6 @@ class textHolder {
   public boolean debug = false;
 
   // fontSize: in pixels the higher
-  // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 1 meter font size
   textHolder(PApplet parent, PGraphics pg, textRenderer txtrdr) {
     this.parent = parent;
     this.pg = pg;

@@ -38,7 +38,8 @@ class textArea {
     this.parent = universe.parent;
     this.pg = universe.pg;
     this.scene = universe.scene;
-    this.scale = universe.scale;
+    // the size will depend on worldRatio and zoom factor
+    scale = universe.worldRatio * universe.zoomFactor;
     this.id = id;
     frame = new Frame(scene);
     frame.setReferenceFrame(universe.frame);

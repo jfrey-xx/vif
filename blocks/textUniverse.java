@@ -22,8 +22,10 @@ class textUniverse {
 
   textParser parser;
 
-  // world scale
-  float scale;
+  // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 10cm font size. Also scale position, i.e. larger and further / smaller and closer
+  float worldRatio;
+  // influence 2D size of text (both font size and textArea size), not position. Handy if fonts and text areas too big / too small.
+  float zoomFactor;
 
   // availables areas
   Map <String, textAreaData> areasStock;
@@ -37,7 +39,12 @@ class textUniverse {
   // Will monitor triggers from here
   ArrayList <textTrigger> triggers;
 
-  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float scale, String file) {
+  // by default no zoom
+  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float worldRatio, String file) {
+    this(parent, pg, scene, refFrame, worldRatio, 1, file);
+  }
+
+  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float worldRatio, float zoomFactor, String file) {
     if (!init) {
       // init geomerative
       RG.init(parent); 
@@ -50,7 +57,8 @@ class textUniverse {
     this.pg = pg;
     this.scene = scene;
     this.frame = refFrame;
-    this.scale = scale;
+    this.worldRatio =  worldRatio;
+    this.zoomFactor = zoomFactor;
     areasStock = new LinkedHashMap<String, textAreaData>();
     areas = new LinkedHashMap<String, textArea>();
     dyingAreas = new ArrayList();
@@ -105,8 +113,8 @@ class textUniverse {
       parent.println("Warning, not loading area [", id, "] because it is already active");
       return;
     }
-    // adjust position and size with scale -- no mult() in processing 2xxx
-    textArea area = new textArea(this, new PVector(data.size.x * scale, data.size.y * scale), new PVector(data.position.x*scale, data.position.y*scale, data.position.z*scale), data.id);
+    // adjust position with worldRatio and size with scale (worldRatio * zoomFactor)
+    textArea area = new textArea(this, new PVector(data.size.x * worldRatio * zoomFactor, data.size.y * worldRatio * zoomFactor), new PVector(data.position.x*worldRatio, data.position.y*worldRatio, data.position.z*worldRatio), data.id);
     area.load(data);
     areas.put(data.id, area);
   }
@@ -163,3 +171,4 @@ class textUniverse {
     }
   }
 }
+
