@@ -4,7 +4,7 @@
 
 # Go upon init. Fake variable just to trigger right away.
 
-[[eq-init.0:goto-text 3]]
+[[eq-init.0:goto-intro]]
 [[eq-init.0:goto-dynamic]]
 
 * perso 1                                               :@north:#toto:%medium:
