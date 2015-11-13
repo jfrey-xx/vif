@@ -1,6 +1,16 @@
+* toto
+
+** position in front of user
+** smooth goto
+** actual sensors
+** size for area 
+** from a paragraph to another
+** several styles
+** several users
+
 * archi for action 
 ** trigger
-*** quand
+***  when
 **** upon init
 **** pick time out
 **** elapsed time out 
@@ -9,8 +19,8 @@
 ***** lost
 **** var value
 ***** equals, less, more
-**** optionnal delay for all before actions taken
-*** quoi
+**** optional delay for all before actions taken
+*** what
 **** var
 ***** declare
 ***** reset (could reset stream counter)
@@ -20,8 +30,8 @@
 **** goto section
 **** change text
 ** state
-*** dico avec variables / état (de vrais états ?)
-*** dico avec streams (variable changing externally)
+*** dict with variables / state (true states?)
+*** dict with streams (variable changing externally)
 *** streams == variable ?
 **** normalize between 0 and 1 ?
 ***** history of last values
