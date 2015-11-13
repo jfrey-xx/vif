@@ -46,27 +46,29 @@ enum textStyle {
 public class textRenderer {
 
   // where we will draw into
-  private PGraphics pg;
-  private PApplet parent;
+  protected PGraphics pg;
+  protected PApplet parent;
 
   // will draw according to a ratio
   float fontSize;
   RFont font;
 
   // return itself by default
-  public static textRenderer getRenderer(PApplet parent, PGraphics pg, textStyle style) {
+  final public static textRenderer getRenderer(PApplet parent, PGraphics pg, textStyle style) {
     textRenderer txtrdr;
     if (style == null) {
       style = textStyle.DEFAULT;
     }
     switch(style) {
+    case BOB:
+      return new textRendererBob(parent, pg, style.getFontFile(), style.getFontSize());
     case DEFAULT:
     default:
       return new textRenderer(parent, pg, style.getFontFile(), style.getFontSize());
     }
   }
 
-  private textRenderer(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
+  protected textRenderer(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
     this.parent = parent;
     this.fontSize = fontSize;
     this.pg = pg;
@@ -77,14 +79,14 @@ public class textRenderer {
   // NB: push/pop systyle suposedly handled by caller
   public void areaDraw(RGroup group) {
     pg.noStroke();
-    // set a background -- solarized colorscheme
+    // set a background -- solarized colorscheme, base3
     pg.fill(253, 246, 227, 200);
     pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
-    // text black by default
-    pg.fill(101, 123, 131, 255);
+    // text base0 by default
+    pg.fill(131, 148, 150, 255);
   }
 
-  public void textDraw(textChunk chunk) {
+  final public void textDraw(textChunk chunk) {
     RGroup group = chunk.group;
     textType type = chunk.type;
     textAnim anim = chunk.anim;
@@ -206,5 +208,23 @@ public class textRenderer {
 
   // do nothing for none...
   private void textAnimNone(RGroup group, float ratio) {
+  }
+}
+
+// Bob has another colorscheme
+class textRendererBob extends textRenderer {
+
+  protected textRendererBob(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
+    super(parent, pg, fontFile, fontSize);
+  }
+
+  // solarized dark
+  public void areaDraw(RGroup group) {
+    pg.noStroke();
+    // set a background -- solarized colorscheme, base3
+    pg.fill(0, 43, 54, 200);
+    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+    // text base0 by default
+    pg.fill(131, 148, 150, 255);
   }
 }
