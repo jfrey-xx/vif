@@ -3,6 +3,8 @@
  
  Container for textHolder, handle interaction
  
+ FIXME: size for (in)visible trigger set with holder boundaries at the moment.
+ 
  */
 
 import processing.core.*;
@@ -101,6 +103,14 @@ class textArea {
       for (int i = 0; i < texts.length; i++) {
         holder.addText(texts[i], types[i], triggers[i], anim[i]);
       }
+
+      // once holder's group is computed, set outer area -- usefull for (in)visible triggers
+      for (int i = 0; i < triggers.length; i++) {
+        if (triggers[i] != null) {
+          triggers[i].setBoundariesArea(holder.group.getTopLeft().x, holder.group.getTopLeft().y, holder.group.getBottomRight().x, holder.group.getBottomRight().y);
+        }
+      }
+
       // inform dispatcher
       universe.registerTriggers(triggers);
     } else {

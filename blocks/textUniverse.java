@@ -56,6 +56,10 @@ class textUniverse {
     dyingAreas = new ArrayList();
     triggers = new ArrayList();
 
+    // enable update of camera frustrum for (in)visible trigger
+    // TODO: left disabled if no such trigger
+    scene.enableBoundaryEquations();
+
     // load text area data, add to stock, grab those to init on start
     parser = new textParser(parent, file);
     textAreaData[]  areaData = parser.getAreasData();

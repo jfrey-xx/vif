@@ -60,7 +60,12 @@ abstract class textTrigger {
   abstract protected boolean update();
 
   // to be overriden for picking, by default does nothing
-  void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+  void setBoundariesChunk(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+    return;
+  }
+
+  // to be overriden for visible, by default does nothing
+  void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
     return;
   }
 

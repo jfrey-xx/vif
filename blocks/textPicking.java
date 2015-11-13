@@ -39,6 +39,10 @@ class textPicking {
     return new textPicker(parent, this);
   }
 
+  textVisible getNewVisible(boolean onVisible) {
+    return new textVisible(parent, this, onVisible);
+  }
+
   // should be updated by sketch
   // NB: same cursor for all 
   public static void setCursor (Vec screenCursor) {
@@ -66,9 +70,9 @@ class textPicker extends textTrigger {
 
   // set position (handles internally reference position
   @Override
-    void setBoundaries(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+    void setBoundariesChunk(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
     topLeft = new Vec(topLeftX, topLeftY, 0);
-    bottomRight = new Vec(bottomRightX, bottomRightY);
+    bottomRight = new Vec(bottomRightX, bottomRightY, 0);
     boundsSet = true;
   }
 
@@ -76,7 +80,7 @@ class textPicker extends textTrigger {
     protected boolean update() {
     boolean picked = false;
     if (boundsSet && pick.cursor != null) {
-      // look how boundaries translates to word space
+      // look how boundaries translates to world space
       Vec topLeftWorld = pick.frame.inverseCoordinatesOf(topLeft);
       Vec bottomRightWorld = pick.frame.inverseCoordinatesOf(bottomRight);
 
@@ -90,5 +94,45 @@ class textPicker extends textTrigger {
         parent.abs(topLeftScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold && parent.abs(bottomRightScreen.z() - pick.cursor.z()) <  parent.abs(topLeftScreen.z() - bottomRightScreen.z()) + threshold;
     }
     return picked;
+  }
+}
+
+// if area is visible or not by eye
+class textVisible extends textTrigger {
+  boolean boundsSet = false;
+  textPicking pick;
+  boolean onVisible;
+  Vec topLeftArea, bottomRightArea;
+
+  // onVisible: if true will trigger when is visible, when invisible otherwise
+  textVisible(PApplet parent, textPicking pick, boolean onVisible) {
+    super(parent);
+    this.pick = pick;
+    this.onVisible = onVisible;
+    setDelay(1000);
+  }
+
+  @Override
+    protected boolean update() {
+    if (boundsSet) {
+      Vec topLeftAreaWorld = pick.frame.inverseCoordinatesOf(topLeftArea);
+      Vec bottomRightAreaWorld = pick.frame.inverseCoordinatesOf(bottomRightArea);
+      Eye.Visibility vis = pick.scene.boxVisibility(topLeftAreaWorld, bottomRightAreaWorld);
+      if (vis == Eye.Visibility.VISIBLE && onVisible) {
+        return true;
+      }
+      if (vis == Eye.Visibility.INVISIBLE && !onVisible) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // set position (handles internally reference position
+  @Override
+    void setBoundariesArea(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY) {
+    topLeftArea = new Vec(topLeftX, topLeftY, 0);
+    bottomRightArea = new Vec(bottomRightX, bottomRightY, 0);
+    boundsSet = true;
   }
 }

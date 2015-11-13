@@ -27,7 +27,7 @@ class textHolder {
   private float fontWordSpacing;
 
   // main holder
-  private RGroup group;
+  RGroup group;
   // logical groups
   private ArrayList<textChunk> chunks;
 

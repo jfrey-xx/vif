@@ -454,6 +454,10 @@ class textAreaData {
       String triggerType = textParser.getTriggerType(triggers.get(i));
       if (triggerType.equals("pick")) {
         tTriggers.add(pick.getNewPicker());
+      } else if (triggerType.equals("visible")) {
+        tTriggers.add(pick.getNewVisible(true));
+      } else if (triggerType.equals("invisible")) {
+        tTriggers.add(pick.getNewVisible(false));
       } else if (triggerType.equals("bind")) {
         // WIP: bind as pick for debug
         tTriggers.add(pick.getNewPicker());

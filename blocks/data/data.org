@@ -33,4 +33,12 @@ This is the *end*.
 
 ** intro
 
+[[visible:goto-outro]]
+
 I'm right here!
+
+** outro
+
+[[invisible:goto-intro]]
+
+You found me!

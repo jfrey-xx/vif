@@ -58,7 +58,7 @@ class textChunk {
     words.add(word);
     group.addGroup(wGroup);
     if (trig != null) {
-      trig.setBoundaries(group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
+      trig.setBoundariesChunk(group.getTopLeft().x, group.getTopLeft().y, group.getBottomRight().x, group.getBottomRight().y);
     }
   }
 
