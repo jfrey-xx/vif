@@ -8,6 +8,7 @@
  */
 
 import processing.core.*;
+import remixlab.dandelion.geom.*; // for Rotation
 
 // how to draw text
 enum textType { 
@@ -22,21 +23,37 @@ enum textAnim {
   // where to put text
 enum textPosition {
   // NORTH: 5 unit in front, and so on
-  NORTH("NORTH", new PVector(0, 0, -500)), 
+  NORTH("NORTH", new PVector(0, 0, -500), true), 
     EAST("EAST", new PVector(500, 0, 0)), 
     SOUTH("SOUTH", new PVector(0, 0, 500)), 
     WEST("WEST", new PVector(-500, 0, 0));
 
   private String text;
   private PVector position;
+  // is position relative to player's orientation
+  private boolean relative = false;
 
   textPosition(String text, PVector position) {
-    this.text = text;
-    this.position = position;
+    this(text, position, false);
   }
 
-  // return a copy of position
-  public PVector getPosition() {
+  textPosition(String text, PVector position, boolean relative) {
+    this.text = text;
+    this.position = position;
+    this.relative = relative;
+  }
+
+  // return vector representing position in world coordinate
+  // orientation: where the player is facing
+  public PVector getVector(Rotation orientation) {
+    if (relative) {
+      Vec pos = orientation.inverse().rotate(new Vec(position.x, position.y, position.z));
+      Quat rot = (Quat) orientation;
+      widget.println("rotation:", rot.eulerAngles());
+      widget.println("position before:", position);
+      widget.println("position after:", pos);
+      return new PVector(pos.x(), pos.y(), pos.z());
+    }
     // .copy() not in processing 2...
     return new PVector(position.x, position.y, position.z);
   }
@@ -54,7 +71,6 @@ enum textPosition {
     return null;
   }
 }
-
 
 // size of text
 enum textSize {

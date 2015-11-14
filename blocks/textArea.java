@@ -60,7 +60,7 @@ class textArea {
     this.position = position;
 
     // rotate frame
-    lookAtViewer();
+   // lookAtViewer();
     // put in right position
     centerFrame();
   }
@@ -78,6 +78,8 @@ class textArea {
     // since translation is applied before rotation, we have to take into account the coordinates change
     Vec shift = frame.rotation().rotate(new Vec(shiftX, shiftY));
     frame.setTranslation(new Vec(position.x - shift.x(), position.y - shift.y(), position.z - shift.z()));
+    
+    lookAtViewer();
   }
 
   // rotate the frame so it faces viewer (proscene eye)

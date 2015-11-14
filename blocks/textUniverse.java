@@ -120,8 +120,11 @@ class textUniverse {
       parent.println("Warning, not loading area [", id, "] because it is already active");
       return;
     }
+    
+    PVector position = data.getPosition().getVector(frame.orientation()); 
+    
     // adjust position with worldRatio and size with scale (worldRatio * zoomFactor)
-    textArea area = new textArea(this, new PVector(data.size.x * worldRatio * zoomFactor, data.size.y * worldRatio * zoomFactor), new PVector(data.position.x*worldRatio, data.position.y*worldRatio, data.position.z*worldRatio), data.getId());
+    textArea area = new textArea(this, new PVector(data.size.x * worldRatio * zoomFactor, data.size.y * worldRatio * zoomFactor), new PVector(position.x*worldRatio, position.y*worldRatio, position.z*worldRatio), data.getId());
     area.load(data);
     areas.put(data.getId(), area);
   }
