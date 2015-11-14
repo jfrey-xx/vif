@@ -144,7 +144,38 @@ class textTrigEq extends textTrigger {
 
   @Override
     protected boolean update() {
-    return textState.getValue(var) == value;
+    if (init) {
+      return textState.getValue(var) == value;
+    }
+    return false;
+  }
+}
+
+// trigger after some amount
+class textTrigTimer extends textTrigger {
+  private int startTime = -1;
+  // timer duration, in ms
+  private int duration = 1000;
+
+  textTrigTimer(PApplet parent, String param) {
+    super(parent);
+
+    String [] split = param.split(textParser.TRIGGER_PARAM_SEPARATOR);
+
+    if (split.length != 1) {
+      parent.println("Wrong parameter for timer trigger [" + param + "] of length", split.length);
+    } else {
+      duration = Integer.parseInt(split[0]);
+      parent.println("new timer with duration", duration);
+    }
+
+    setDelay(duration);
+  }
+
+  @Override
+    protected boolean update() {
+    // the "duration" mechanism does all the magic
+    return true;
   }
 }
 

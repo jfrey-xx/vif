@@ -517,6 +517,8 @@ class textAreaData {
         tTriggers.add(pick.getNewPicker());
       } else if (triggerType.equals("eq")) {
         tTriggers.add(new textTrigEq(parent, textParser.getTriggerParam(triggers.get(i))));
+      } else if (triggerType.equals("timer")) {
+        tTriggers.add(new textTrigTimer(parent, textParser.getTriggerParam(triggers.get(i))));
       } else if (triggerType.equals("")) {
         // no trigger associated to current chunk
         tTriggers.add(null);

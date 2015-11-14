@@ -46,16 +46,29 @@ I'm right /here/!
 [[invisible:goto-intro]]
 You found me!
 
-* perso 2                                               :@front:#bob:%medium:
+* perso 3                                               :@front:#bob:%medium:
 
 # an area cannot be active twice, hence because of fade in/out, have to jungle between two that will appear identical
 
 ** avoid 1
 
+[[eq-init.0:inc-avoidVar]]
 [[invisible:goto-avoid 2]]
+[[eq-avoidVar.4:goto-avoid sad]]
 You cannot avoid me!
 
 ** avoid 2
 
+[[eq-init.0:inc-avoidVar]]
 [[invisible:goto-avoid 1]]
+[[eq-avoidVar.4:goto-avoid sad]]
 You cannot avoid me!
+
+** avoid sad
+
+[[timer-2000:goto-dead end]]
+I'm sad now. I'll leave you alone.
+
+* dead end
+
+# dummy area for termination
