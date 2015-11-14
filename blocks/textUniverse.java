@@ -34,7 +34,7 @@ class textUniverse {
   Map <String, textArea> areas;
 
   // areas soon to be removed
-  ArrayList <String> dyingAreas;
+  Map <String, textArea> dyingAreas;
 
   // Will monitor triggers from here
   ArrayList <textTrigger> triggers;
@@ -61,7 +61,7 @@ class textUniverse {
     this.zoomFactor = zoomFactor;
     areasStock = new LinkedHashMap<String, textAreaData>();
     areas = new LinkedHashMap<String, textArea>();
-    dyingAreas = new ArrayList();
+    dyingAreas = new LinkedHashMap<String, textArea>();
     triggers = new ArrayList();
 
     // enable update of camera frustrum for (in)visible trigger
@@ -83,21 +83,28 @@ class textUniverse {
 
   // Adding area to list to be cleaned
   void disableArea(String id) {
-    dyingAreas.add(id);
+    dyingAreas.put(id, areas.get(id));
   }
 
   // two-steps removal (cf disableArea) 'cause may have several triggers at the same time, typically upon init
   private void cleanArea() {
-    for (String areaID : dyingAreas) {
-      parent.println("unloading area:", areaID);
-      textArea area = areas.get(areaID);
-      // may attempt to remove twice the same, e.g. two "goto"
-      if (area != null) {
+    if (!dyingAreas.isEmpty()) {
+      // store keys to be removed, avoid concurrent modification exception
+      ArrayList<String> ids = new ArrayList();
+      // update text world
+      for (String key : dyingAreas.keySet ()) {
+        textArea area =  dyingAreas.get(key);
         area.unload();
-        areas.remove(areaID);
+        if (area.isDead()) {
+          parent.println("unloading area:", key);
+          ids.add(key);
+        }
+      }
+      for (String id : ids) {
+        areas.remove(id);
+        dyingAreas.remove(id);
       }
     }
-    dyingAreas.clear();
   }
 
   // New challenger incoming. 

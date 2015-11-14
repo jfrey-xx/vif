@@ -28,6 +28,14 @@ class textArea {
   private textTrigger[] triggers;
   private textRenderer txtrdr;
 
+  // time to die in ms
+  final private int dyingTime = 2000;
+  // 1: running; 0: dying; -1: dead
+  private int status = 1;
+  // timer for dying
+  private int startDying = -1;
+
+
   private boolean debug = false;
 
 
@@ -134,10 +142,31 @@ class textArea {
 
   // call that before area is disabled
   public void unload() {
-    universe.unregisterTriggers(triggers);
+    if (status == 1) { 
+      universe.unregisterTriggers(triggers);
+      status = 0;
+      startDying = parent.millis();
+    }
+  }
+
+  // return true once fadeout done
+  public boolean isDead() {
+    return status == -1;
   }
 
   public void draw() {
+
+    if (status == 0) {
+      if (parent.millis() - startDying > dyingTime) {
+        status = -1;
+      }
+    }
+
+    // nothing more once dead
+    if (isDead()) {
+      return;
+    }
+
     pg.pushMatrix();
     frame.applyTransformation();
 
