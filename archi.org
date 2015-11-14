@@ -1,11 +1,8 @@
 * toto
 
 ** position in front of user
-** smooth goto
 ** actual sensors
 ** size for area 
-** from a paragraph to another
-** several styles
 ** several users
 
 * archi for action 

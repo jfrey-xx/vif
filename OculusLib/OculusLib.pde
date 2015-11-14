@@ -33,7 +33,7 @@ textUniverse universe;
 
 
 // scale of text
-float scale;
+float worldRatio, zoomFactor;
 
 // position for FPS
 PVector positionFPS = new PVector(0, 0, -5);
@@ -65,8 +65,10 @@ void setup() {
   textFrame.setReferenceFrame(mainFrame);
 
   // world ratio
-  scale = 0.01;
-  universe = new textUniverse(this, fb, proscene, textFrame, scale, "data.json");
+  worldRatio = 0.01;
+  // halve text size
+  zoomFactor = 0.5;
+  universe = new textUniverse(this, fb, proscene, textFrame, worldRatio, zoomFactor, "data.json");
 
   oculusRiftDev = new SimpleOculusRift(this, (PGraphics3D) fb, SimpleOculusRift.RenderQuality_Middle, false);
 }
@@ -97,12 +99,18 @@ void onDrawScene(int eye, PMatrix3D proj, PMatrix3D modelview)
 
 // apply head transformation to frame (both from oculus and keyboard)
 void updateReferenceFrame() {
-  // yaw, pitch, roll -- NB: again refeference is not the same from oculus and from proscene, hence weirdities to come with Y/X
+  // retrieve headset orientation
   PVector orientation = oculusRiftDev.sensorOrientation();
-  orientation.x -= rotateLookY;
-  orientation.y += rotateLookX;
-  Quat head = new Quat(orientation.y, -orientation.x, orientation.z);
-  textFrame.setRotation(head);
+
+  // apparently it's not truely euler angles, use same method as in source to get matrix
+  // apply on the fly correct hand and keyboard transform
+  PMatrix3D pmat = new PMatrix3D();
+  pmat.rotateY(orientation.x +  rotateLookY);
+  pmat.rotateX(-orientation.y + rotateLookX);
+  pmat.rotateZ(-orientation.z);
+
+  // convert to proscene format and apply
+  textFrame.setRotation(new Quat(proscene.toMat(pmat)));
 }
 
 public void mainDrawing(Scene s) {
@@ -126,7 +134,7 @@ public void mainDrawing(Scene s) {
   pg.pushMatrix();
   pg.translate(positionFPS.x, positionFPS.y, positionFPS.z);
   pg.fill(0, 0, 255);
-  pg.scale(scale);
+  pg.scale(worldRatio);
   pg.text(frameRate, 10, 10);
   pg.popMatrix();
 
@@ -137,7 +145,7 @@ public void mainDrawing(Scene s) {
 
 // reset / set orientation
 void keyPressed() {
-  println("Key pressed: [", key, "]");
+  // println("Key pressed: [", key, "]");
   if (key == ' ') {
     println("reset head orientation and position");
     oculusRiftDev.resetOrientation();
@@ -145,16 +153,16 @@ void keyPressed() {
     rotateLookX = 0;
     rotateLookY = 0;
   } else if (keyCode == UP) {
-    println("look up");
+    // println("look up");
     rotateLookX -= 0.1;
   } else if (keyCode == DOWN) {
-    println("look down");
+    // println("look down");
     rotateLookX += 0.1;
   } else if (keyCode == LEFT) {
-    println("look down");
+    // println("look down");
     rotateLookY += 0.1;
   } else if (keyCode == RIGHT) {
-    println("look down");
+    // println("look down");
     rotateLookY -= 0.1;
   }
 }
@@ -226,3 +234,4 @@ void drawHud(Scene s) {
   pg.popStyle();
 }
 //////////////////////////////////////////////
+

@@ -11,8 +11,13 @@
 
 ** dynamic
 
-[[eq-heartVar.3:goto-text 3]]
+First paragraph.
 
+Second paragraph that is a bit longer and may overflow.
+
+# Do not leave blank lines between links with no text and following paraghaphs
+
+[[eq-heartVar.3:goto-text 3]]
 The heart [[bind-heart-heartstyle:inc-heartVar:beats]] /fast/. Go [[pick:goto-text 1:further]].
 
 ** text 1
@@ -34,11 +39,9 @@ This is the *end*.
 ** intro
 
 [[visible:goto-outro]]
-
 I'm right /here/!
 
 ** outro
 
 [[invisible:goto-intro]]
-
 You found me!

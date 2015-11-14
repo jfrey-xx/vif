@@ -28,8 +28,16 @@ class textArea {
   private textTrigger[] triggers;
   private textRenderer txtrdr;
 
-  private boolean debug = false;
+  // time to die in ms
+  final private int dyingTime = 500;
+  final private int birthTime = 500;
+  // 2: appearing, 1: running; 0: dying; -1: dead
+  private int status = 2;
+  // timer for birth / dying
+  private int startDying = -1;
+  private int startBirth = -1;
 
+  private boolean debug = false;
 
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
@@ -38,7 +46,8 @@ class textArea {
     this.parent = universe.parent;
     this.pg = universe.pg;
     this.scene = universe.scene;
-    this.scale = universe.scale;
+    // the size will depend on worldRatio and zoom factor
+    scale = universe.worldRatio * universe.zoomFactor;
     this.id = id;
     frame = new Frame(scene);
     frame.setReferenceFrame(universe.frame);
@@ -49,18 +58,35 @@ class textArea {
 
     this.size = size;
     this.position = position;
-    frame.setTranslation(new Vec(position.x, position.y, position.z));
 
+    // rotate frame
     lookAtViewer();
+    // put in right position
+    centerFrame();
+  }
+
+  // position frame; if has holder will put group center in designed position
+  private void centerFrame() {
+    float shiftX = 0;
+    float shiftY = 0;
+
+    if (holder != null) {
+      shiftX = holder.group.getWidth() * scale / 2;
+      shiftY = holder.group.getHeight() * scale / 2;
+    }
+
+    // since translation is applied before rotation, we have to take into account the coordinates change
+    Vec shift = frame.rotation().rotate(new Vec(shiftX, shiftY));
+    frame.setTranslation(new Vec(position.x - shift.x(), position.y - shift.y(), position.z - shift.z()));
   }
 
   // rotate the frame so it faces viewer (proscene eye)
-  public void lookAtViewer() {
+  private void lookAtViewer() {
     // work on a copy of the eye to get a "lookAt" orientation
     Eye cam = scene.eye().get();
-    cam.lookAt(frame.position());
+    cam.lookAt(new Vec(position.x, position.y, position.z));
     Rotation theLook = cam.orientation();
-    frame.setOrientation(theLook);
+    frame.setRotation(theLook);
   }
 
   // stub for populating textHolder
@@ -102,22 +128,75 @@ class textArea {
           triggers[i].setBoundariesArea(holder.group.getTopLeft().x, holder.group.getTopLeft().y, holder.group.getBottomRight().x, holder.group.getBottomRight().y);
         }
       }
-
-      // inform dispatcher
-      universe.registerTriggers(triggers);
     } else {
       parent.println("Error, texts/types/triggers length mismatch");
     }
+
+    // now it's grown up, let's recondiser position
+    centerFrame();
+
+    // start fade in
+    status = 2;
+    startBirth = parent.millis();
+  }
+
+  // once appeared, register trigger -- NB: should not be called twice...
+  private void launch() {
+    // inform dispatcher
+    universe.registerTriggers(triggers);
+    status = 1;
   }
 
   // call that before area is disabled
   public void unload() {
-    universe.unregisterTriggers(triggers);
+    if (status == 1) { 
+      universe.unregisterTriggers(triggers);
+      status = 0;
+      startDying = parent.millis();
+    }
+  }
+
+  // return true once fadeout done
+  public boolean isDead() {
+    return status == -1;
   }
 
   public void draw() {
+
+    // used for fade effect
+    float ratio = 1;
+
+
+    switch(status) {
+      // nothing more once dead
+    case -1:
+      return;
+    case 0:
+      if (parent.millis() - startDying > dyingTime) {
+        status = -1;
+        return;
+      } else {
+        // kind of fadout for dying
+        ratio = 1 - (parent.millis() - startDying) / (float)dyingTime;
+      }
+      break;
+    case 2:
+      // let time for previous to die
+      if (parent.millis() - startBirth <= dyingTime) {
+        return;
+      }
+      else if (parent.millis() - startBirth > birthTime + dyingTime) {
+        launch();
+      } else {
+        // fade in
+        ratio = (parent.millis() - startBirth - dyingTime) / (float) (birthTime);
+      }
+    }
+
     pg.pushMatrix();
     frame.applyTransformation();
+
+    txtrdr.setFade(ratio);
 
     if (holder != null) {
       holder.draw();

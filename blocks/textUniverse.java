@@ -22,8 +22,10 @@ class textUniverse {
 
   textParser parser;
 
-  // world scale
-  float scale;
+  // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 10cm font size. Also scale position, i.e. larger and further / smaller and closer
+  float worldRatio;
+  // influence 2D size of text (both font size and textArea size), not position. Handy if fonts and text areas too big / too small.
+  float zoomFactor;
 
   // availables areas
   Map <String, textAreaData> areasStock;
@@ -32,12 +34,17 @@ class textUniverse {
   Map <String, textArea> areas;
 
   // areas soon to be removed
-  ArrayList <String> dyingAreas;
+  Map <String, textArea> dyingAreas;
 
   // Will monitor triggers from here
   ArrayList <textTrigger> triggers;
 
-  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float scale, String file) {
+  // by default no zoom
+  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float worldRatio, String file) {
+    this(parent, pg, scene, refFrame, worldRatio, 1, file);
+  }
+
+  textUniverse(PApplet parent, PGraphics pg, Scene scene, Frame refFrame, float worldRatio, float zoomFactor, String file) {
     if (!init) {
       // init geomerative
       RG.init(parent); 
@@ -50,10 +57,11 @@ class textUniverse {
     this.pg = pg;
     this.scene = scene;
     this.frame = refFrame;
-    this.scale = scale;
+    this.worldRatio =  worldRatio;
+    this.zoomFactor = zoomFactor;
     areasStock = new LinkedHashMap<String, textAreaData>();
     areas = new LinkedHashMap<String, textArea>();
-    dyingAreas = new ArrayList();
+    dyingAreas = new LinkedHashMap<String, textArea>();
     triggers = new ArrayList();
 
     // enable update of camera frustrum for (in)visible trigger
@@ -65,31 +73,38 @@ class textUniverse {
     textAreaData[]  areaData = parser.getAreasData();
 
     for (int i = 0; i < areaData.length; i++) {
-      areasStock.put(areaData[i].id, areaData[i]);
+      areasStock.put(areaData[i].getId(), areaData[i]);
       // check if should go live
       if (areaData[i].atStart) {
-        enableArea(areaData[i].id);
+        enableArea(areaData[i].getId());
       }
     }
   }
 
   // Adding area to list to be cleaned
   void disableArea(String id) {
-    dyingAreas.add(id);
+    dyingAreas.put(id, areas.get(id));
   }
 
   // two-steps removal (cf disableArea) 'cause may have several triggers at the same time, typically upon init
   private void cleanArea() {
-    for (String areaID : dyingAreas) {
-      parent.println("unloading area:", areaID);
-      textArea area = areas.get(areaID);
-      // may attempt to remove twice the same, e.g. two "goto"
-      if (area != null) {
+    if (!dyingAreas.isEmpty()) {
+      // store keys to be removed, avoid concurrent modification exception
+      ArrayList<String> ids = new ArrayList();
+      // update text world
+      for (String key : dyingAreas.keySet ()) {
+        textArea area =  dyingAreas.get(key);
         area.unload();
-        areas.remove(areaID);
+        if (area.isDead()) {
+          parent.println("unloading area:", key);
+          ids.add(key);
+        }
+      }
+      for (String id : ids) {
+        areas.remove(id);
+        dyingAreas.remove(id);
       }
     }
-    dyingAreas.clear();
   }
 
   // New challenger incoming. 
@@ -105,10 +120,10 @@ class textUniverse {
       parent.println("Warning, not loading area [", id, "] because it is already active");
       return;
     }
-    // adjust position and size with scale -- no mult() in processing 2xxx
-    textArea area = new textArea(this, new PVector(data.size.x * scale, data.size.y * scale), new PVector(data.position.x*scale, data.position.y*scale, data.position.z*scale), data.id);
+    // adjust position with worldRatio and size with scale (worldRatio * zoomFactor)
+    textArea area = new textArea(this, new PVector(data.size.x * worldRatio * zoomFactor, data.size.y * worldRatio * zoomFactor), new PVector(data.position.x*worldRatio, data.position.y*worldRatio, data.position.z*worldRatio), data.getId());
     area.load(data);
-    areas.put(data.id, area);
+    areas.put(data.getId(), area);
   }
 
   public void draw() {
