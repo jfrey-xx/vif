@@ -23,10 +23,15 @@ enum textAnim {
   // where to put text
 enum textPosition {
   // NORTH: 5 unit in front, and so on
-  NORTH("NORTH", new PVector(0, 0, -500), false), 
+  NORTH("NORTH", new PVector(0, 0, -500)), 
     EAST("EAST", new PVector(500, 0, 0)), 
     SOUTH("SOUTH", new PVector(0, 0, 500)), 
-    WEST("WEST", new PVector(-500, 0, 0));
+    WEST("WEST", new PVector(-500, 0, 0)), 
+    // relative position, slightly behind absolute to avoid clash
+    FRONT("FRONT", new PVector(0, 0, -450), false), 
+    RIGHT("RIGHT", new PVector(450, 0, 0), false), 
+    BEHIND("BEHIND", new PVector(0, 0, 450), false), 
+    LEFT("LEFT", new PVector(-450, 0, 0), false);
 
   private String text;
   private PVector position;
