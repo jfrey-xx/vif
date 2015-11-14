@@ -13,7 +13,7 @@
 
 First paragraph.
 
-Second paragraph.
+Second paragraph that is a bit longer and may overflow.
 
 # Do not leave blank lines between links with no text and following paraghaphs
 
@@ -39,11 +39,9 @@ This is the *end*.
 ** intro
 
 [[visible:goto-outro]]
-
 I'm right /here/!
 
 ** outro
 
 [[invisible:goto-intro]]
-
 You found me!

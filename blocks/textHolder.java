@@ -100,6 +100,9 @@ class textHolder {
     float curWidth = 0;
     float curHeight = 0;
 
+    // remember longest line so as to center paragraph separator
+    float biggestWidth = 0;
+
     // for transition between chunk
     textChunk prevChunk = null;
 
@@ -154,11 +157,16 @@ class textHolder {
           debugln("First word of line");
           // shift even firt line to have 0,0 at top left
           curHeight = fontLineHeight;
+        }         
+        // special case if link for new paragraph, put it on new line and center
+        else if (words[i].equals(textParser.NEW_PAR_SYMBOL)) {
+          curHeight += fontLineSpacing;
+          curWidth = (biggestWidth - wGroup.getWidth())/2;
         } else if (
-        // won't create a line unless there is a new word and at least something on current line
-        newWord &&  curWidth>0  &&
+          // won't create a line unless there is a new word and at least something on current line
+          newWord &&  curWidth>0  &&
           //  check if overflow
-        curWidth + fontWordSpacing + wGroup.getWidth() > maxWidth
+          curWidth + fontWordSpacing + wGroup.getWidth() > maxWidth
           ) {
           debugln("New line");
           curWidth = 0;
@@ -178,6 +186,9 @@ class textHolder {
 
         wGroup.translate(curWidth, curHeight);
         curWidth+=wGroup.getWidth();
+        if (curWidth >  biggestWidth) {
+          biggestWidth = curWidth;
+        }
         chunk.addWord(wGroup, words[i]);
       }
       group.addGroup(chunk.getGroup());
@@ -227,4 +238,3 @@ class textHolder {
     }
   }
 }
-

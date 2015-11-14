@@ -3,7 +3,6 @@
 ** position in front of user
 ** actual sensors
 ** size for area 
-** from a paragraph to another
 ** several users
 
 * archi for action 
