@@ -23,39 +23,38 @@ enum textAnim {
   // where to put text
 enum textPosition {
   // NORTH: 5 unit in front, and so on
-  NORTH("NORTH", new PVector(0, 0, -500), true), 
+  NORTH("NORTH", new PVector(0, 0, -500), false), 
     EAST("EAST", new PVector(500, 0, 0)), 
     SOUTH("SOUTH", new PVector(0, 0, 500)), 
     WEST("WEST", new PVector(-500, 0, 0));
 
   private String text;
   private PVector position;
-  // is position relative to player's orientation
-  private boolean relative = false;
+  // is position absolute or relative to player's orientation
+  private boolean absolute;
 
+  // by default, absolute position
   textPosition(String text, PVector position) {
-    this(text, position, false);
+    this(text, position, true);
   }
 
-  textPosition(String text, PVector position, boolean relative) {
+  textPosition(String text, PVector position, boolean absolute) {
     this.text = text;
     this.position = position;
-    this.relative = relative;
+    this.absolute = absolute;
   }
 
-  // return vector representing position in world coordinate
-  // orientation: where the player is facing
-  public PVector getVector(Rotation orientation) {
-    if (relative) {
-      Vec pos = orientation.inverse().rotate(new Vec(position.x, position.y, position.z));
-      Quat rot = (Quat) orientation;
-      widget.println("rotation:", rot.eulerAngles());
-      widget.println("position before:", position);
-      widget.println("position after:", pos);
-      return new PVector(pos.x(), pos.y(), pos.z());
-    }
+  // return vector representing position
+  // NB: should check "relative" flag to know if world coordinate
+
+  public PVector getVector() {
     // .copy() not in processing 2...
     return new PVector(position.x, position.y, position.z);
+  }
+
+  // if false, position is in world coordinate, otherwise should be relative to viewer's position
+  public boolean isAbsolute() {
+    return absolute;
   }
 
   // return enum from string, insensitive to case

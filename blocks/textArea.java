@@ -20,6 +20,8 @@ class textArea {
   private Scene scene;
   private PVector size;
   private PVector position;
+  // whether position is absolute or relative to current viewer orientation
+  private boolean positionAbsolute;
   private float scale;
   private Frame frame;
   private String id; // specific ID in this universe
@@ -41,26 +43,29 @@ class textArea {
 
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
-  textArea(textUniverse universe, PVector size, PVector position, String id) {
+  textArea(textUniverse universe, PVector size, textPosition position, String id) {
     this.universe = universe;
     this.parent = universe.parent;
     this.pg = universe.pg;
     this.scene = universe.scene;
-    // the size will depend on worldRatio and zoom factor
+    // the text size will depend on worldRatio and zoom factor
     scale = universe.worldRatio * universe.zoomFactor;
     this.id = id;
     frame = new Frame(scene);
     frame.setReferenceFrame(universe.frame);
     frame.setScaling(scale);
 
-    pick = new textPicking(parent, scene, position, scale);
+    pick = new textPicking(parent, scene, scale);
     pick.setFrame(frame);
 
-    this.size = size;
-    this.position = position;
+    // adjust position with worldRatio, size with scale (worldRatio * zoomFactor),  position with worldRatio
+    PVector pos = position.getVector();
+    this.position = new PVector(pos.x * universe.worldRatio, pos.y * universe.worldRatio, pos.z * universe.worldRatio);
+    this.positionAbsolute = position.isAbsolute();
+    this.size = new PVector(size.x * scale, size.y * scale, size.z * scale);
 
     // rotate frame
-   // lookAtViewer();
+    lookAtViewer();
     // put in right position
     centerFrame();
   }
@@ -75,10 +80,19 @@ class textArea {
       shiftY = holder.group.getHeight() * scale / 2;
     }
 
-    // since translation is applied before rotation, we have to take into account the coordinates change
-    Vec shift = frame.rotation().rotate(new Vec(shiftX, shiftY));
-    frame.setTranslation(new Vec(position.x - shift.x(), position.y - shift.y(), position.z - shift.z()));
-    
+
+    // if absolute, take into account reference frame to place in world coordinates
+    if (positionAbsolute) {
+      // since translation is applied before rotation, we have to take into account the coordinates change
+      Vec shift = frame.rotation().rotate(new Vec(shiftX, shiftY));
+      frame.setTranslation(new Vec(position.x - shift.x(), position.y - shift.y(), position.z - shift.z()));
+    } 
+    // if relative, just set position
+    else {
+      Vec shift = frame.orientation().rotate(new Vec(shiftX, shiftY));
+      frame.setPosition(new Vec(position.x - shift.x(), position.y - shift.y(), position.z - shift.z()));
+    }
+
     lookAtViewer();
   }
 
@@ -88,7 +102,15 @@ class textArea {
     Eye cam = scene.eye().get();
     cam.lookAt(new Vec(position.x, position.y, position.z));
     Rotation theLook = cam.orientation();
-    frame.setRotation(theLook);
+
+    // if absolute, acknowlegde reference frame
+    if (positionAbsolute) {
+      frame.setRotation(theLook);
+    } 
+    // relative, rotation in world coordinates
+    else {
+      frame.setOrientation(theLook);
+    }
   }
 
   // stub for populating textHolder
@@ -186,8 +208,7 @@ class textArea {
       // let time for previous to die
       if (parent.millis() - startBirth <= dyingTime) {
         return;
-      }
-      else if (parent.millis() - startBirth > birthTime + dyingTime) {
+      } else if (parent.millis() - startBirth > birthTime + dyingTime) {
         launch();
       } else {
         // fade in

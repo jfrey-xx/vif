@@ -13,7 +13,6 @@ import remixlab.dandelion.geom.*;
 class textPicking {
   private PApplet parent;
   public Scene scene;
-  private Vec position;
   public Frame frame;
 
   // font2world scale in order to get the bounding box right
@@ -23,10 +22,9 @@ class textPicking {
 
   public boolean debug = false;
 
-  textPicking(PApplet parent, Scene scene, PVector position, float scale) {
+  textPicking(PApplet parent, Scene scene, float scale) {
     this.parent = parent;
     this.scene = scene;
-    this.position = scene.toVec(position);
     this.scale = scale;
   }
 
