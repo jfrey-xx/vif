@@ -20,7 +20,7 @@ class textHolder {
 
   final String SEPARATOR = " ";
 
-  private float fontLineHeight;
+  float fontLineHeight;
   private float fontLineSpacing; // will be height of one char * 1.25
   private float fontWordSpacing;
 
@@ -155,10 +155,10 @@ class textHolder {
           // shift even firt line to have 0,0 at top left
           curHeight = fontLineHeight;
         } else if (
-          // won't create a line unless there is a new word and at least something on current line
-          newWord &&  curWidth>0  &&
+        // won't create a line unless there is a new word and at least something on current line
+        newWord &&  curWidth>0  &&
           //  check if overflow
-          curWidth + fontWordSpacing + wGroup.getWidth() > maxWidth
+        curWidth + fontWordSpacing + wGroup.getWidth() > maxWidth
           ) {
           debugln("New line");
           curWidth = 0;
@@ -227,3 +227,4 @@ class textHolder {
     }
   }
 }
+

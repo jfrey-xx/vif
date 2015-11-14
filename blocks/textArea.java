@@ -29,7 +29,7 @@ class textArea {
   private textRenderer txtrdr;
 
   // time to die in ms
-  final private int dyingTime = 2000;
+  final private int dyingTime = 500;
   // 1: running; 0: dying; -1: dead
   private int status = 1;
   // timer for dying
@@ -169,6 +169,12 @@ class textArea {
 
     pg.pushMatrix();
     frame.applyTransformation();
+
+    // kind of fadout for dying
+    if (status == 0) {
+      float ratio = 1 - (parent.millis() - startDying) / (float)dyingTime;
+      txtrdr.setFade(ratio);
+    }
 
     if (holder != null) {
       holder.draw();

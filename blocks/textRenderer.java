@@ -6,7 +6,7 @@ import processing.core.*;
 // list implemented textRenderer for parsing
 enum textStyle {
   DEFAULT("default", "FreeSans.ttf"), 
-    BOB("bob", "GenBasR.ttf");
+  BOB("bob", "GenBasR.ttf");
   ;
 
   // fixed 100 pixels font size
@@ -22,7 +22,7 @@ enum textStyle {
   // return enum from string, insensitive to case
   public static textStyle fromString(String text) {
     if (text != null) {
-      for (textStyle style : textStyle.values()) {
+      for (textStyle style : textStyle.values ()) {
         if (text.equalsIgnoreCase(style.text)) {
           return style;
         }
@@ -42,12 +42,18 @@ enum textStyle {
 
 /** 
  Handle animation and drawing (transforms of the former applied before latter).
+ 
+ Class that extends should use getRatio() to accomodate for fading effect.
+ 
  */
 public class textRenderer {
 
   // where we will draw into
   protected PGraphics pg;
   protected PApplet parent;
+
+  // 0 to 1, effect for fade
+  private float fade = 1;
 
   // will draw according to a ratio
   float fontSize;
@@ -68,6 +74,14 @@ public class textRenderer {
     }
   }
 
+  final public void  setFade(float fade) {
+    this.fade = fade;
+  }
+
+  final public float getFade() {
+    return fade;
+  }
+
   protected textRenderer(PApplet parent, PGraphics pg, String fontFile, float fontSize) {
     this.parent = parent;
     this.fontSize = fontSize;
@@ -75,15 +89,15 @@ public class textRenderer {
     this.font = new RFont(fontFile, (int) fontSize, parent.LEFT); // left align by default
   }
 
-  // set default colors background/foreground
+  // set default colors background/foreground  -- fading on color alpha
   // NB: push/pop systyle suposedly handled by caller
   public void areaDraw(RGroup group) {
     pg.noStroke();
     // set a background -- solarized colorscheme, base3
-    pg.fill(253, 246, 227, 200);
+    pg.fill(253, 246, 227, getFade() * 200);
     pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
     // text base0 by default
-    pg.fill(131, 148, 150, 255);
+    pg.fill(131, 148, 150, getFade() * 255);
   }
 
   final public void textDraw(textChunk chunk) {
@@ -162,7 +176,7 @@ public class textRenderer {
   private void textDrawShake(RGroup group) {
     RGroup groupPoly = group.toPolygonGroup();
     RPoint[] points = groupPoly.getPoints();
-    pg.fill(220, 50, 47);
+    pg.fill(220, 50, 47, getFade()*255);
     //DRAW ELLIPSES AT EACH OF THESE POINTS
     for (int i=0; i<points.length; i++) {
       float noise = parent.random(fontSize/20);
@@ -193,7 +207,7 @@ public class textRenderer {
   // ratio: between 0 and 1
   private void textAnimShadow(RGroup group, float ratio) {
     float c = parent.lerp(255, 0, ratio);
-    pg.fill(7, 54, 66, 255-c);
+    pg.fill(7, 54, 66, (255-c) * getFade());
     pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
   }
 
@@ -218,13 +232,14 @@ class textRendererBob extends textRenderer {
     super(parent, pg, fontFile, fontSize);
   }
 
-  // solarized dark
+  // solarized dark -- fading on color alpha
   public void areaDraw(RGroup group) {
     pg.noStroke();
     // set a background -- solarized colorscheme, base3
-    pg.fill(0, 43, 54, 200);
+    pg.fill(0, 43, 54, getFade() * 200);
     pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
     // text base0 by default
-    pg.fill(131, 148, 150, 255);
+    pg.fill(131, 148, 150, getFade() * 255);
   }
 }
+
