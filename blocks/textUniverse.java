@@ -73,10 +73,10 @@ class textUniverse {
     textAreaData[]  areaData = parser.getAreasData();
 
     for (int i = 0; i < areaData.length; i++) {
-      areasStock.put(areaData[i].id, areaData[i]);
+      areasStock.put(areaData[i].getId(), areaData[i]);
       // check if should go live
       if (areaData[i].atStart) {
-        enableArea(areaData[i].id);
+        enableArea(areaData[i].getId());
       }
     }
   }
@@ -121,9 +121,9 @@ class textUniverse {
       return;
     }
     // adjust position with worldRatio and size with scale (worldRatio * zoomFactor)
-    textArea area = new textArea(this, new PVector(data.size.x * worldRatio * zoomFactor, data.size.y * worldRatio * zoomFactor), new PVector(data.position.x*worldRatio, data.position.y*worldRatio, data.position.z*worldRatio), data.id);
+    textArea area = new textArea(this, new PVector(data.size.x * worldRatio * zoomFactor, data.size.y * worldRatio * zoomFactor), new PVector(data.position.x*worldRatio, data.position.y*worldRatio, data.position.z*worldRatio), data.getId());
     area.load(data);
-    areas.put(data.id, area);
+    areas.put(data.getId(), area);
   }
 
   public void draw() {
@@ -178,4 +178,3 @@ class textUniverse {
     }
   }
 }
-

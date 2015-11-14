@@ -37,9 +37,7 @@ class textArea {
   private int startDying = -1;
   private int startBirth = -1;
 
-
   private boolean debug = false;
-
 
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
@@ -60,7 +58,6 @@ class textArea {
 
     this.size = size;
     this.position = position;
-
 
     // rotate frame
     lookAtViewer();
@@ -218,4 +215,3 @@ class textArea {
     pg.popMatrix();
   }
 }
-

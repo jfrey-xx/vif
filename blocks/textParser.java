@@ -14,6 +14,8 @@ class textParser {
   final static String TRIGGER_SEPARATOR = "-";
   // separator for trigger params, i.e. eq-heart.3 (escape regular expression)
   final static String TRIGGER_PARAM_SEPARATOR = "\\.";
+  // the look for link to next paragraph.
+  final static String NEW_PAR_SYMBOL = "§§§"; // "|→"
 
   private PApplet parent;
   private ArrayList<textAreaData> areas;
@@ -44,7 +46,9 @@ class textParser {
   }
 
   // lastArea: current area held in areas
-  void loadArray(JSONArray values, textAreaData lastArea) {
+  // return the current area in case has changed recursively
+  textAreaData loadArray(JSONArray values, textAreaData lastArea) {
+    textAreaData curArea = lastArea;
 
     for (int i = 0; i < values.size (); i++) {
       // try to fetch object
@@ -56,7 +60,7 @@ class textParser {
         }
         catch (Exception e) {
           // no meta, usual stuff
-          lastArea = loadObject(object, lastArea);
+          curArea = loadObject(object, curArea);
         }
       } 
       // then may be array
@@ -80,6 +84,7 @@ class textParser {
         }
       }
     }
+    return curArea;
   }
 
   // process meta info
@@ -156,49 +161,60 @@ class textParser {
   }
 
   // call correct methods depending on objects
-  // return the current area -- changes if new header occurs
+  // return the current area -- changes if new header or new paragraph occurs
   textAreaData loadObject(JSONObject object, textAreaData lastArea) {   
     textAreaData curArea = lastArea; 
     String type = object.getString("t", "");
     JSONArray contentArray;
     String contentString;
     if (type.equals("Header")) {
-      curArea = loadObjectArea(object, lastArea);
+      curArea = loadObjectArea(object, curArea );
       areas.add(curArea);
     } else if (type.equals("Space")) {
       lastArea.addContent(" ");
-    } else if (type.equals("Para")) {
-      // a paragraph is an array of text element
+    } 
+    // create a new textarea if already had content
+    else if (type.equals("Para")) {
 
-      // TODO: new area
-      lastArea.newChunk(textType.REGULAR);
-      // a white space separator between paragraphs, waiting for line return
-      lastArea.addContent(" ");
+      if (curArea.hasContent()) {
+        // creating new area
+        textAreaData newArea = curArea.getNewPar();
+        // adding link to previous
+        curArea.newChunk(textType.LINK);
+        // create by hand a "pick" button
+        curArea.addContent("pick:goto-" + newArea.getId() + ": " + textParser.NEW_PAR_SYMBOL);
+        // switching to new
+        areas.add(newArea);
+        curArea = newArea;
+      }
+
+      curArea.newChunk(textType.REGULAR);
+      // a paragraph is an array of text element
       contentArray = object.getJSONArray("c");
-      loadArray(contentArray, lastArea);
+      curArea = loadArray(contentArray, curArea);
     } else if (type.equals("Emph")) {
       // new chunk
-      lastArea.newChunk(textType.EMPHASIS);
+      curArea.newChunk(textType.EMPHASIS);
       contentArray = object.getJSONArray("c");
-      loadArray(contentArray, lastArea);
-      lastArea.newChunk(textType.REGULAR);
+      curArea = loadArray(contentArray, curArea);
+      curArea.newChunk(textType.REGULAR);
     } else if (type.equals("Strong")) {
-      lastArea.newChunk(textType.STRONG);
+      curArea.newChunk(textType.STRONG);
       contentArray = object.getJSONArray("c");
-      loadArray(contentArray, lastArea);
-      lastArea.newChunk(textType.REGULAR);
+      curArea  = loadArray(contentArray, curArea);
+      curArea.newChunk(textType.REGULAR);
     } else if (type.equals("Link")) {
-      lastArea.newChunk(textType.LINK);
+      curArea.newChunk(textType.LINK);
       contentArray = object.getJSONArray("c");
-      loadArray(contentArray, lastArea);
-      lastArea.newChunk(textType.REGULAR);
+      curArea = loadArray(contentArray, curArea);
+      curArea.newChunk(textType.REGULAR);
     } else if (type.equals("Str")) {
       contentString = object.getString("c");
-      lastArea.addContent(contentString);
+      curArea.addContent(contentString);
     } else if (type.equals("")) {
       // no type, likely first header
     } else {
-      parent.println("Header:", lastArea.toString());
+      parent.println("Header:", curArea.toString());
       parent.println("Unsupported:", type);
     }
     return curArea;
@@ -209,7 +225,7 @@ class textParser {
     // set activation flag
     for (textAreaData area : areas) {
       for (String target : startAreas) {
-        if (area.id.equals(target)) {
+        if (area.getId().equals(target)) {
           area.atStart = true;
           gotStart = true;
         }
@@ -344,9 +360,15 @@ class textAreaData {
   ArrayList <String> actions;
   ArrayList <textAnim> anim;
   int level = 0;
-  String id = "noID";
+  private String id = "noID";
+  // new paragraphs create other areas
+  private String mainID = "noID";
+  private int parNumber = 0;
   String style = "noStyle";
   textAreaData ancestor = null;
+
+  // so as not to create new paragraph if no text truely added
+  boolean hasContent = false;
 
   textAreaData(PApplet parent) {
     this.parent = parent;
@@ -359,6 +381,19 @@ class textAreaData {
     // put a default size and position just to avoid null pointer
     size = new PVector(10, 10);
     position = new PVector(0, 0, 0);
+  }
+
+  public textAreaData getNewPar() {
+    textAreaData clone = new textAreaData(parent);
+    clone.ancestor = this.ancestor;
+    clone.level = level;
+    clone.position = new PVector(position.x, position.y, position.z);
+    clone.size = new PVector (size.x, size.y);
+    clone.style = style;
+    clone.parNumber = parNumber + 1;
+    clone.mainID = mainID;
+    clone.id = mainID + "_" + Integer.toString(clone.parNumber);
+    return clone;
   }
 
   // inheritate from this instance
@@ -380,10 +415,23 @@ class textAreaData {
     return ancestor.getHeir(level);
   }
 
+  // sensitive data, protect it against external modification
+  public String getId() {
+    return id;
+  }
+
   public void addContent(String str) {
+    // WARNING: this content may be a temporary link that'll be modified later, so do not 
+    if (!str.equals("")) {
+      hasContent = true;
+    }
     String curContent =  content.get(content.size() - 1);
     curContent += str;
     content.set(content.size() - 1, curContent);
+  }
+  
+  public boolean hasContent() {
+    return hasContent;
   }
 
   // create new chunk of text
@@ -393,6 +441,7 @@ class textAreaData {
   }
 
   public void setID(String id) {
+    this.mainID = id;
     this.id = id;
   }
 

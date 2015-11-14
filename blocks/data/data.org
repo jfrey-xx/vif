@@ -11,8 +11,13 @@
 
 ** dynamic
 
-[[eq-heartVar.3:goto-text 3]]
+First paragraph.
 
+Second paragraph.
+
+# Do not leave blank lines between links with no text and following paraghaphs
+
+[[eq-heartVar.3:goto-text 3]]
 The heart [[bind-heart-heartstyle:inc-heartVar:beats]] /fast/. Go [[pick:goto-text 1:further]].
 
 ** text 1
