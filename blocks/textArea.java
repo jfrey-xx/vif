@@ -30,10 +30,12 @@ class textArea {
 
   // time to die in ms
   final private int dyingTime = 500;
-  // 1: running; 0: dying; -1: dead
-  private int status = 1;
-  // timer for dying
+  final private int birthTime = 500;
+  // 2: appearing, 1: running; 0: dying; -1: dead
+  private int status = 2;
+  // timer for birth / dying
   private int startDying = -1;
+  private int startBirth = -1;
 
 
   private boolean debug = false;
@@ -129,15 +131,23 @@ class textArea {
           triggers[i].setBoundariesArea(holder.group.getTopLeft().x, holder.group.getTopLeft().y, holder.group.getBottomRight().x, holder.group.getBottomRight().y);
         }
       }
-
-      // inform dispatcher
-      universe.registerTriggers(triggers);
     } else {
       parent.println("Error, texts/types/triggers length mismatch");
     }
 
     // now it's grown up, let's recondiser position
     centerFrame();
+
+    // start fade in
+    status = 2;
+    startBirth = parent.millis();
+  }
+
+  // once appeared, register trigger -- NB: should not be called twice...
+  private void launch() {
+    // inform dispatcher
+    universe.registerTriggers(triggers);
+    status = 1;
   }
 
   // call that before area is disabled
@@ -156,25 +166,40 @@ class textArea {
 
   public void draw() {
 
-    if (status == 0) {
+    // used for fade effect
+    float ratio = 1;
+
+
+    switch(status) {
+      // nothing more once dead
+    case -1:
+      return;
+    case 0:
       if (parent.millis() - startDying > dyingTime) {
         status = -1;
+        return;
+      } else {
+        // kind of fadout for dying
+        ratio = 1 - (parent.millis() - startDying) / (float)dyingTime;
       }
-    }
-
-    // nothing more once dead
-    if (isDead()) {
-      return;
+      break;
+    case 2:
+      // let time for previous to die
+      if (parent.millis() - startBirth <= dyingTime) {
+        return;
+      }
+      else if (parent.millis() - startBirth > birthTime + dyingTime) {
+        launch();
+      } else {
+        // fade in
+        ratio = (parent.millis() - startBirth - dyingTime) / (float) (birthTime);
+      }
     }
 
     pg.pushMatrix();
     frame.applyTransformation();
 
-    // kind of fadout for dying
-    if (status == 0) {
-      float ratio = 1 - (parent.millis() - startDying) / (float)dyingTime;
-      txtrdr.setFade(ratio);
-    }
+    txtrdr.setFade(ratio);
 
     if (holder != null) {
       holder.draw();

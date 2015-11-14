@@ -165,7 +165,6 @@ class textTAGoto extends textAction {
     universe.parent.println("go from [" + src + "] to [" + target + "]");
     universe.disableArea(src);
     universe.enableArea(target);
-    universe.parent.println("goto firing");
     done = true;
   }
 
