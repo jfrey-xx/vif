@@ -50,13 +50,31 @@ class textArea {
 
     this.size = size;
     this.position = position;
-    frame.setTranslation(new Vec(position.x, position.y, position.z));
 
+
+    // rotate frame
     lookAtViewer();
+    // put in right position
+    centerFrame();
+  }
+
+  // position frame; if has holder will put group center in designed position
+  private void centerFrame() {
+    float shiftX = 0;
+    float shiftY = 0;
+
+    if (holder != null) {
+      shiftX = holder.group.getWidth() * scale / 2;
+      shiftY = holder.group.getHeight() * scale / 2;
+    }
+
+    // since translation is applied before rotation, we have to take into account the coordinates change
+    Vec shift = frame.rotation().rotate(new Vec(shiftX, shiftY));
+    frame.setTranslation(new Vec(position.x - shift.x(), position.y - shift.y(), position.z - shift.z()));
   }
 
   // rotate the frame so it faces viewer (proscene eye)
-  public void lookAtViewer() {
+  private void lookAtViewer() {
     // work on a copy of the eye to get a "lookAt" orientation
     Eye cam = scene.eye().get();
     cam.lookAt(new Vec(position.x, position.y, position.z));
@@ -109,6 +127,9 @@ class textArea {
     } else {
       parent.println("Error, texts/types/triggers length mismatch");
     }
+
+    // now it's grown up, let's recondiser position
+    centerFrame();
   }
 
   // call that before area is disabled
