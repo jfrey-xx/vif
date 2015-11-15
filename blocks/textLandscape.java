@@ -17,6 +17,8 @@ class textLandscape {
   final int nbStars = 250;
   // limit of the landscape
   final int radius = 50;
+  // for grid, let's say we're seated
+  final float floorDist = 6; 
 
   // solarized base03
   final PVector dayColor = new PVector(253, 246, 227);
@@ -200,9 +202,6 @@ class textLandscape {
 
   void draw() {
     update();
-
-    // for grid, let's say we're seated
-    float floorDist = 2; 
 
     pg.pushMatrix();
     frame.applyTransformation();
