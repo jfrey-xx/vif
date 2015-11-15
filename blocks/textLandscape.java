@@ -144,7 +144,7 @@ class textLandscape {
     // pg.stroke(181, 137, 0, 255*dayRatio);
 
     pg.fill(255, 255, 0, 255*dayRatio);
-    pg.stroke(255, 255, 0, 255*dayRatio);
+    pg.noStroke();
 
     // from east to west, sligtly north
     pg.translate(x, y, -radius/2);
