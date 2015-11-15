@@ -350,7 +350,8 @@ class textAreaData {
   PApplet parent;
 
   PVector size;
-  PVector position;
+  // do not hold PVector since could vary upon init
+  private textPosition position;
   boolean atStart = false;
 
   ArrayList <String> content;
@@ -379,15 +380,15 @@ class textAreaData {
     anim = new ArrayList();
 
     // put a default size and position just to avoid null pointer
-    size = new PVector(10, 10);
-    position = new PVector(0, 0, 0);
+    size = textSize.MEDIUM.getSize();
+    position = textPosition.NORTH;
   }
 
   public textAreaData getNewPar() {
     textAreaData clone = new textAreaData(parent);
     clone.ancestor = this.ancestor;
     clone.level = level;
-    clone.position = new PVector(position.x, position.y, position.z);
+    clone.position = position;
     clone.size = new PVector (size.x, size.y);
     clone.style = style;
     clone.parNumber = parNumber + 1;
@@ -401,7 +402,7 @@ class textAreaData {
     textAreaData clone = new textAreaData(parent);
     clone.ancestor = this;
     clone.level = level+1;
-    clone.position = new PVector(position.x, position.y, position.z);
+    clone.position = position;
     clone.size = new PVector (size.x, size.y);
     clone.style = style;
     return clone;
@@ -429,7 +430,7 @@ class textAreaData {
     curContent += str;
     content.set(content.size() - 1, curContent);
   }
-  
+
   public boolean hasContent() {
     return hasContent;
   }
@@ -451,8 +452,12 @@ class textAreaData {
     if (pos == null) {
       parent.println("Error, no position for keyword:", position);
     } else {
-      this.position = pos.getPosition();
+      this.position = pos;
     }
+  }
+
+  public textPosition getPosition() {
+    return position;
   }
 
   public void setSize(String size) {
@@ -512,6 +517,8 @@ class textAreaData {
         tTriggers.add(pick.getNewPicker());
       } else if (triggerType.equals("eq")) {
         tTriggers.add(new textTrigEq(parent, textParser.getTriggerParam(triggers.get(i))));
+      } else if (triggerType.equals("timer")) {
+        tTriggers.add(new textTrigTimer(parent, textParser.getTriggerParam(triggers.get(i))));
       } else if (triggerType.equals("")) {
         // no trigger associated to current chunk
         tTriggers.add(null);

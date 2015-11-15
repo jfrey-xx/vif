@@ -8,6 +8,7 @@
  */
 
 import processing.core.*;
+import remixlab.dandelion.geom.*; // for Rotation
 
 // how to draw text
 enum textType { 
@@ -25,20 +26,40 @@ enum textPosition {
   NORTH("NORTH", new PVector(0, 0, -500)), 
     EAST("EAST", new PVector(500, 0, 0)), 
     SOUTH("SOUTH", new PVector(0, 0, 500)), 
-    WEST("WEST", new PVector(-500, 0, 0));
+    WEST("WEST", new PVector(-500, 0, 0)), 
+    // relative position, slightly behind absolute to avoid clash
+    FRONT("FRONT", new PVector(0, 0, -450), false), 
+    RIGHT("RIGHT", new PVector(450, 0, 0), false), 
+    BEHIND("BEHIND", new PVector(0, 0, 450), false), 
+    LEFT("LEFT", new PVector(-450, 0, 0), false);
 
   private String text;
   private PVector position;
+  // is position absolute or relative to player's orientation
+  private boolean absolute;
 
+  // by default, absolute position
   textPosition(String text, PVector position) {
-    this.text = text;
-    this.position = position;
+    this(text, position, true);
   }
 
-  // return a copy of position
-  public PVector getPosition() {
+  textPosition(String text, PVector position, boolean absolute) {
+    this.text = text;
+    this.position = position;
+    this.absolute = absolute;
+  }
+
+  // return vector representing position
+  // NB: should check "relative" flag to know if world coordinate
+
+  public PVector getVector() {
     // .copy() not in processing 2...
     return new PVector(position.x, position.y, position.z);
+  }
+
+  // if false, position is in world coordinate, otherwise should be relative to viewer's position
+  public boolean isAbsolute() {
+    return absolute;
   }
 
   // return enum from string, insensitive to case
@@ -54,7 +75,6 @@ enum textPosition {
     return null;
   }
 }
-
 
 // size of text
 enum textSize {
