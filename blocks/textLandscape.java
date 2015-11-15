@@ -2,6 +2,8 @@
  
  Show cues to indicate ground and direction
  
+ Set background color for whole scene...
+ 
  */
 
 import processing.core.*;
@@ -15,8 +17,15 @@ class textLandscape {
   PGraphics pg;
   float worldRatio;
 
+  // day speed
+  float frequency = (float)0.25;
+
   // for objects
   float sunAngle = 0;
+  // 1 when sun zenith, 0 when night
+  float dayRatio = 0;
+  // the opposite
+  float nightRatio = 1;
 
   textLandscape(textUniverse universe) {
     this.parent = universe.parent;
@@ -66,27 +75,26 @@ class textLandscape {
     pg.popMatrix();
   }
 
-
-
-  // orbiting sun to give sense of direction
-  // radius: how far away
-  // frequency: speed of sun
-  void drawSun(float radius, float frequency) {
-
+  // update sun position and compute dayRatio
+  private void update() {
     // sunAngle: at 0 rises, at 180 it going to be night again
     sunAngle += frequency;
     sunAngle %= 360;
 
-    // 1 when zenith, 0 when night
-    float ratioUp;
-
     if (sunAngle > 270 || sunAngle < 90) {
-      ratioUp = 0;
+      dayRatio = 0;
+      nightRatio = (sunAngle <= 90) ? 90 - sunAngle: sunAngle - 270 ;  
+      nightRatio /= 90;
     } else {
-      ratioUp = (sunAngle < 180) ? sunAngle - 90 : 270 - sunAngle ;  
-      ratioUp /= 90;
+      nightRatio = 0;
+      dayRatio = (sunAngle <= 180) ? sunAngle - 90 : 270 - sunAngle ;  
+      dayRatio /= 90;
     }
+  }
 
+  // orbiting sun to give sense of direction
+  // radius: how far away
+  void drawSun(float radius) {
     pg.pushMatrix();
     pg.pushStyle();
 
@@ -94,8 +102,8 @@ class textLandscape {
     float y = parent.cos(parent.radians(sunAngle))*radius;
 
     // fade in when sun appears
-    pg.fill(255, 255, 128, 255*ratioUp);
-    pg.stroke(255, 255, 128, 255*ratioUp);
+    pg.fill(255, 255, 128, 255*dayRatio);
+    pg.stroke(255, 255, 128, 255*dayRatio);
 
     // from east to west, sligtly north
     pg.translate(-x, y, -radius/2);
@@ -105,15 +113,23 @@ class textLandscape {
     pg.popMatrix();
   }
 
+  // background is a clue about time of day
+  void drawBackground() {
+    pg.background(255 - 255*nightRatio);
+  }
+
 
   void draw() {
+    update();
+
     // for grid, let's say we're seated
     float floorDist = 2; 
 
     pg.pushMatrix();
     frame.applyTransformation();
 
-    drawSun(50, (float)0.25);
+    drawBackground();
+    drawSun(50);
     drawGrid(floorDist, 50, 25);
 
 
