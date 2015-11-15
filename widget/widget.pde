@@ -45,9 +45,11 @@ void setup() {
   universe = new textUniverse(this, this.g, proscene, mainFrame, worldRatio, zoomFactor, "data.json");
 }
 
-// apply head transformation to frame (both from oculus and keyboard)
+// apply head transformation from keyboard)
 void updateReferenceFrame() {
-  mainFrame.setRotation(new Quat(rotateLookX, rotateLookY, 0));
+  Quat head = new Quat(rotateLookX, 0, 0);
+  head.compose(new Quat(0, rotateLookY, 0));
+  mainFrame.setRotation(head);
 }
 
 void draw() {
@@ -87,4 +89,3 @@ void keyPressed() {
     rotateLookY -= 0.1;
   }
 }
-

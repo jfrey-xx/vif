@@ -6,6 +6,11 @@
 
 [[eq-init.0:goto-intro]]
 [[eq-init.0:goto-dynamic]]
+[[eq-init.0:goto-info]]
+
+* info                                               :@east:#default:%medium:
+
+Welcome to VIF
 
 * perso 1                                               :@north:#default:%medium:
 
