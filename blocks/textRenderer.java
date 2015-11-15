@@ -6,8 +6,7 @@ import processing.core.*;
 // list implemented textRenderer for parsing
 enum textStyle {
   DEFAULT("default", "FreeSans.ttf"), 
-  BOB("bob", "GenBasR.ttf");
-  ;
+    BOB("bob", "GenBasR.ttf");
 
   // fixed 100 pixels font size
   final private int fontSize = 100;
@@ -95,7 +94,8 @@ public class textRenderer {
     pg.noStroke();
     // set a background -- solarized colorscheme, base3
     pg.fill(253, 246, 227, getFade() * 200);
-    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+    // add a margin
+    pg.rect(group.getTopLeft().x - fontSize/4, group.getTopLeft().y - fontSize/4, group.getWidth() + fontSize/2, group.getHeight() + fontSize/2);
     // text base0 by default
     pg.fill(131, 148, 150, getFade() * 255);
   }
@@ -237,9 +237,9 @@ class textRendererBob extends textRenderer {
     pg.noStroke();
     // set a background -- solarized colorscheme, base3
     pg.fill(0, 43, 54, getFade() * 200);
-    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+    // add a margin
+    pg.rect(group.getTopLeft().x - fontSize/4, group.getTopLeft().y - fontSize/4, group.getWidth() + fontSize/2, group.getHeight() + fontSize/2);
     // text base0 by default
     pg.fill(131, 148, 150, getFade() * 255);
   }
 }
-
