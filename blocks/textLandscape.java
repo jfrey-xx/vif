@@ -11,14 +11,18 @@ import remixlab.proscene.*;
 import remixlab.dandelion.core.*; // eg for Frame
 
 class textLandscape {
+  // day speed
+  final float frequency = (float)0.25;
+
+  // solarized base03
+  final PVector dayColor = new PVector(253, 246, 227);
+  // solarized base3
+  final PVector nightColor = new PVector(0, 43, 54);
 
   PApplet parent;
   Frame frame;
   PGraphics pg;
   float worldRatio;
-
-  // day speed
-  float frequency = (float)0.25;
 
   // for objects
   float sunAngle = 0;
@@ -65,8 +69,8 @@ class textLandscape {
         if (ratio > 1) {
           ratio = 1;
         }
-        // fade on alpha
-        pg.stroke(200, 255 - ratio * 255);
+        // fade on alpha, base 0 color
+        pg.stroke(131, 148,150, 255 - ratio * 255);
         pg.rect(i, j, size/2, size/2);
       }
     }
@@ -102,8 +106,13 @@ class textLandscape {
     float y = parent.cos(parent.radians(sunAngle))*radius;
 
     // fade in when sun appears
-    pg.fill(255, 255, 128, 255*dayRatio);
-    pg.stroke(255, 255, 128, 255*dayRatio);
+
+    // solarized yellow not that pretty
+    // pg.fill(181, 137, 0, 255*dayRatio);
+    // pg.stroke(181, 137, 0, 255*dayRatio);
+
+    pg.fill(255, 255, 0, 255*dayRatio);
+    pg.stroke(255, 255, 0, 255*dayRatio);
 
     // from east to west, sligtly north
     pg.translate(-x, y, -radius/2);
@@ -115,9 +124,31 @@ class textLandscape {
 
   // background is a clue about time of day
   void drawBackground() {
-    pg.background(255 - 255*nightRatio);
-  }
 
+    // ratio (1/span) that will be used as transition zone
+    float span = 6;
+
+    // night
+    if (nightRatio >= 1/span) {
+      pg.background(nightColor.x, nightColor.y, nightColor.z);
+    }
+    // day
+    else if (dayRatio >= 1/span) {
+      pg.background(dayColor.x, dayColor.y, dayColor.z);
+    }
+    // in-between
+    else {
+      float transition = (nightRatio >= 0) ? -nightRatio: dayRatio;
+      // 0 to 1
+      transition += 1/span;
+      transition *= span;
+
+      float Rcol = parent.lerp(nightColor.x, dayColor.x, transition);
+      float Gcol = parent.lerp(nightColor.y, dayColor.y, transition);
+      float Bcol = parent.lerp(nightColor.z, dayColor.z, transition);
+      pg.background(Rcol, Gcol, Bcol);
+    }
+  }
 
   void draw() {
     update();
