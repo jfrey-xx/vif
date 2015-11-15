@@ -94,10 +94,18 @@ public class textRenderer {
     pg.noStroke();
     // set a background -- solarized colorscheme, base3
     pg.fill(253, 246, 227, getFade() * 200);
-    // add a margin
-    pg.rect(group.getTopLeft().x - fontSize/4, group.getTopLeft().y - fontSize/4, group.getWidth() + fontSize/2, group.getHeight() + fontSize/2);
-    // text base0 by default
+
+    pg.pushStyle();
+    // stroke only for rectangle, base1
+    pg.stroke(147, 161, 161);
+    pg.strokeWeight(fontSize*2); // huge weight because of scale ??
+    // add a margin and round corner
+    pg.rect(group.getTopLeft().x - fontSize/4, group.getTopLeft().y - fontSize/4, group.getWidth() + fontSize/2, group.getHeight() + fontSize/2, fontSize/4);
+    pg.popStyle();
+
+    // text base0 and no stroke by default
     pg.fill(131, 148, 150, getFade() * 255);
+    pg.noStroke();
   }
 
   final public void textDraw(textChunk chunk) {
@@ -234,12 +242,19 @@ class textRendererBob extends textRenderer {
 
   // solarized dark -- fading on color alpha
   public void areaDraw(RGroup group) {
-    pg.noStroke();
     // set a background -- solarized colorscheme, base3
     pg.fill(0, 43, 54, getFade() * 200);
-    // add a margin
-    pg.rect(group.getTopLeft().x - fontSize/4, group.getTopLeft().y - fontSize/4, group.getWidth() + fontSize/2, group.getHeight() + fontSize/2);
-    // text base0 by default
+
+    pg.pushStyle();
+    // stroke only for rectangle, base1
+    pg.stroke(147, 161, 161);
+    pg.strokeWeight(fontSize*2); // huge weight because of scale ??
+    // add a margin and round corner
+    pg.rect(group.getTopLeft().x - fontSize/4, group.getTopLeft().y - fontSize/4, group.getWidth() + fontSize/2, group.getHeight() + fontSize/2, fontSize/4);
+    pg.popStyle();
+
+    // text base0 by default and no stroke
     pg.fill(131, 148, 150, getFade() * 255);
+    pg.noStroke();
   }
 }
