@@ -14,7 +14,7 @@ class textLandscape {
   // day speed
   final float frequency = (float)0.25;
   // we have to populate that
-  final int nbStars = 50;
+  final int nbStars = 250;
   // limit of the landscape
   final int radius = 50;
 
@@ -124,6 +124,11 @@ class textLandscape {
 
   // orbiting sun to give sense of direction
   private void drawSun() {
+    // if it's night, nothing to show
+    if (dayRatio == 0) {
+      return;
+    }
+
     pg.pushMatrix();
     pg.pushStyle();
 
@@ -140,7 +145,7 @@ class textLandscape {
     pg.stroke(255, 255, 0, 255*dayRatio);
 
     // from east to west, sligtly north
-    pg.translate(-x, y, -radius/2);
+    pg.translate(x, y, -radius/2);
     pg.sphere(radius/20);
 
     pg.popStyle();
@@ -175,17 +180,19 @@ class textLandscape {
     }
   }
 
-  // radius: how far the sky is
+  // dots in the night
   private void drawStars() {
-    pg.pushStyle();
+    if (nightRatio == 0) {
+      return;
+    }
 
-    pg.fill(255);
-    pg.stroke(255);
+    pg.pushStyle();
+    // base3
+    pg.stroke(253, 246, 227);
 
     for ( int i = 0; i < nbStars; i++) {
       pg.pushMatrix();
-      pg.translate(stars[i].x, stars[i].y, stars[i].z);
-      pg.sphere(radius/50);
+      pg.point(stars[i].x, stars[i].y, stars[i].z);
       pg.popMatrix();
     }
     pg.popStyle();
