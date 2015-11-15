@@ -74,18 +74,23 @@ void draw() {
 
   // could pick before...
   textPicking.setCursor(new Vec(mouseX, mouseY, 0));
+
+  if (keyPressed) {
+    processKeyboard();
+  }
 }
 
-
 // set orientation
-void keyPressed() {
+// NB: used instead of  keyPressed() to handle repetition
+void processKeyboard() {
+  float step = 0.05;
   if (keyCode == UP) {
-    rotateLookX -= 0.1;
+    rotateLookX -= step;
   } else if (keyCode == DOWN) {
-    rotateLookX += 0.1;
+    rotateLookX += step;
   } else if (keyCode == LEFT) {
-    rotateLookY += 0.1;
+    rotateLookY += step;
   } else if (keyCode == RIGHT) {
-    rotateLookY -= 0.1;
+    rotateLookY -= step;
   }
 }
