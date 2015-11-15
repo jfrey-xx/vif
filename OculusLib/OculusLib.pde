@@ -19,9 +19,6 @@ PGraphics fb;
 // modelview returned by oculus
 PMatrix3D modelview;
 
-// for grid, let's say we're seated
-float floorDist = 1.; 
-
 // main scene, look control by keyboard
 Scene proscene;
 Frame mainFrame;
@@ -30,7 +27,6 @@ float rotateLookX = 0;
 float rotateLookY = 0;
 
 textUniverse universe;
-
 
 // scale of text
 float worldRatio, zoomFactor;
@@ -117,7 +113,6 @@ public void mainDrawing(Scene s) {
   PGraphics pg = s.pg();
 
   pg.background(255);
-  drawGrid(pg, new PVector(0, -floorDist, 0), 10, 10);
 
   // fix orientation
   s.rotateY(PI);
@@ -167,25 +162,6 @@ void keyPressed() {
   }
 }
 
-void drawGrid(PGraphics pg, PVector center, float length, int repeat)
-{
-  pg.pushMatrix();
-  pg.translate(center.x, center.y, center.z);
-  float pos;
-
-  for (int x=0; x < repeat+1; x++)
-  {
-    pos = -length *.5 + x * length / repeat;
-
-    pg.line(-length*.5, 0, pos, 
-    length*.5, 0, pos);
-
-    pg.line(pos, 0, -length*.5, 
-    pos, 0, length*.5);
-  }
-  pg.popMatrix();
-}
-
 // cue for cursor
 // FIXME: will break with scene manipulation. should use plane equation a projected line
 void drawHud(Scene s) {
@@ -221,10 +197,10 @@ void drawHud(Scene s) {
   pg.fill(0, 0, 128, 5);
 
   // virtual srceen in center
-  pg.pushMatrix();
-  pg.translate(0, 0, topLeftEye.z());
-  pg.box(hudWidth, hudHeight, hudThickness);
-  pg.popMatrix();
+  // pg.pushMatrix();
+  // pg.translate(0, 0, topLeftEye.z());
+  // pg.box(hudWidth, hudHeight, hudThickness);
+  // pg.popMatrix();
 
   // virtual cursor
   pg.pushMatrix();

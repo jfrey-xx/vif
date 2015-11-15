@@ -22,6 +22,9 @@ class textUniverse {
 
   textParser parser;
 
+  // guides for viewers
+  textLandscape landscape;
+
   // worldRatio: world unit to pixels ratio. Eg. use fontSize 100 and worldRatio 0.01 for good-looking 10cm font size. Also scale position, i.e. larger and further / smaller and closer
   float worldRatio;
   // influence 2D size of text (both font size and textArea size), not position. Handy if fonts and text areas too big / too small.
@@ -59,6 +62,7 @@ class textUniverse {
     this.frame = refFrame;
     this.worldRatio =  worldRatio;
     this.zoomFactor = zoomFactor;
+    landscape = new textLandscape(this);
     areasStock = new LinkedHashMap<String, textAreaData>();
     areas = new LinkedHashMap<String, textArea>();
     dyingAreas = new LinkedHashMap<String, textArea>();
@@ -127,6 +131,8 @@ class textUniverse {
   }
 
   public void draw() {
+    landscape.draw();
+
     // update triggers
     for (textTrigger trig : triggers) {
       // pass on disabled triggers or that had done their actions

@@ -21,8 +21,6 @@ Frame textFrame;
 float rotateLookX = 0;
 float rotateLookY = 0;
 
-float floorDist = 1.; // for grid, let's say we're seated
-
 PShader barrel;
 int eye_width = 640;
 int eye_height = 800;
@@ -128,7 +126,6 @@ public void mainDrawing(Scene s) {
   pg.background(255);
 
   pg.pushMatrix();
-  drawGrid(pg, new PVector(0, floorDist, 0), 10, 10);
 
   // text
   pg.pushMatrix();
@@ -171,27 +168,6 @@ void keyPressed() {
     rotateLookY -= 0.1;
   }
 }
-
-void drawGrid(PGraphics pg, PVector center, float length, int repeat)
-{
-  pg.pushMatrix();
-  pg.translate(center.x, center.y, center.z);
-  float pos;
-
-  for (int x=0; x < repeat+1; x++)
-  {
-    pos = -length *.5 + x * length / repeat;
-
-    pg.line(-length*.5, 0, pos, 
-      length*.5, 0, pos);
-
-    pg.line(pos, 0, -length*.5, 
-      pos, 0, length*.5);
-  }
-  pg.popMatrix();
-}
-
-
 
 void set_shader(String eye)
 {

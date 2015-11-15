@@ -45,9 +45,11 @@ void setup() {
   universe = new textUniverse(this, this.g, proscene, mainFrame, worldRatio, zoomFactor, "data.json");
 }
 
-// apply head transformation to frame (both from oculus and keyboard)
+// apply head transformation from keyboard)
 void updateReferenceFrame() {
-  mainFrame.setRotation(new Quat(rotateLookX, rotateLookY, 0));
+  Quat head = new Quat(rotateLookX, 0, 0);
+  head.compose(new Quat(0, rotateLookY, 0));
+  mainFrame.setRotation(head);
 }
 
 void draw() {
@@ -72,19 +74,23 @@ void draw() {
 
   // could pick before...
   textPicking.setCursor(new Vec(mouseX, mouseY, 0));
-}
 
-
-// set orientation
-void keyPressed() {
-  if (keyCode == UP) {
-    rotateLookX -= 0.1;
-  } else if (keyCode == DOWN) {
-    rotateLookX += 0.1;
-  } else if (keyCode == LEFT) {
-    rotateLookY += 0.1;
-  } else if (keyCode == RIGHT) {
-    rotateLookY -= 0.1;
+  if (keyPressed) {
+    processKeyboard();
   }
 }
 
+// set orientation
+// NB: used instead of  keyPressed() to handle repetition
+void processKeyboard() {
+  float step = 0.05;
+  if (keyCode == UP) {
+    rotateLookX -= step;
+  } else if (keyCode == DOWN) {
+    rotateLookX += step;
+  } else if (keyCode == LEFT) {
+    rotateLookY += step;
+  } else if (keyCode == RIGHT) {
+    rotateLookY -= step;
+  }
+}

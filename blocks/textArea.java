@@ -39,7 +39,11 @@ class textArea {
   private int startDying = -1;
   private int startBirth = -1;
 
+  // somme areas are just for triggers, will not draw holder in this case
+  private boolean hasContent;
+
   private boolean debug = false;
+
 
   // size (x,y): planar size of the area. Warning: probably overflow because of words too long
   // position (x,y,z): position in space
@@ -115,6 +119,8 @@ class textArea {
 
   // stub for populating textHolder
   public void load(textAreaData data) {
+    hasContent = data.hasContent();
+
     String[] texts = data.getChunksText();
     textType[] types = data.getChunksType();
     textAnim[] anim = data.getChunksAnim();
@@ -186,10 +192,8 @@ class textArea {
   }
 
   public void draw() {
-
     // used for fade effect
     float ratio = 1;
-
 
     switch(status) {
       // nothing more once dead
@@ -214,6 +218,11 @@ class textArea {
         // fade in
         ratio = (parent.millis() - startBirth - dyingTime) / (float) (birthTime);
       }
+    }
+
+    // no need to go further if no content to draw
+    if (!hasContent) {
+      return;
     }
 
     pg.pushMatrix();
