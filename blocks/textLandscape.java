@@ -13,6 +13,10 @@ import remixlab.dandelion.core.*; // eg for Frame
 class textLandscape {
   // day speed
   final float frequency = (float)0.25;
+  // we have to populate that
+  final int nbStars = 50;
+  // limit of the landscape
+  final int radius = 50;
 
   // solarized base03
   final PVector dayColor = new PVector(253, 246, 227);
@@ -23,6 +27,9 @@ class textLandscape {
   Frame frame;
   PGraphics pg;
   float worldRatio;
+
+  // holds x/y angles
+  PVector [] stars;
 
   // for objects
   float sunAngle = 0;
@@ -37,11 +44,30 @@ class textLandscape {
     frame = new Frame(universe.scene);
     frame.setReferenceFrame(universe.frame);
     frame.scale(worldRatio);
+
+    initStars();
   }
 
+  // randomely set stard
+  private void initStars() {
+    stars = new PVector[nbStars];
+    float theta, phi, x, y, z;
+
+    for ( int i = 0; i < nbStars; i++) {
+      // angles in visible hemisphere
+      theta = parent.random(parent.PI);
+      phi = parent.PI + parent.random(parent.PI);
+      //Convert spherical coordinates into Cartesian coordinates
+      x = parent.cos(theta) * parent.sin(phi) * radius;
+      y = parent.sin(theta) * parent.sin(phi) * radius;
+      z = parent.cos(phi) * radius;
+      // add to table
+      stars[i] = new PVector(x, y, z);
+    }
+  }
 
   // grid that will fadeout in distance
-  void drawGrid(float floorDist, float length, int repeat)
+  private void drawGrid(float floorDist, int repeat)
   {
     pg.pushMatrix();
     pg.pushStyle();
@@ -54,23 +80,23 @@ class textLandscape {
     pg.fill(255, 0);
     pg.strokeWeight(2);
 
-    float size = length / repeat;
+    float size = radius / repeat;
     float ratio = 1;
 
     // starts from corner
-    for (int i= (int) -length/2; i < length/2; i++)
+    for (int i= (int) -radius/2; i < radius/2; i++)
     {
-      for (int j= (int) -length/2; j < length/2; j++)
+      for (int j= (int) -radius/2; j < radius/2; j++)
       {
         // draw starts with boundaries, compute how far we are from corner, increase fade effect
         // (NB: do not use dist to corner to have "roundy shape" result) 
-        ratio = (float) 1.5 * parent.dist(i, j, 0, 0) / (length/2);
+        ratio = (float) 1.5 * parent.dist(i, j, 0, 0) / (radius/2);
         // clamp value, that could be too high because of length/2
         if (ratio > 1) {
           ratio = 1;
         }
         // fade on alpha, base 0 color
-        pg.stroke(131, 148,150, 255 - ratio * 255);
+        pg.stroke(131, 148, 150, 255 - ratio * 255);
         pg.rect(i, j, size/2, size/2);
       }
     }
@@ -97,8 +123,7 @@ class textLandscape {
   }
 
   // orbiting sun to give sense of direction
-  // radius: how far away
-  void drawSun(float radius) {
+  private void drawSun() {
     pg.pushMatrix();
     pg.pushStyle();
 
@@ -123,7 +148,7 @@ class textLandscape {
   }
 
   // background is a clue about time of day
-  void drawBackground() {
+  private void drawBackground() {
 
     // ratio (1/span) that will be used as transition zone
     float span = 6;
@@ -150,6 +175,22 @@ class textLandscape {
     }
   }
 
+  // radius: how far the sky is
+  private void drawStars() {
+    pg.pushStyle();
+
+    pg.fill(255);
+    pg.stroke(255);
+
+    for ( int i = 0; i < nbStars; i++) {
+      pg.pushMatrix();
+      pg.translate(stars[i].x, stars[i].y, stars[i].z);
+      pg.sphere(radius/50);
+      pg.popMatrix();
+    }
+    pg.popStyle();
+  }
+
   void draw() {
     update();
 
@@ -160,8 +201,9 @@ class textLandscape {
     frame.applyTransformation();
 
     drawBackground();
-    drawSun(50);
-    drawGrid(floorDist, 50, 25);
+    drawSun();
+    drawStars();
+    drawGrid(floorDist, 25);
 
 
     pg.popMatrix();
