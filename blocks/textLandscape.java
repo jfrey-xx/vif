@@ -15,6 +15,9 @@ class textLandscape {
   PGraphics pg;
   float worldRatio;
 
+  // for objects
+  float sunAngle = 0;
+
   textLandscape(textUniverse universe) {
     this.parent = universe.parent;
     this.pg = universe.pg;
@@ -38,7 +41,6 @@ class textLandscape {
     pg.fill(255, 0);
     pg.strokeWeight(2);
 
-
     float size = length / repeat;
     float ratio = 1;
 
@@ -59,7 +61,46 @@ class textLandscape {
         pg.rect(i, j, size/2, size/2);
       }
     }
-    
+
+    pg.popStyle();
+    pg.popMatrix();
+  }
+
+
+
+  // orbiting sun to give sense of direction
+  // radius: how far away
+  // frequency: speed of sun
+  void drawSun(float radius, float frequency) {
+
+    // sunAngle: at 0 rises, at 180 it going to be night again
+    sunAngle += frequency;
+    sunAngle %= 360;
+
+    // 1 when zenith, 0 when night
+    float ratioUp;
+
+    if (sunAngle > 270 || sunAngle < 90) {
+      ratioUp = 0;
+    } else {
+      ratioUp = (sunAngle < 180) ? sunAngle - 90 : 270 - sunAngle ;  
+      ratioUp /= 90;
+    }
+
+    pg.pushMatrix();
+    pg.pushStyle();
+
+    float x = parent.sin(parent.radians(sunAngle))*radius;
+    float y = parent.cos(parent.radians(sunAngle))*radius;
+
+    // fade in when sun appears
+    pg.fill(255, 255, 128, 255*ratioUp);
+    pg.stroke(255, 255, 128, 255*ratioUp);
+
+    // from east to west, sligtly north
+    pg.translate(-x, y, -radius/2);
+    pg.sphere(radius/20);
+
     pg.popStyle();
     pg.popMatrix();
   }
@@ -72,7 +113,9 @@ class textLandscape {
     pg.pushMatrix();
     frame.applyTransformation();
 
+    drawSun(50, (float)0.25);
     drawGrid(floorDist, 50, 25);
+
 
     pg.popMatrix();
   }
