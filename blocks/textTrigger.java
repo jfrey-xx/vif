@@ -20,7 +20,7 @@ abstract class textTrigger {
   int startPicked = -1;
   int timePicked = -1;
   // if has already fired since ratio >= 1
-  private boolean waitingFire = true;
+  private boolean hasFired = false;
 
   // in activity upon further notice
   private boolean active = true;
@@ -42,8 +42,10 @@ abstract class textTrigger {
     picked = update();
     // reset timer if nothing
     if (!picked) {
-      startPicked = -1;
+      startPicked = -1;  
       timePicked = -1;
+      // not that we reached bottom, for sure a new fire could occur
+      hasFired = false;
     } 
     // start or update timer otherwise
     else { 
@@ -81,16 +83,13 @@ abstract class textTrigger {
 
   // -1: not picked
   // between 0 and 1: ratio before timesUp
-  // update waitingFire flag -- once per "1" reached
   final private float pickedRatio() {
     if (!isPicked()) {
-      waitingFire = true;
       return -1;
     }
     if (timePicked >= selectionDelay || selectionDelay <= 0) {
       return 1;
     }
-    waitingFire = true;
     return ( (float)timePicked / selectionDelay);
   }
 
@@ -102,8 +101,8 @@ abstract class textTrigger {
   // picked reached one and still no action taken. usefull to ensure that there is no two actions in a row
   // NB: state reset after each call
   public final boolean waitingFire() {
-    if ((waitingFire) &&  pickedRatio() >=1) {
-      waitingFire = false;
+    if (!hasFired && pickedRatio() >= 1) {
+      hasFired = true;
       return true;
     }
     return false;
