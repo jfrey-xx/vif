@@ -11,13 +11,13 @@
  */
 
 import java.util.*;
+import processing.core.*;
 
 class textState {
   // holds reference to all variables
   static Map <String, Integer> vars = new LinkedHashMap<String, Integer>();
   // also for streams
   static Map <String, textStream> streams = new LinkedHashMap<String, textStream>();
-
 
   // set var to 0 and add to map if not already there
   static private void initVar(String var) {

@@ -15,7 +15,10 @@
  
  */
 
+// for stream
 import edu.ucsd.sccn.LSL;
+// for fallback
+import AULib.*;
 
 // handling only one channel
 // NB: streams will not be updated in the background, hence implementations should return last value in pipe
@@ -26,12 +29,19 @@ abstract class textStream {
   // will we use fallback values or not?
   private boolean fallback;
 
-  // stub for fallback object
-  private float fallbackValue = (float)0.666;
+  // fallback animation
+  private textStreamFallback fallbackValue;
 
   // child class should call this constructor
   textStream(String stream) {
     this.stream = stream;
+
+    fallbackValue = textStreamFallback.fromString(stream);
+    if (fallbackValue == null) {
+      System.out.println("Error: no fallback for stream of type " + stream + ", will be using default animation if needed.");
+      fallbackValue = textStreamFallback.DEFAULT;
+    }
+
     fallback = !init();
   }
 
@@ -48,7 +58,7 @@ abstract class textStream {
 
   final float getValue() {
     if (fallback) {
-      return fallbackValue;
+      return fallbackValue.fetchValue();
     }
     return fetchValue();
   }
@@ -56,6 +66,48 @@ abstract class textStream {
   // one should know what we are after
   final protected String streamType() {
     return stream;
+  }
+}
+
+// fallback implemented depending on stream type
+enum textStreamFallback {
+
+  // name, freq of singal, type of wave, wave parameter
+  HEART("HEART", 1, AULib.WAVE_SYM_VAR_BLOB, 1), 
+    BREATH("BREATH", (float) 0.3, AULib.WAVE_SYM_GAIN, (float) 0.2), 
+    DEFAULT("DEFAULT", (float)0.5, AULib.WAVE_SYM_BLOB, 0);
+
+  private String text;
+  private float freq;
+  private int waveType;
+  private float waveParam;
+
+  // by default, absolute position
+  textStreamFallback(String text, float freq, int waveType, float waveParam) {
+    this.text = text;
+    this.freq = freq;
+    this.waveType = waveType;
+    this.waveParam = waveParam;
+  }
+
+  // value using clock as input for wave
+  public float fetchValue() {
+    // feed AULib with values between 0 and 1
+    float input = System.currentTimeMillis() % (int) (1000 / freq) / (float) (1000 / freq);
+    return AULib.wave(waveType, input, waveParam);
+  }
+
+  // return enum from string, insensitive to case
+  // idea from: http://stackoverflow.com/a/2965252
+  public static textStreamFallback fromString(String text) {
+    if (text != null) {
+      for (textStreamFallback fal : textStreamFallback.values()) {
+        if (text.equalsIgnoreCase(fal.text)) {
+          return fal;
+        }
+      }
+    }
+    return null;
   }
 }
 
@@ -77,8 +129,8 @@ class textStreamLSL extends textStream {
     LSL.StreamInfo[] results;
 
     System.out.println("Resolving a LSL stream of type [" + streamType() + "]");
-    // try to find at least one stream, 1s timeout
-    results = LSL.resolve_stream("type", streamType(), 1, 1);
+    // try to find at least one stream, 0.1s timeout
+    results = LSL.resolve_stream("type", streamType(), 1, 0.1);
 
     if (results.length < 1) {
       System.out.println("Error: no stream found.");
