@@ -32,6 +32,9 @@ abstract class textStream {
   // fallback animation
   private textStreamFallback fallbackValue;
 
+  // value considered as trigger
+  final protected float threshold = 1; 
+
   // child class should call this constructor
   textStream(String stream) {
     this.stream = stream;
@@ -50,6 +53,17 @@ abstract class textStream {
 
   // should return last value from stream
   abstract protected float fetchValue();
+
+  // in case framerate goes down, need to make sure that we did not miss a threshold. Childs should have a way to know what happenned between calls.
+  abstract protected boolean reachedSinceLastUpdate();
+
+  // if stream reached a threshold value since last update
+  final boolean reachedTreshold() {
+    if (fallback) {
+      return getValue() > 0.5;
+    }
+    return reachedSinceLastUpdate();
+  }
 
   // the stream encountered a probrem, child should call this method so that fallback takes it from here
   final void disableStream() {
@@ -117,7 +131,10 @@ class textStreamLSL extends textStream {
   // the actual stream
   private LSL.StreamInlet inlet;
   // buffer holding data
-  float[] sample;
+  private float[] sample;
+  // had hit 1 value since last call
+  private boolean hitThreshold = false;
+
 
   textStreamLSL(String stream) {
     super(stream);
@@ -165,10 +182,16 @@ class textStreamLSL extends textStream {
 
   @Override
     protected float fetchValue() {
+
+    hitThreshold = false;
+
     try {
       // Pulling everithing in queue -- failback at 1000 values just to avoid blocking forever
       int safe = 1000;
       while (inlet.pull_sample(sample, 0) != 0 && safe > 0) {
+        if (sample[0] >= threshold) {
+          hitThreshold = true;
+        }
         safe--;
       }
       if (safe == 0) {
@@ -180,5 +203,10 @@ class textStreamLSL extends textStream {
       disableStream();
     }
     return sample[0];
+  }
+
+  @Override
+    protected boolean reachedSinceLastUpdate() {
+    return  hitThreshold;
   }
 }

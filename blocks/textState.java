@@ -71,10 +71,19 @@ class textState {
     }
   }
 
+  //  last value fetched
   static float getStreamValue(String stream) {
     synchronized (streams) {
       initStream(stream);
       return streams.get(stream).getValue();
+    }
+  }
+
+  // if we got a threshold (i.e. 1) in last pull -- may miss value 'case of lag
+  static boolean getStreamReachedTreshold(String stream) {
+    synchronized (streams) {
+      initStream(stream);
+      return streams.get(stream).reachedTreshold();
     }
   }
 }

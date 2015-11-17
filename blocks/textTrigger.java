@@ -225,8 +225,7 @@ class textTrigStream extends textTrigger {
   @Override
     protected boolean update() {
     value =  textState.getStreamValue(stream);
-    //parent.println(stream, ":", value);
-    return value >= 0.5;
+    return textState.getStreamReachedTreshold(stream);
   }
 }
 
