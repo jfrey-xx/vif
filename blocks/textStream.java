@@ -2,9 +2,16 @@
  
  Abstraction and implementation for data streamed from the outside
  
+ WARNING: should get values between 0 and 1.
+ 
+ Here will be defined fallback depending on stream types.
+ 
  NB: using System.out.println to avoid use of PApplet with static textState
  
- TODO: several users
+ TODO:
+ 
+ - stream could be resolved after disconnect, implement timeout before fallback
+ - several users
  
  */
 
@@ -107,8 +114,14 @@ class textStreamLSL extends textStream {
   @Override
     protected float fetchValue() {
     try {
-      // NB: blocking call, FPS will drop to stream's sample rate
-      inlet.pull_sample(sample);
+      // Pulling everithing in queue -- failback at 1000 values just to avoid blocking forever
+      int safe = 1000;
+      while (inlet.pull_sample(sample, 0) != 0 && safe > 0) {
+        safe--;
+      }
+      if (safe == 0) {
+        System.out.println("Warning, did not had time to fetch last value in stream " +   streamType());
+      }
     }
     catch(Exception e) {
       System.out.println("Error: Can't get a sample for stream " + streamType() + ", disabling stream.");
