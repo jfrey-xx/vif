@@ -112,7 +112,7 @@ public class textRenderer {
     RGroup group = chunk.group;
     textType type = chunk.type;
     textAnim anim = chunk.anim;
-    float pickedRatio = chunk.pickedRatio();
+    float selectedRatio = chunk.selectedRatio();
 
     // for anim
     pg.pushStyle();
@@ -122,19 +122,19 @@ public class textRenderer {
     pg.translate(0, 0, fontSize/100);
 
     // call anim only if a trigger is occurring
-    if (pickedRatio >= 0) {
+    if (selectedRatio >= 0) {
 
       switch(anim) {
       case SHADOW:
-        textAnimShadow(group, pickedRatio);
+        textAnimShadow(group, selectedRatio);
         break;
       case HEART:
-        textAnimHeart(group, pickedRatio);
+        textAnimHeart(group, selectedRatio);
         break;
         // nothing particular otherwise
       case NONE:
       default:
-        textAnimNone(group, pickedRatio);
+        textAnimNone(group, selectedRatio);
         break;
       }
     }

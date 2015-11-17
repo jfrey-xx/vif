@@ -14,6 +14,10 @@ import remixlab.dandelion.core.*; // eg for Frame
 import remixlab.dandelion.geom.*; // eg for Vec
 import SimpleOculusRift.*;
 
+// used by text* for streams
+import edu.ucsd.sccn.LSL;
+import AULib.*;
+
 SimpleOculusRift   oculusRiftDev;
 PGraphics fb;
 // modelview returned by oculus

@@ -20,7 +20,7 @@ abstract class textTrigger {
   int startPicked = -1;
   int timePicked = -1;
   // if has already fired since ratio >= 1
-  private boolean waitingFire = true;
+  private boolean hasFired = false;
 
   // in activity upon further notice
   private boolean active = true;
@@ -42,8 +42,10 @@ abstract class textTrigger {
     picked = update();
     // reset timer if nothing
     if (!picked) {
-      startPicked = -1;
+      startPicked = -1;  
       timePicked = -1;
+      // not that we reached bottom, for sure a new fire could occur
+      hasFired = false;
     } 
     // start or update timer otherwise
     else { 
@@ -69,6 +71,11 @@ abstract class textTrigger {
     return;
   }
 
+  // to be overriden by triggers that serve as binding to variable -- e.g. streams. By default only return ratio related to clock
+  float selectedRatio() {
+    return pickedRatio();
+  }
+
   // if currently picked
   public final boolean isPicked() {
     return picked;
@@ -76,16 +83,13 @@ abstract class textTrigger {
 
   // -1: not picked
   // between 0 and 1: ratio before timesUp
-  // update waitingFire flag -- once per "1" reached
-  public final float pickedRatio() {
+  final private float pickedRatio() {
     if (!isPicked()) {
-      waitingFire = true;
       return -1;
     }
     if (timePicked >= selectionDelay || selectionDelay <= 0) {
       return 1;
     }
-    waitingFire = true;
     return ( (float)timePicked / selectionDelay);
   }
 
@@ -97,8 +101,8 @@ abstract class textTrigger {
   // picked reached one and still no action taken. usefull to ensure that there is no two actions in a row
   // NB: state reset after each call
   public final boolean waitingFire() {
-    if ((waitingFire) &&  pickedRatio() >=1) {
-      waitingFire = false;
+    if (!hasFired && pickedRatio() >= 1) {
+      hasFired = true;
       return true;
     }
     return false;
@@ -179,6 +183,52 @@ class textTrigTimer extends textTrigger {
   }
 }
 
+// bind chunk to value from stream
+// Warning: if bad parameter given, will bind to a "default" stream.
+class textTrigStream extends textTrigger {
+  // what stream we seek
+  private String stream;
+  // value fetched from last update
+  private float value;
+
+  textTrigStream (PApplet parent, String param) {
+    super(parent);
+
+    // trigger as soon as fetched value reaches 1
+    setDelay(0);
+
+    String [] split = param.split(textParser.TRIGGER_PARAM_SEPARATOR);
+
+    if (split.length != 1) {
+      parent.println("Wrong parameter for bind trigger [" + param + "] of length", split.length, "-- binding to a [default] stream.");
+      stream = "default";
+    } else {
+      stream = split[0];
+      parent.println("new stream binded:", stream);
+    }
+
+    value =  textState.getStreamValue(stream);
+  }
+
+  @Override
+    public float selectedRatio() {
+    // crop values just in case
+    if (value < 0) {
+      return 0;
+    }
+    if (value > 1) {
+      return 1;
+    }
+    return value;
+  }
+
+  @Override
+    protected boolean update() {
+    value =  textState.getStreamValue(stream);
+    return textState.getStreamReachedTreshold(stream);
+  }
+}
+
 /****** Actions ******/
 
 class textTAGoto extends textAction {
@@ -214,7 +264,7 @@ class textTAInc extends textAction {
 
   void fire(textUniverse universe) {
     textState.incVar(var);
-    universe.parent.println("increments:", textState.getValue(var));
+    universe.parent.println("increments", var, "--", textState.getValue(var));
   }
 
   // can procude the effect several times
