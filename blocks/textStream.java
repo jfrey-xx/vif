@@ -13,6 +13,11 @@
  - stream could be resolved after disconnect, implement timeout before fallback
  - several users
  
+ FIXME:
+ 
+ - reachedSinceLastUpdate() and probably whole stream not working if the stream is read at several place at the same time (value fetched on-demand). should use at least framecount.
+ - the fallback equivalent of reachedSinceLastUpdate() is just a threshold on value, also should use framecount and timestamp
+ 
  */
 
 // for stream
@@ -32,8 +37,11 @@ abstract class textStream {
   // fallback animation
   private textStreamFallback fallbackValue;
 
-  // value considered as trigger
+  // value considered as trigger for stream
   final protected float threshold = 1; 
+
+  // trigger for fallback -- we dot not have history in here
+  final protected float fallbackThreshold = (float)0.75; 
 
   // child class should call this constructor
   textStream(String stream) {
@@ -60,7 +68,7 @@ abstract class textStream {
   // if stream reached a threshold value since last update
   final boolean reachedTreshold() {
     if (fallback) {
-      return getValue() > 0.5;
+      return getValue() >= fallbackThreshold;
     }
     return reachedSinceLastUpdate();
   }
