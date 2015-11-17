@@ -513,8 +513,7 @@ class textAreaData {
       } else if (triggerType.equals("invisible")) {
         tTriggers.add(pick.getNewVisible(false));
       } else if (triggerType.equals("bind")) {
-        // WIP: bind as pick for debug
-        tTriggers.add(pick.getNewPicker());
+        tTriggers.add(new textTrigStream(parent, textParser.getTriggerParam(triggers.get(i))));
       } else if (triggerType.equals("eq")) {
         tTriggers.add(new textTrigEq(parent, textParser.getTriggerParam(triggers.get(i))));
       } else if (triggerType.equals("timer")) {

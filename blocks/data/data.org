@@ -11,7 +11,7 @@
 
 * info                                               :@east:#default:%medium:
 
-Welcome to VIF
+Welcome to VIF. You [[bind-breath-heartstyle:inc-breathVar:breathe]].
 
 * perso 1                                               :@north:#default:%medium:
 

@@ -77,7 +77,8 @@ abstract class textTrigger {
   // -1: not picked
   // between 0 and 1: ratio before timesUp
   // update waitingFire flag -- once per "1" reached
-  public final float pickedRatio() {
+  // FIXME: should stay "final", temporary hack to use stream as if picked ratio
+  public float pickedRatio() {
     if (!isPicked()) {
       waitingFire = true;
       return -1;
@@ -176,6 +177,53 @@ class textTrigTimer extends textTrigger {
     protected boolean update() {
     // the "duration" mechanism does all the magic
     return true;
+  }
+}
+
+// bind chunk to value from stream
+// Warning: if bad parameter given, will bind to a "default" stream.
+class textTrigStream extends textTrigger {
+  // what stream we seek
+  private String stream;
+  // value fetched from last update
+  private float value;
+
+  textTrigStream (PApplet parent, String param) {
+    super(parent);
+
+    // trigger as soon as fetched value reaches 1
+    setDelay(0);
+
+    String [] split = param.split(textParser.TRIGGER_PARAM_SEPARATOR);
+
+    if (split.length != 1) {
+      parent.println("Wrong parameter for bind trigger [" + param + "] of length", split.length, "-- binding to a [default] stream.");
+      stream = "default";
+    } else {
+      stream = split[0];
+      parent.println("new stream binded:", stream);
+    }
+
+    value =  textState.getStreamValue(stream);
+  }
+
+  // FIXME: ugly hack to avoid to create another set of method, will use pickedRatio to pass somehow value to textRenderer
+  @Override
+    public float pickedRatio() {
+    // crop values just in case
+    if (value < 0) {
+      return 0;
+    }
+    if (value > 1) {
+      return 1;
+    }
+    return value;
+  }
+
+  @Override
+    protected boolean update() {
+    value =  textState.getStreamValue(stream);
+    return value >= 1;
   }
 }
 
