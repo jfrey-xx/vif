@@ -1,9 +1,10 @@
-* toto
+* todo
 
 ** actual sensors
 ** size for area 
 ** several users
 ** fake signals
+** var linked with world state (e.g. night cycle, number of days)
 
 * archi for action 
 ** trigger

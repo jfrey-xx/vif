@@ -6,6 +6,8 @@
  
  All vars are integers, init automatically to 0.
  
+ TODO: implement other protocol for streaming, let user choose.
+ 
  */
 
 import java.util.*;
@@ -13,8 +15,10 @@ import java.util.*;
 class textState {
   // holds reference to all variables
   static Map <String, Integer> vars = new LinkedHashMap<String, Integer>();
-  // currently active areas
-  //Map <String, textArea> vars;
+  // also for streams
+  static Map <String, textStream> streams = new LinkedHashMap<String, textStream>();
+
+
   // set var to 0 and add to map if not already there
   static private void initVar(String var) {
     synchronized (vars) {
@@ -53,6 +57,24 @@ class textState {
     synchronized (vars) {
       initVar(var);
       return vars.get(var);
+    }
+  }
+
+  /** Streaming **/
+
+  // bind to new stream if manage to, or will attemps to use fallback based on stream type
+  static private void initStream(String stream) {
+    synchronized (streams) {
+      if (!streams.containsKey(stream)) {
+        streams.put(stream, new textStreamLSL(stream));
+      }
+    }
+  }
+
+  static float getStreamValue(String stream) {
+    synchronized (streams) {
+      initStream(stream);
+      return streams.get(stream).getValue();
     }
   }
 }
