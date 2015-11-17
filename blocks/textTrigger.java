@@ -69,6 +69,11 @@ abstract class textTrigger {
     return;
   }
 
+  // to be overriden by triggers that serve as binding to variable -- e.g. streams. By default only return ratio related to clock
+  float selectedRatio() {
+    return pickedRatio();
+  }
+
   // if currently picked
   public final boolean isPicked() {
     return picked;
@@ -77,8 +82,7 @@ abstract class textTrigger {
   // -1: not picked
   // between 0 and 1: ratio before timesUp
   // update waitingFire flag -- once per "1" reached
-  // FIXME: should stay "final", temporary hack to use stream as if picked ratio
-  public float pickedRatio() {
+  final private float pickedRatio() {
     if (!isPicked()) {
       waitingFire = true;
       return -1;
@@ -207,9 +211,8 @@ class textTrigStream extends textTrigger {
     value =  textState.getStreamValue(stream);
   }
 
-  // FIXME: ugly hack to avoid to create another set of method, will use pickedRatio to pass somehow value to textRenderer
   @Override
-    public float pickedRatio() {
+    public float selectedRatio() {
     // crop values just in case
     if (value < 0) {
       return 0;
@@ -223,7 +226,8 @@ class textTrigStream extends textTrigger {
   @Override
     protected boolean update() {
     value =  textState.getStreamValue(stream);
-    return value >= 1;
+    //parent.println(stream, ":", value);
+    return value >= 0.5;
   }
 }
 
@@ -262,7 +266,7 @@ class textTAInc extends textAction {
 
   void fire(textUniverse universe) {
     textState.incVar(var);
-    universe.parent.println("increments:", textState.getValue(var));
+    universe.parent.println("increments", var, "--", textState.getValue(var));
   }
 
   // can procude the effect several times

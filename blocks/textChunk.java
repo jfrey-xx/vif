@@ -74,9 +74,9 @@ class textChunk {
 
   // for textRenderer
   // FIXME: better archi
-  public float pickedRatio() {
+  public float selectedRatio() {
     if (trig != null) {
-      return trig.pickedRatio();
+      return trig.selectedRatio();
     } else {
       return -1;
     }
