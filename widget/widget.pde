@@ -10,6 +10,10 @@ import remixlab.proscene.*;
 import remixlab.dandelion.core.*; // eg for Frame
 import remixlab.dandelion.geom.*; // eg for Vec
 
+// used by text* for streams
+import edu.ucsd.sccn.LSL;
+import AULib.*;
+
 Scene proscene;
 Frame mainFrame;
 textUniverse universe;
