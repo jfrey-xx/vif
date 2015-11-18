@@ -46,21 +46,16 @@
  https://social.msdn.microsoft.com/Forums/en-US/ec92a231-2dbf-4f3e-b7f5-0a4d9ea4cae2 
  */
 
-//import static com.oculusvr.capi.OvrLibrary.ovrDistortionCaps.*;
-//import static com.oculusvr.capi.OvrLibrary.ovrHmdType.*;
-//import static com.oculusvr.capi.OvrLibrary.ovrRenderAPIType.*;
-//import static com.oculusvr.capi.OvrLibrary.ovrTrackingCaps.*;
-
-import com.oculusvr.capi.EyeRenderDesc;
-import com.oculusvr.capi.FovPort;
-import com.oculusvr.capi.GLTexture;
-import com.oculusvr.capi.Hmd;
-import com.oculusvr.capi.OvrLibrary;
-import com.oculusvr.capi.OvrLibrary.ovrHmdCaps;
-import com.oculusvr.capi.OvrVector2i;
-import com.oculusvr.capi.OvrVector3f;
-import com.oculusvr.capi.Posef;
-import com.oculusvr.capi.RenderAPIConfig;
+//import com.oculusvr.capi.EyeRenderDesc;
+//import com.oculusvr.capi.FovPort;
+//import com.oculusvr.capi.GLTexture;
+//import com.oculusvr.capi.Hmd;
+//import com.oculusvr.capi.OvrLibrary;
+//import com.oculusvr.capi.OvrLibrary.ovrHmdCaps;
+//import com.oculusvr.capi.OvrVector2i;
+//import com.oculusvr.capi.OvrVector3f;
+//import com.oculusvr.capi.Posef;
+//import com.oculusvr.capi.RenderAPIConfig;
 
 
 
@@ -101,15 +96,6 @@ class OculusRift {
   private PMatrix3D correctionMatrix;
 
   float ipd;
-  float  eyeHeight;
-  PMatrix3D [] projections = new PMatrix3D[2];
-
-  private final FovPort fovPorts[] =
-    (FovPort[])new FovPort().toArray(2);
-
-  protected final Posef[] poses = 
-    (Posef[])new Posef().toArray(2);
-
 
   // -------------------------------------------------------------
   // Public
@@ -118,9 +104,6 @@ class OculusRift {
   // Constructor
   public OculusRift(PApplet app) {
     _parent = app;
-
-
-
 
     int eye_width = oculus_width/2;
     int eye_height = oculus_height;    
@@ -140,87 +123,28 @@ class OculusRift {
 
   // Enable head tracking
   public boolean enableHeadTracking() {
+
     Hmd.initialize();
     hmd = Hmd.create(0);
 
-    if (0 == hmd.configureTracking(
-      com.oculusvr.capi.OvrLibrary.ovrTrackingCaps.ovrTrackingCap_Orientation | 
-      com.oculusvr.capi.OvrLibrary.ovrTrackingCaps.ovrTrackingCap_Position, 0)) {
-      throw new IllegalStateException(
-        "Unable to start the sensor");
-    }
-
-
-    ipd = hmd.getFloat(OvrLibrary.OVR_KEY_IPD, OvrLibrary.OVR_DEFAULT_IPD);
-    println("ipd:", ipd);
-
-    eyeHeight = hmd.getFloat(OvrLibrary.OVR_KEY_EYE_HEIGHT, OvrLibrary.OVR_DEFAULT_EYE_HEIGHT);
-    println("eyeHeight:", eyeHeight);
-
-    for (int eye = 0; eye < 2; ++eye) {
-      fovPorts[eye] = hmd.DefaultEyeFov[eye];
-
-      println("uptan", eye, ":", fovPorts[eye].UpTan);
-      println("lefttan", eye, ":", fovPorts[eye].LeftTan);
-
-      OvrMatrix4f toto =   Hmd.getPerspectiveProjection(
-        fovPorts[eye], 0.1f, 1000000f, false);
-
-      projections[eye] = new PMatrix3D();
-      projections[eye].set(toto.M);
-      println("proj matrix eye");
-      projections[eye].print();
-
-      // change right-hand to left-hand
-      // projections[eye].preApply(
-      //   1, 0, 0, 0, 
-      //   0, -1, 0, 0, 
-      //   0, 0, 1, 0, 
-      //   0, 0, 0, 1
-      //   );
-      // projections[eye].scale(1, -1, 1);
-
-      println("after correction");
-      projections[eye].print();
-
-
-      EyeRenderDesc eyeRenderDesc = hmd.getRenderDesc(eye, fovPorts[eye]);
-      println( eyeRenderDesc.HmdToEyeViewOffset.x);
-      println( eyeRenderDesc.HmdToEyeViewOffset.y);
-      println( eyeRenderDesc.HmdToEyeViewOffset.z);
-
-
-      //GLTexture texture = eyeTextures[eye];
-      //TextureHeader header = texture.ogl.Header;
-      //header.API = ovrRenderAPI_OpenGL;
-      //header.TextureSize = hmd.getFovTextureSize(
-      //  eye, fovPorts[eye], 1.0f);
-      //header.RenderViewport.Size = header.TextureSize; 
-      //header.RenderViewport.Pos = new OvrVector2i(0, 0);
-    }
-
-
     if (hmd == null) {
       isUsingHeadTracking = false;
+      ipd = 0.064;
     } else {
       isUsingHeadTracking = true;
-      resetHeadState();
+      if (0 == hmd.configureTracking(
+        com.oculusvr.capi.OvrLibrary.ovrTrackingCaps.ovrTrackingCap_Orientation | 
+        com.oculusvr.capi.OvrLibrary.ovrTrackingCaps.ovrTrackingCap_Position, 0)) {
+        throw new IllegalStateException(
+          "Unable to start the sensor");
+      }
+
+      ipd = hmd.getFloat(OvrLibrary.OVR_KEY_IPD, OvrLibrary.OVR_DEFAULT_IPD);
     }
+
+    println("ipd:", ipd);
+
     return isUsingHeadTracking;
-  }
-
-  // Reset head state by current state.
-  public void resetHeadState() {
-    PMatrix3D m = getMatrixFromSensor();
-    m.invert();
-    correctionMatrix = m;
-  }
-
-  // Get corrected head state matrix.
-  public PMatrix3D getMatrix() {
-    PMatrix3D m = getMatrixFromSensor();
-    m.apply(correctionMatrix);
-    return m;
   }
 
   public float ipd() {
@@ -229,15 +153,6 @@ class OculusRift {
 
   // Draw oculus image
   public void draw() {
-    updateHeadState();
-
-    // retrieve eye position -- do not care about prediction
-    // OvrVector3f[] test = new OvrVector3f[2];
-    // hmd.getEyePoses(0, test);
-
-    // println("eye0:", test[0].x, test[0].y, test[0].z);
-    // println("eye1:", test[1].x, test[1].y, test[1].z);
-
 
     int imageMode = _parent.g.imageMode;
     _parent.imageMode(CENTER);
@@ -245,9 +160,10 @@ class OculusRift {
     _parent.background(0);
 
     // Render left eye
-    beginScene(0);
+    scene.beginDraw();
+    // NB: it's up to main sketch to deal with stereo
     runOnDrawSceneMethod(LEFT);
-    endScene();
+    scene.endDraw();
     set_shader(LEFT);
     _parent.shader(barrel);    
     fb.beginDraw();
@@ -261,9 +177,9 @@ class OculusRift {
     _parent.resetShader();
 
     // Render right eye
-    beginScene(1);
+    scene.beginDraw();
     runOnDrawSceneMethod(RIGHT);
-    endScene();
+    scene.endDraw();
     set_shader(RIGHT);
     _parent.shader(barrel);
     fb.beginDraw();
@@ -284,34 +200,18 @@ class OculusRift {
   // -------------------------------------------------------------
   // Private
 
-  private void updateHeadState() {
-    if (!isUsingHeadTracking) return;
-    headMatrix = getMatrix();
-  }
-
-  private void applyHeadState(PGraphics pg) {
-    if (!isUsingHeadTracking) return;
-    pg.applyMatrix(headMatrix);
-  }
-
   public float[] sensorOrientation() {
-    TrackingState sensorState = hmd.getSensorState(Hmd.getTimeInSeconds());
-    // OvrVector3f pos = sensorState.HeadPose.Pose.Position;
-    OvrQuaternionf quat = sensorState.HeadPose.Pose.Orientation;
     float[] orien = new float[4];
-    orien[0] = quat.x;
-    orien[1] = quat.y;
-    orien[2] = quat.z;
-    orien[3] = quat.w;
+    if (hmd != null) {
+      TrackingState sensorState = hmd.getSensorState(Hmd.getTimeInSeconds());
+      // OvrVector3f pos = sensorState.HeadPose.Pose.Position;
+      OvrQuaternionf quat = sensorState.HeadPose.Pose.Orientation;
+      orien[0] = quat.x;
+      orien[1] = quat.y;
+      orien[2] = quat.z;
+      orien[3] = quat.w;
+    }
     return orien;
-  }  
-
-
-  private PMatrix3D getMatrixFromSensor() {
-    TrackingState sensorState = hmd.getSensorState(Hmd.getTimeInSeconds());
-    OvrVector3f pos = sensorState.HeadPose.Pose.Position;
-    OvrQuaternionf quat = sensorState.HeadPose.Pose.Orientation;
-    return calcMatrix(pos.x, pos.y, pos.z, quat.x, quat.y, quat.z, quat.w );
   }  
 
   private void runOnDrawSceneMethod(int eye) {
@@ -333,35 +233,6 @@ class OculusRift {
     catch (Exception e) {
     }
     return ret;
-  }
-
-  private void beginScene(int eye) {
-
-    scene.beginDraw();
-    //pg_backup = _parent.g;
-    // _parent.g = scene;
-    scene.resetMatrix();
-    scene.perspective( radians(fov_deg), scene.width*1.0/scene.height, z_near, z_far);
-    applyHeadState(scene);
-
-    // ipd from m to mm
-    float factor = 1000;
-
-    // stereo easy with HMD since cameras are //
-    if (eye == 0) {
-      scene.beginCamera();
-      scene.translate(ipd*factor/2, 0, 0);
-      scene.endCamera();
-    } else {
-      scene.beginCamera();
-      scene.translate(-ipd*factor/2, 0, 0);
-      scene.endCamera();
-    }
-  }
-
-  private void endScene() {
-    // _parent.g = pg_backup;
-    scene.endDraw();
   }
 
   private void set_shader(int eye) {
@@ -396,47 +267,5 @@ class OculusRift {
     barrel.set("Scale", (w/2.0f) * scaleFactor, (h/2.0f) * scaleFactor * as);
     barrel.set("ScaleIn", (2.0f/w), (2.0f/h) / as);
     barrel.set("HmdWarpParam", K0, K1, K2, K3);
-  }
-
-  private PMatrix3D calcMatrix(float px, float py, float pz, float qx, float qy, float qz, float qw) {
-    PMatrix3D mat = new PMatrix3D();
-
-    // calculate matrix terms
-    float two_xSquared = 2 * qx * qx;
-    float two_ySquared = 2 * qy * qy;
-    float two_zSquared = 2 * qz * qz;
-    float two_xy = 2 * qx * qy;
-    float two_wz = 2 * qw * qz;
-    float two_xz = 2 * qx * qz;
-    float two_wy = 2 * qw * qy;
-    float two_yz = 2 * qy * qz;
-    float two_wx = 2 * qw * qx;
-
-    // update view matrix orientation
-    mat.m00 = 1 - two_ySquared - two_zSquared;
-    mat.m01 = two_xy + two_wz;
-    mat.m02 = two_xz - two_wy;
-    mat.m10 = two_xy - two_wz;
-    mat.m11 = 1 - two_xSquared - two_zSquared;
-    mat.m12 = two_yz + two_wx;
-    mat.m20 = two_xz + two_wy;
-    mat.m21 = two_yz - two_wx;
-    mat.m22 = 1 - two_xSquared - two_ySquared;
-
-    // change right-hand to left-hand
-    mat.preApply(
-      1, 0, 0, 0, 
-      0, -1, 0, 0, 
-      0, 0, 1, 0, 
-      0, 0, 0, 1
-      );
-    mat.scale(1, -1, 1);
-
-    // Position    
-    mat.m03 = sensingScale * pz;
-    mat.m13 = sensingScale * py;
-    mat.m23 = sensingScale * (-px);
-
-    return mat;
   }
 }

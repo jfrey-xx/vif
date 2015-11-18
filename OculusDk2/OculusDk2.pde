@@ -1,10 +1,5 @@
-boolean isFullScreen = true;
-//boolean isFullScreen = false;
 
 OculusRift oculus;
-PImage imgL;
-PImage imgR;
-PVector position;
 
 import geomerative.*;
 import remixlab.proscene.*;
@@ -31,6 +26,9 @@ float worldRatio, zoomFactor;
 
 // position for FPS
 PVector positionFPS = new PVector(0, 0, -5);
+
+// user's orientation
+PVector position = new PVector(0, 0);
 
 // for interaction, will adapt mouse position to VR
 float cursorX = 0;
@@ -107,10 +105,6 @@ public void mainDrawing(Scene s) {
 
   pg.background(255);
 
-  // fix orientation
-  //s.rotateY(PI);
-  // s.scale(-1);
-
   // text
   pg.pushMatrix();
   textFrame.applyTransformation();
@@ -135,7 +129,7 @@ public void mainDrawing(Scene s) {
 void keyPressed() {
   // Reset head state
   if (key==' ') {
-    oculus.resetHeadState();
+    // oculus.resetHeadState();
   }
 
   // Move
