@@ -91,6 +91,12 @@ void draw() {
 
 // Scene for OculusRift
 void onDrawScene(int eye) {
+  // stereo is easy with HMD: cameras are //
+  if (eye == LEFT) {
+    proscene.camera().setPosition(new Vec (-oculus.ipd()/2, 0, 0));
+  } else {
+    proscene.camera().setPosition(new Vec (oculus.ipd()/2, 0, 0));
+  }
   proscene.beginDraw();
   proscene.endDraw();
 }

@@ -223,6 +223,10 @@ class OculusRift {
     return m;
   }
 
+  public float ipd() {
+    return ipd;
+  }
+
   // Draw oculus image
   public void draw() {
     updateHeadState();
