@@ -1,0 +1,80 @@
+#+ACTIVATE: init
+
+* init
+
+# Go upon init. Fake variable just to trigger right away.
+
+[[eq-init.0:goto-intro]]
+[[eq-init.0:goto-dynamic]]
+[[eq-init.0:goto-info]]
+...
+
+* info                                               :@east:#default:%medium:
+
+Welcome to VIF. You [[bind-breath-heartstyle:inc-breathVar:breathe]].
+
+* perso 1                                               :@north:#default:%medium:
+
+** dynamic
+
+First paragraph. Beware [[pick:goto-avoid 1:the goofy guy]].
+
+Second paragraph that is a bit longer and may overflow.
+
+# Do not leave blank lines between links with no text and following paraghaphs
+
+[[eq-heartVar.3:goto-text 3]]
+The heart [[bind-heart-heartstyle:inc-heartVar:beats]] /fast/. Go [[pick:goto-text 1:further]].
+
+** text 1
+
+This is a good text. [[pick:goto-text 2:Goto to next]].
+
+** text 2
+
+Another *good text* and a [[pick:goto-text 3:link]] to the next step.
+
+Additional text may say more.
+
+**  text 3                                                            :@west:
+
+This is the *end*.
+
+* perso 2                                               :@south:#bob:%medium:
+
+** intro
+
+[[visible:goto-outro]]
+I'm right /here/!
+
+** outro
+
+[[invisible:goto-intro]]
+You found me!
+
+* perso 3                                               :@front:#bob:%medium:
+
+# an area cannot be active twice, hence because of fade in/out, have to jungle between two that will appear identical
+
+** avoid 1
+
+[[eq-init.0:inc-avoidVar]]
+[[invisible:goto-avoid 2]]
+[[eq-avoidVar.4:goto-avoid sad]]
+You cannot avoid me!
+
+** avoid 2
+
+[[eq-init.0:inc-avoidVar]]
+[[invisible:goto-avoid 1]]
+[[eq-avoidVar.4:goto-avoid sad]]
+You cannot avoid me!
+
+** avoid sad
+
+[[timer-2000:goto-dead end]]
+I'm sad now. I'll leave you alone.
+
+* dead end
+
+# dummy area for termination
