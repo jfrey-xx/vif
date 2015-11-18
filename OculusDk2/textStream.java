@@ -150,9 +150,7 @@ class textStreamLSL extends textStream {
 
   @Override
     protected boolean init() {
-    // FIXME: ugly workaround to disable lsl while dk2 is integrated -- conflict over jna
-    if (this !=null) return false;
-
+    
     LSL.StreamInfo[] results;
 
     System.out.println("Resolving a LSL stream of type [" + streamType() + "]");

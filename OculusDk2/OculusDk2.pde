@@ -35,6 +35,8 @@ float cursorX = 0;
 float cursorY = 0;
 
 void setup() {
+  // FIXME: workaround for LSLLink to find LSL lib, seems that jovr and its JNA collide otherwise
+  System.setProperty("jna.library.path", sketchPath("code"));
   size( 1920, 1080, P3D );
   frameRate(30);
 
