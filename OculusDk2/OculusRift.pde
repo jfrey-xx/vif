@@ -71,6 +71,8 @@ import com.oculusvr.capi.OvrVector3f;
 import com.oculusvr.capi.TrackingState;
 import java.lang.reflect.Method;
 
+private PGraphics3D scene;
+
 class OculusRift {
 
   // Parameters for DK2
@@ -90,7 +92,6 @@ class OculusRift {
   private PGraphics pg_backup;
   private Method  onDrawSceneMethod;
 
-  private PGraphics3D scene;
   private PGraphics fb;
   private PShader barrel;
 
@@ -284,10 +285,23 @@ class OculusRift {
     headMatrix = getMatrix();
   }
 
-  private void applyHeadState() {
+  private void applyHeadState(PGraphics pg) {
     if (!isUsingHeadTracking) return;
-    applyMatrix(headMatrix);
+    pg.applyMatrix(headMatrix);
   }
+
+  public float[] sensorOrientation() {
+    TrackingState sensorState = hmd.getSensorState(Hmd.getTimeInSeconds());
+    // OvrVector3f pos = sensorState.HeadPose.Pose.Position;
+    OvrQuaternionf quat = sensorState.HeadPose.Pose.Orientation;
+    float[] orien = new float[4];
+    orien[0] = quat.x;
+    orien[1] = quat.y;
+    orien[2] = quat.z;
+    orien[3] = quat.w;
+    return orien;
+  }  
+
 
   private PMatrix3D getMatrixFromSensor() {
     TrackingState sensorState = hmd.getSensorState(Hmd.getTimeInSeconds());
@@ -318,31 +332,31 @@ class OculusRift {
   }
 
   private void beginScene(int eye) {
-    
+
     scene.beginDraw();
-    pg_backup = _parent.g;
-    _parent.g = scene;
-    resetMatrix();
-    perspective( radians(fov_deg), scene.width*1.0/scene.height, z_near, z_far);
-    applyHeadState();
+    //pg_backup = _parent.g;
+    // _parent.g = scene;
+    scene.resetMatrix();
+    scene.perspective( radians(fov_deg), scene.width*1.0/scene.height, z_near, z_far);
+    applyHeadState(scene);
 
     // ipd from m to mm
     float factor = 1000;
 
     // stereo easy with HMD since cameras are //
     if (eye == 0) {
-      beginCamera();
-      translate(ipd*factor/2, 0, 0);
-      endCamera();
+      scene.beginCamera();
+      scene.translate(ipd*factor/2, 0, 0);
+      scene.endCamera();
     } else {
-      beginCamera();
-      translate(-ipd*factor/2, 0, 0);
-      endCamera();
+      scene.beginCamera();
+      scene.translate(-ipd*factor/2, 0, 0);
+      scene.endCamera();
     }
   }
 
   private void endScene() {
-    _parent.g = pg_backup;
+    // _parent.g = pg_backup;
     scene.endDraw();
   }
 

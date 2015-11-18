@@ -43,7 +43,7 @@ void setup() {
   oculus = new OculusRift(this);
   oculus.enableHeadTracking();
 
-  proscene = new Scene(this);
+  proscene = new Scene(this, scene);
   // add callback for draws
   proscene.addDrawHandler(this, "mainDrawing");
   // disable keyboard action: we will handle it ourselves
@@ -60,10 +60,27 @@ void setup() {
   worldRatio = 0.01;
   // halve text size
   zoomFactor = 0.5;
-  universe = new textUniverse(this, this.g, proscene, textFrame, worldRatio, zoomFactor, "data.json");
+  universe = new textUniverse(this, scene, proscene, textFrame, worldRatio, zoomFactor, "data.json");
+}
+
+// apply head transformation to frame (both from oculus and keyboard)
+void updateReferenceFrame() {
+  // retrieve headset orientation
+  float[] orien = oculus.sensorOrientation();
+
+  // apparently it's not truely euler angles, use same method as in source to get matrix
+  // apply on the fly correct hand and keyboard transform
+  //  PMatrix3D pmat = new PMatrix3D();
+  // pmat.rotateY(orientation.x +  rotateLookY);
+  // pmat.rotateX(-orientation.y + rotateLookX);
+  // pmat.rotateZ(-orientation.z);
+
+  // convert to proscene format and apply
+  textFrame.setRotation(new Quat(orien[0], -orien[1], orien[2], orien[3]));
 }
 
 void draw() {
+  updateReferenceFrame();
   oculus.draw();
 
   // adapt mouse movement to buffer size and pass info
