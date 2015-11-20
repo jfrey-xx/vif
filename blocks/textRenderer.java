@@ -169,7 +169,8 @@ public class textRenderer {
   }
 
   private void textDrawRegular(RGroup group) {
-    group.toShape().draw(pg);
+    // polygonize instead of direct draw of shape: uglier but faster
+    RG.polygonize(group.toShape()).draw(pg);
   }
 
   private void textDrawEmphasis(RGroup group) {
