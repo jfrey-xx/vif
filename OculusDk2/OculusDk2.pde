@@ -60,7 +60,7 @@ void setup() {
   // world ratio
   worldRatio = 0.01;
   // halve text size
-  zoomFactor = 0.5;
+  zoomFactor = 0.2;
   universe = new textUniverse(this, scene, proscene, textFrame, worldRatio, zoomFactor, "data.json");
 
   // reinit orientation
