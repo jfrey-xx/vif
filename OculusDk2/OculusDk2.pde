@@ -31,6 +31,9 @@ PVector positionFPS = new PVector(0, 0, -5);
 float rotateLookX;
 float rotateLookY;
 
+// correction for neutral head position
+Quat headCorrection = new Quat();
+
 // for interaction, will adapt mouse position to VR
 float cursorX = 0;
 float cursorY = 0;
@@ -62,6 +65,9 @@ void setup() {
   // halve text size
   zoomFactor = 0.5;
   universe = new textUniverse(this, scene, proscene, textFrame, worldRatio, zoomFactor, "data.json");
+
+  // reinit orientation
+  resetHeadState();
 }
 
 // apply head transformation to frame (both from oculus and keyboard)
@@ -70,13 +76,15 @@ void updateReferenceFrame() {
   float[] orien = oculus.sensorOrientation();
   Quat qorien = new Quat(orien[0], -orien[1], orien[2], orien[3]);
 
+  // may reset orientation
+  qorien.multiply(headCorrection);
+
   // two-step corretion for key board input
   Quat look = new Quat();
   look.fromEulerAngles(rotateLookY, 0, 0);
   qorien.multiply(look);
   look.fromEulerAngles(0, -rotateLookX, 0);
   qorien.multiply(look);
-
 
   textFrame.setRotation(qorien);
 }
@@ -126,14 +134,19 @@ public void mainDrawing(Scene s) {
 
   // nice HUD for cursor indication
   drawHud(s);
+
+  if (keyPressed) {
+    processKeyboard();
+  }
 }
 
-
-
-void keyPressed() {
+// set orientation
+// NB: used instead of  keyPressed() to handle repetition
+void processKeyboard() {
   // Reset head state
   if (key==' ') {
-    // oculus.resetHeadState();
+    resetHeadState();
+    println("reset");
   }
 
   // Move
@@ -151,6 +164,11 @@ void keyPressed() {
   }
 } 
 
+// Update head correction to reset head position
+void resetHeadState() {
+  float[] orien = oculus.sensorOrientation();
+  headCorrection = new Quat(orien[0], -orien[1], orien[2], orien[3]).inverse();
+}
 
 // cue for cursor
 // FIXME: will break with scene manipulation. should use plane equation a projected line

@@ -46,20 +46,6 @@
  https://social.msdn.microsoft.com/Forums/en-US/ec92a231-2dbf-4f3e-b7f5-0a4d9ea4cae2 
  */
 
-//import com.oculusvr.capi.EyeRenderDesc;
-//import com.oculusvr.capi.FovPort;
-//import com.oculusvr.capi.GLTexture;
-//import com.oculusvr.capi.Hmd;
-//import com.oculusvr.capi.OvrLibrary;
-//import com.oculusvr.capi.OvrLibrary.ovrHmdCaps;
-//import com.oculusvr.capi.OvrVector2i;
-//import com.oculusvr.capi.OvrVector3f;
-//import com.oculusvr.capi.Posef;
-//import com.oculusvr.capi.RenderAPIConfig;
-
-
-
-
 import com.oculusvr.capi.Hmd;
 import com.oculusvr.capi.OvrQuaternionf;
 import com.oculusvr.capi.OvrVector3f;
@@ -196,15 +182,10 @@ class OculusRift {
     _parent.imageMode(imageMode);
   }
 
-
-  // -------------------------------------------------------------
-  // Private
-
   public float[] sensorOrientation() {
     float[] orien = new float[4];
     if (hmd != null) {
       TrackingState sensorState = hmd.getSensorState(Hmd.getTimeInSeconds());
-      // OvrVector3f pos = sensorState.HeadPose.Pose.Position;
       OvrQuaternionf quat = sensorState.HeadPose.Pose.Orientation;
       orien[0] = quat.x;
       orien[1] = quat.y;
@@ -213,6 +194,9 @@ class OculusRift {
     }
     return orien;
   }  
+
+  // -------------------------------------------------------------
+  // Private
 
   private void runOnDrawSceneMethod(int eye) {
     try {
