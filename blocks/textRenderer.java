@@ -225,7 +225,7 @@ public class textRenderer {
   private boolean textAnimShadow(RGroup group, float ratio) {
     float c = parent.lerp(255, 0, ratio);
     pg.fill(7, 54, 66, (255-c) * getFade());
-    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight(), fontSize/2);
+    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight(), fontSize/4);
     return false;
   }
 
