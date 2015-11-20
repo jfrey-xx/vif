@@ -28,7 +28,8 @@ float worldRatio, zoomFactor;
 PVector positionFPS = new PVector(0, 0, -5);
 
 // user's orientation
-PVector position = new PVector(0, 0);
+float rotateLookX;
+float rotateLookY;
 
 // for interaction, will adapt mouse position to VR
 float cursorX = 0;
@@ -65,18 +66,19 @@ void setup() {
 
 // apply head transformation to frame (both from oculus and keyboard)
 void updateReferenceFrame() {
-  // retrieve headset orientation
+  // retrieve headset orientation, new quaternion out of it
   float[] orien = oculus.sensorOrientation();
+  Quat qorien = new Quat(orien[0], -orien[1], orien[2], orien[3]);
 
-  // apparently it's not truely euler angles, use same method as in source to get matrix
-  // apply on the fly correct hand and keyboard transform
-  //  PMatrix3D pmat = new PMatrix3D();
-  // pmat.rotateY(orientation.x +  rotateLookY);
-  // pmat.rotateX(-orientation.y + rotateLookX);
-  // pmat.rotateZ(-orientation.z);
+  // two-step corretion for key board input
+  Quat look = new Quat();
+  look.fromEulerAngles(rotateLookY, 0, 0);
+  qorien.multiply(look);
+  look.fromEulerAngles(0, -rotateLookX, 0);
+  qorien.multiply(look);
 
-  // convert to proscene format and apply
-  textFrame.setRotation(new Quat(orien[0], -orien[1], orien[2], orien[3]));
+
+  textFrame.setRotation(qorien);
 }
 
 void draw() {
@@ -136,16 +138,16 @@ void keyPressed() {
 
   // Move
   if (keyCode==LEFT) {
-    position.x += 20;
+    rotateLookX += 0.1;
   }
   if (keyCode==RIGHT) {
-    position.x -= 20;
+    rotateLookX -= 0.1;
   }
   if (keyCode==UP) {
-    position.z += 20;
+    rotateLookY += 0.1;
   }
   if (keyCode==DOWN) {
-    position.z -= 20;
+    rotateLookY -= 0.1;
   }
 } 
 
