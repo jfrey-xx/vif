@@ -1,6 +1,4 @@
 
-OculusRift oculus;
-
 import geomerative.*;
 import remixlab.proscene.*;
 import remixlab.dandelion.core.*; // eg for Frame
@@ -10,9 +8,8 @@ import remixlab.dandelion.geom.*; // eg for Vec
 import edu.ucsd.sccn.LSL;
 import AULib.*;
 
-//boolean sketchFullScreen() {
-//  return isFullScreen;
-//}
+// handler for dk2 orientation and for drawing
+OculusRift oculus;
 
 // main scene, look control by keyboard
 Scene proscene;
@@ -146,7 +143,7 @@ void processKeyboard() {
   // Reset head state
   if (key==' ') {
     resetHeadState();
-    println("reset");
+    println("reset head orientation");
   }
 
   // Move
@@ -177,7 +174,7 @@ void drawHud(Scene s) {
   PGraphics pg = s.pg();
 
   // virtual sreen posisition in world unit
-  float worldZ = -4.9;
+  float worldZ = -4;
   // confert unit to coeff between eye planes (cf proscene doc)
   float screenZ =  c.zFar() / (c.zFar() - c.zNear()) * (1.0f - c.zNear() / (-worldZ));
   // get virtual srceen coordinates
@@ -187,28 +184,19 @@ void drawHud(Scene s) {
   Vec topLeftEye = c.unprojectedCoordinatesOf(topLeftScreen);
   Vec bottomRightEye = c.unprojectedCoordinatesOf(bottomRightScreen);
 
-  // println("topLeftScreen:", topLeftScreen, "topLeftEye:", topLeftEye, "bottomRightScreen:", bottomRightScreen, "bottomRightEye", bottomRightEye);
-
   // virtual screen size
   float hudWidth = bottomRightEye.x() - topLeftEye.x();
   float hudHeight = bottomRightEye.y() - topLeftEye.y();
   float hudThickness = 0.01;
   // virtual cursor size
-  float cursorSize =  hudWidth*0.05; // ratio of virtual screen width
+  float cursorSize =  hudWidth*0.01; // ratio of virtual screen width
   float virtualCursorX = topLeftEye.x() + hudWidth * cursorX / c.screenWidth();
   float virtualCursorY = topLeftEye.y() + hudHeight * cursorY / c.screenHeight();
   // make thigs very right, adapt z do scene transformations (eg with mouse)
   float virtualCursorZ =  c.unprojectedCoordinatesOf(new Vec(cursorX, cursorY, screenZ)).z();
 
-
   pg.pushStyle();
-  pg.fill(0, 0, 128, 5);
-
-  // virtual srceen in center
-  // pg.pushMatrix();
-  // pg.translate(0, 0, topLeftEye.z());
-  // pg.box(hudWidth, hudHeight, hudThickness);
-  // pg.popMatrix();
+  pg.fill(200, 200);
 
   // virtual cursor
   pg.pushMatrix();
