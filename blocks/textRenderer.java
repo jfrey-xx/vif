@@ -114,6 +114,9 @@ public class textRenderer {
     textAnim anim = chunk.anim;
     float selectedRatio = chunk.selectedRatio();
 
+    // small hack to decide whether "links", that could be animated, should go through "type" rendere
+    boolean animOverType = false;
+
     // for anim
     pg.pushStyle();
     pg.pushMatrix();
@@ -126,15 +129,15 @@ public class textRenderer {
 
       switch(anim) {
       case SHADOW:
-        textAnimShadow(group, selectedRatio);
+        animOverType = textAnimShadow(group, selectedRatio);
         break;
       case HEART:
-        textAnimHeart(group, selectedRatio);
+        animOverType = textAnimHeart(group, selectedRatio);
         break;
         // nothing particular otherwise
       case NONE:
       default:
-        textAnimNone(group, selectedRatio);
+        animOverType = textAnimNone(group, selectedRatio);
         break;
       }
     }
@@ -146,19 +149,24 @@ public class textRenderer {
     // text slightly in front to avoid z-buffer problem
     pg.translate(0, 0, fontSize/100);
 
-    switch (type) {
-    case EMPHASIS:
-      textDrawEmphasis(group);
-      break;
-    case LINK:
-      textDrawShake(group);
-      break;
-    case STRONG:
-      textDrawBeat(group);
-      break;
-    default:
+    // bother with types only if animation says so
+    if (animOverType) {
       textDrawRegular(group);
-      break;
+    } else {
+      switch (type) {
+      case EMPHASIS:
+        textDrawEmphasis(group);
+        break;
+      case LINK:
+        textDrawLink(group);
+        break;
+      case STRONG:
+        textDrawStrong(group);
+        break;
+      default:
+        textDrawRegular(group);
+        break;
+      }
     }
     // draw
     pg.popMatrix();
@@ -169,7 +177,8 @@ public class textRenderer {
   }
 
   private void textDrawRegular(RGroup group) {
-    group.toShape().draw(pg);
+    // polygonize instead of direct draw of shape: uglier but faster
+    RG.polygonize(group.toShape()).draw(pg);
   }
 
   private void textDrawEmphasis(RGroup group) {
@@ -181,7 +190,7 @@ public class textRenderer {
     }
   }
 
-  private void textDrawShake(RGroup group) {
+  private void textDrawLink(RGroup group) {
     RGroup groupPoly = group.toPolygonGroup();
     RPoint[] points = groupPoly.getPoints();
     pg.fill(220, 50, 47, getFade()*255);
@@ -192,10 +201,10 @@ public class textRenderer {
     }
   }
 
-  private void textDrawBeat(RGroup group) {
+  private void textDrawStrong(RGroup group) {
     pg.translate(0, 0, fontSize/2);
 
-    // beat and fade
+    // shacky
     float noise = parent.random((float)0.1);
 
     // scale from center
@@ -213,23 +222,31 @@ public class textRenderer {
 
   // shadow get darker for picking
   // ratio: between 0 and 1
-  private void textAnimShadow(RGroup group, float ratio) {
+  private boolean textAnimShadow(RGroup group, float ratio) {
     float c = parent.lerp(255, 0, ratio);
     pg.fill(7, 54, 66, (255-c) * getFade());
-    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight());
+    pg.rect(group.getTopLeft().x, group.getTopLeft().y, group.getWidth(), group.getHeight(), fontSize/4);
+    return false;
   }
 
   // bump for heart
   // ratio: between 0 and 1
-  private void textAnimHeart(RGroup group, float ratio) {
+  private boolean textAnimHeart(RGroup group, float ratio) {
     // scale from center
+    pg.translate(0, 0, fontSize*ratio);
     pg.translate(group.getCenter().x, group.getCenter().y);
     pg.scale(1+ratio);
     pg.translate(-group.getCenter().x, -group.getCenter().y);
+    // base toward red
+    float red = parent.lerp(parent.red(pg.fillColor), 255, ratio);
+    // TODO: fetch actual fill value
+    pg.fill(red, parent.green(pg.fillColor), parent.blue(pg.fillColor));
+    return true;
   }
 
   // do nothing for none...
-  private void textAnimNone(RGroup group, float ratio) {
+  private boolean textAnimNone(RGroup group, float ratio) {
+    return false;
   }
 }
 

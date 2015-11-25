@@ -112,6 +112,7 @@ class textArea {
       frame.setRotation(theLook);
     } 
     // relative, rotation in world coordinates
+    // NB: could use frame.orientation.().eulerAngles() to cancel out yaw
     else {
       frame.setOrientation(theLook);
     }

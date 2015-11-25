@@ -51,8 +51,8 @@ void setup() {
 
 // apply head transformation from keyboard)
 void updateReferenceFrame() {
-  Quat head = new Quat(rotateLookX, 0, 0);
-  head.compose(new Quat(0, rotateLookY, 0));
+  Quat head = new Quat(-rotateLookX, 0, 0);
+  head.compose(new Quat(0, -rotateLookY, 0));
   mainFrame.setRotation(head);
 }
 

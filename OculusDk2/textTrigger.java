@@ -1,0 +1,1 @@
+../blocks/textTrigger.java
