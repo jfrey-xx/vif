@@ -1,5 +1,7 @@
 
-Processing libraries:
+See website: https://jfrey-xx.github.io/vif
+
+Required Processing libraries:
 
 - proscene v22 (2.0.5)
 - geomerative v40
